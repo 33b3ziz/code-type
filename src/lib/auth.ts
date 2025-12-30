@@ -46,7 +46,7 @@ export interface LoginInput {
  * Register a new user
  */
 export const registerFn = createServerFn({ method: 'POST' })
-  .validator((data: RegisterInput) => data)
+  .inputValidator((data: RegisterInput) => data)
   .handler(async ({ data }): Promise<AuthResult> => {
     const { email, username, password } = data
 
@@ -120,7 +120,7 @@ export const registerFn = createServerFn({ method: 'POST' })
  * Login an existing user
  */
 export const loginFn = createServerFn({ method: 'POST' })
-  .validator((data: LoginInput) => data)
+  .inputValidator((data: LoginInput) => data)
   .handler(async ({ data }): Promise<AuthResult> => {
     const { emailOrUsername, password } = data
 
