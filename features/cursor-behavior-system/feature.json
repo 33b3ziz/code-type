@@ -1,0 +1,14 @@
+{
+  "id": "cursor-behavior-system",
+  "category": "Core",
+  "title": "VS Code-Like Cursor Behavior",
+  "description": "Implement cursor positioning and movement behavior that matches VS Code: proper cursor position tracking, multi-line navigation, and visual cursor indicator synchronized with input.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "typing-test-component"
+  ],
+  "createdAt": "2025-12-29T10:34:07.046Z",
+  "updatedAt": "2025-12-29T10:34:07.046Z"
+}

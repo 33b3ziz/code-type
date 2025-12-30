@@ -1,0 +1,15 @@
+{
+  "id": "weakness-identification",
+  "category": "Core",
+  "title": "User Weakness Analysis",
+  "description": "Analyze test history to identify user's slowest characters, symbols, keywords, and code patterns. Provide actionable insights about areas needing improvement based on aggregate performance data.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "error-heatmap-generation",
+    "per-language-statistics"
+  ],
+  "createdAt": "2025-12-29T10:34:07.043Z",
+  "updatedAt": "2025-12-29T10:34:07.043Z"
+}

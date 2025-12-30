@@ -1,0 +1,14 @@
+{
+  "id": "leaderboard-api",
+  "category": "API",
+  "title": "Leaderboard Data Endpoints",
+  "description": "Create API endpoints that return ranked user lists filtered by timeframe (daily, weekly, all-time), language, and difficulty. Calculate and cache rankings efficiently for performance.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "test-results-storage"
+  ],
+  "createdAt": "2025-12-29T10:34:07.043Z",
+  "updatedAt": "2025-12-29T10:34:07.043Z"
+}

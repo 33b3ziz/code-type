@@ -1,0 +1,16 @@
+{
+  "id": "home-page-component",
+  "category": "UI",
+  "title": "Application Home Page",
+  "description": "Create a landing/home page with quick-start buttons for different test types, featured statistics, user's recent activity, and navigation to all main features.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "user-auth-system"
+  ],
+  "createdAt": "2025-12-29T10:34:07.046Z",
+  "updatedAt": "2025-12-29T19:43:30.966Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T19:21:05.339Z"
+}

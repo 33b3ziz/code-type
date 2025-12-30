@@ -1,0 +1,14 @@
+{
+  "id": "backspace-handling",
+  "category": "Core",
+  "title": "Backspace Key Behavior",
+  "description": "Implement backspace handling with optional penalty configuration. Allow deletion of typed characters and optionally track backspace usage for penalties or achievements.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "typing-test-component"
+  ],
+  "createdAt": "2025-12-29T10:34:07.045Z",
+  "updatedAt": "2025-12-29T10:34:07.045Z"
+}

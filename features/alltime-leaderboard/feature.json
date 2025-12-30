@@ -1,0 +1,14 @@
+{
+  "id": "alltime-leaderboard",
+  "category": "Core",
+  "title": "All-Time Leaderboard Rankings",
+  "description": "Implement all-time leaderboard that never resets and shows cumulative best performance across all time. Track users' personal records for each language/difficulty combination.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "leaderboard-api"
+  ],
+  "createdAt": "2025-12-29T10:34:07.044Z",
+  "updatedAt": "2025-12-29T10:34:07.044Z"
+}

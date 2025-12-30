@@ -1,0 +1,14 @@
+{
+  "id": "test-difficulty-recommendations",
+  "category": "Core",
+  "title": "AI-Powered Difficulty Recommendations",
+  "description": "Analyze user performance history to recommend appropriate difficulty levels based on accuracy and WPM. Suggest difficulty adjustments to optimize practice experience.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "moderate",
+  "dependencies": [
+    "weakness-identification"
+  ],
+  "createdAt": "2025-12-29T10:34:07.048Z",
+  "updatedAt": "2025-12-29T10:34:07.048Z"
+}

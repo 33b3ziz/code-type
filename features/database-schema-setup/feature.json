@@ -1,0 +1,14 @@
+{
+  "id": "database-schema-setup",
+  "category": "Database",
+  "title": "PostgreSQL Database Schema",
+  "description": "Create the core PostgreSQL schema using Drizzle ORM with tables for users, code snippets, user test results, achievements, and leaderboard data. This is the foundation for all data persistence.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2025-12-29T10:34:07.038Z",
+  "updatedAt": "2025-12-29T11:04:46.283Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T10:37:54.594Z"
+}

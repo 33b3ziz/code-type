@@ -1,0 +1,14 @@
+{
+  "id": "wpm-calculation-engine",
+  "category": "Core",
+  "title": "Programming WPM Formula",
+  "description": "Implement the custom Programming WPM formula that assigns higher weights to keywords, applies penalties for symbol errors, and optionally ignores whitespace. Make weights configurable for experimentation.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "basic-performance-calculator"
+  ],
+  "createdAt": "2025-12-29T10:34:07.041Z",
+  "updatedAt": "2025-12-29T10:34:07.041Z"
+}

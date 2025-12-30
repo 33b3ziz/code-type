@@ -1,0 +1,14 @@
+{
+  "id": "test-results-summary-screen",
+  "category": "UI",
+  "title": "Test Results Summary Screen",
+  "description": "Display comprehensive results after test completion including WPM, accuracy, symbol accuracy, keyword accuracy, errors, and comparisons to personal bests or averages.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "test-completion-handler"
+  ],
+  "createdAt": "2025-12-29T10:34:07.046Z",
+  "updatedAt": "2025-12-29T10:34:07.046Z"
+}

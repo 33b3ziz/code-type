@@ -1,0 +1,15 @@
+{
+  "id": "user-profile-page",
+  "category": "UI",
+  "title": "User Profile Dashboard",
+  "description": "Create a user profile page displaying overall statistics, typing history, per-language performance breakdown, and links to detailed analytics. Serve as a hub for user data and progress tracking.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "user-auth-system",
+    "test-results-storage"
+  ],
+  "createdAt": "2025-12-29T10:34:07.042Z",
+  "updatedAt": "2025-12-29T10:34:07.042Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "typing-history-component",
+  "category": "UI",
+  "title": "Typing Test History",
+  "description": "Display a paginated or scrollable list of user's past typing tests with date, language, difficulty, WPM, and accuracy. Allow users to click on individual tests to view detailed results.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "user-profile-page"
+  ],
+  "createdAt": "2025-12-29T10:34:07.042Z",
+  "updatedAt": "2025-12-29T10:34:07.042Z"
+}

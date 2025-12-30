@@ -1,0 +1,15 @@
+{
+  "id": "no-backspace-achievement",
+  "category": "Core",
+  "title": "No Backspace Run Achievement",
+  "description": "Implement logic to detect and award achievement when user completes a test without using backspace. Requires tracking backspace usage throughout the typing test.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "achievement-definition-system",
+    "test-completion-handler"
+  ],
+  "createdAt": "2025-12-29T10:34:07.044Z",
+  "updatedAt": "2025-12-29T10:34:07.044Z"
+}

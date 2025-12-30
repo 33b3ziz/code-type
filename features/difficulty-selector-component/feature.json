@@ -1,0 +1,14 @@
+{
+  "id": "difficulty-selector-component",
+  "category": "UI",
+  "title": "Difficulty Mode Selector",
+  "description": "Create a UI component allowing users to select difficulty levels: Beginner, Intermediate, Advanced, and Hardcore. Pass selected difficulty to the snippet filtering system.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [],
+  "createdAt": "2025-12-29T10:34:07.040Z",
+  "updatedAt": "2025-12-29T11:04:33.315Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T10:37:54.894Z"
+}

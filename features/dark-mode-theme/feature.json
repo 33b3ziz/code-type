@@ -1,0 +1,16 @@
+{
+  "id": "dark-mode-theme",
+  "category": "UI",
+  "title": "Dark Mode Theme",
+  "description": "Implement a dark theme option for CodeType with proper contrast for readability. Store theme preference in user settings and apply consistently across all pages.",
+  "status": "verified",
+  "priority": 3,
+  "complexity": "moderate",
+  "dependencies": [
+    "user-settings-page"
+  ],
+  "createdAt": "2025-12-29T10:34:07.047Z",
+  "updatedAt": "2025-12-30T01:44:05.114Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T20:17:15.044Z"
+}

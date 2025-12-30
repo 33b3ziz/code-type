@@ -1,0 +1,17 @@
+{
+  "id": "snippet-difficulty-filter",
+  "category": "Core",
+  "title": "Difficulty-Based Snippet Filtering",
+  "description": "Implement filtering logic to return only code snippets matching the user's selected difficulty level. Support combining difficulty filters with other criteria like language and category.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "snippet-api-routes",
+    "difficulty-selector-component"
+  ],
+  "createdAt": "2025-12-29T10:34:07.040Z",
+  "updatedAt": "2025-12-30T04:01:03.132Z",
+  "branchName": "main",
+  "startedAt": "2025-12-30T03:51:05.356Z"
+}

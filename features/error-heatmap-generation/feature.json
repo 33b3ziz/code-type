@@ -1,0 +1,14 @@
+{
+  "id": "error-heatmap-generation",
+  "category": "Core",
+  "title": "Error Heatmap Analysis",
+  "description": "Generate a visual heatmap showing which characters or keys slow down users or cause errors most frequently. Identify weakness patterns to help users focus on problematic areas.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "character-validation-system"
+  ],
+  "createdAt": "2025-12-29T10:34:07.041Z",
+  "updatedAt": "2025-12-29T10:34:07.041Z"
+}

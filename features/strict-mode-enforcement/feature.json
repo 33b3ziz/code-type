@@ -1,0 +1,14 @@
+{
+  "id": "strict-mode-enforcement",
+  "category": "Core",
+  "title": "Strict Mode Test Enforcement",
+  "description": "Implement strict mode where a single mistake immediately fails the test. Provide this as a difficulty modifier to increase challenge for advanced users.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "test-completion-handler"
+  ],
+  "createdAt": "2025-12-29T10:34:07.045Z",
+  "updatedAt": "2025-12-29T10:34:07.045Z"
+}

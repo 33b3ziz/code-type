@@ -1,0 +1,14 @@
+{
+  "id": "keyword-accuracy-tracking",
+  "category": "Core",
+  "title": "Keyword Accuracy Metrics",
+  "description": "Track accuracy separately for programming keywords (e.g., function, return, const) versus regular characters. Provide keyword-specific accuracy percentages in results.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "basic-performance-calculator"
+  ],
+  "createdAt": "2025-12-29T10:34:07.041Z",
+  "updatedAt": "2025-12-29T10:34:07.041Z"
+}

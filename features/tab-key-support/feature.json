@@ -1,0 +1,14 @@
+{
+  "id": "tab-key-support",
+  "category": "Core",
+  "title": "Tab Key Support",
+  "description": "Enable tab key functionality to insert spaces/tabs for indentation instead of switching focus. Support both spaces and tab character insertion based on configuration.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "typing-test-component"
+  ],
+  "createdAt": "2025-12-29T10:34:07.045Z",
+  "updatedAt": "2025-12-29T10:34:07.045Z"
+}

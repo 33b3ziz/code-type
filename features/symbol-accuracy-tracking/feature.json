@@ -1,0 +1,14 @@
+{
+  "id": "symbol-accuracy-tracking",
+  "category": "Core",
+  "title": "Symbol Accuracy Metrics",
+  "description": "Track accuracy specifically for code symbols like {}, [], =>, !=== separately from letters. Highlight symbol accuracy as a distinct metric to help users focus on operator typing precision.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "basic-performance-calculator"
+  ],
+  "createdAt": "2025-12-29T10:34:07.041Z",
+  "updatedAt": "2025-12-29T10:34:07.041Z"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "achievement-badge-display",
+  "category": "UI",
+  "title": "Achievement Badge Display",
+  "description": "Create UI components to display earned achievement badges on user profiles and in test results. Show badge icons, names, and unlock dates for each achievement.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "achievement-tracking-storage"
+  ],
+  "createdAt": "2025-12-29T10:34:07.044Z",
+  "updatedAt": "2025-12-29T19:36:00.675Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T19:21:08.340Z"
+}

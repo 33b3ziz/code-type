@@ -1,0 +1,15 @@
+{
+  "id": "test-completion-handler",
+  "category": "Core",
+  "title": "Test Completion & Results",
+  "description": "Handle test completion logic when user finishes typing or time expires. Calculate final metrics and store test results in the database for future analysis.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "timer-system",
+    "basic-performance-calculator"
+  ],
+  "createdAt": "2025-12-29T10:34:07.040Z",
+  "updatedAt": "2025-12-29T10:34:07.040Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "daily-leaderboard",
+  "category": "Core",
+  "title": "Daily Leaderboard Rankings",
+  "description": "Implement daily leaderboard logic that resets rankings each day at midnight UTC. Track users' best WPM per language/difficulty combination within the current day.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "leaderboard-api"
+  ],
+  "createdAt": "2025-12-29T10:34:07.043Z",
+  "updatedAt": "2025-12-29T10:34:07.043Z"
+}

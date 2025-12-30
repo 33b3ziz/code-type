@@ -1,0 +1,14 @@
+{
+  "id": "basic-performance-calculator",
+  "category": "Core",
+  "title": "Basic Performance Metrics",
+  "description": "Calculate fundamental typing metrics: Words Per Minute (WPM), accuracy percentage, and total characters typed/correct. These metrics form the basis for all performance tracking.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "character-validation-system"
+  ],
+  "createdAt": "2025-12-29T10:34:07.039Z",
+  "updatedAt": "2025-12-29T10:34:07.039Z"
+}

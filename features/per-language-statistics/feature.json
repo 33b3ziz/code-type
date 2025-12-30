@@ -1,0 +1,14 @@
+{
+  "id": "per-language-statistics",
+  "category": "Core",
+  "title": "Language-Specific Statistics",
+  "description": "Calculate and display separate statistics for each programming language: average WPM, accuracy, total tests, and performance trends. Help users identify which languages they're strongest in.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "test-results-storage"
+  ],
+  "createdAt": "2025-12-29T10:34:07.042Z",
+  "updatedAt": "2025-12-29T10:34:07.042Z"
+}

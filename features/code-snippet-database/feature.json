@@ -1,0 +1,16 @@
+{
+  "id": "code-snippet-database",
+  "category": "Database",
+  "title": "Code Snippet Collection",
+  "description": "Populate the database with curated code snippets across JavaScript, TypeScript, and Python, categorized by type (functions, loops, conditionals, React components) and difficulty level (Beginner through Hardcore).",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "database-schema-setup"
+  ],
+  "createdAt": "2025-12-29T10:34:07.038Z",
+  "updatedAt": "2025-12-29T11:17:54.671Z",
+  "branchName": "main",
+  "startedAt": "2025-12-29T11:04:48.665Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "character-validation-system",
+  "category": "Core",
+  "title": "Real-Time Character Validation",
+  "description": "Implement character-by-character validation logic that compares user input against the expected code snippet. Track which characters are correct or incorrect without auto-correction.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "typing-test-component"
+  ],
+  "createdAt": "2025-12-29T10:34:07.039Z",
+  "updatedAt": "2025-12-29T10:34:07.039Z"
+}

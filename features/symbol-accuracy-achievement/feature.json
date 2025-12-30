@@ -1,0 +1,15 @@
+{
+  "id": "symbol-accuracy-achievement",
+  "category": "Core",
+  "title": "Perfect Symbol Accuracy Achievement",
+  "description": "Award achievement when user achieves 100% accuracy specifically on code symbols during a test. Requires tracking symbol accuracy separately.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "simple",
+  "dependencies": [
+    "achievement-definition-system",
+    "symbol-accuracy-tracking"
+  ],
+  "createdAt": "2025-12-29T10:34:07.044Z",
+  "updatedAt": "2025-12-29T10:34:07.044Z"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "syntax-highlighting-engine",
+  "category": "Core",
+  "title": "Code Syntax Highlighting",
+  "description": "Implement syntax highlighting for JavaScript, TypeScript, and Python code snippets. Display color-coded keywords, operators, strings, and comments for better code readability in the typing test.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "typing-test-component",
+    "monospace-font-setup"
+  ],
+  "createdAt": "2025-12-29T10:34:07.039Z",
+  "updatedAt": "2025-12-29T10:34:07.039Z"
+}
