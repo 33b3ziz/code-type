@@ -29,10 +29,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'CodeType - Code Typing Practice',
       },
     ],
     links: [
+      // Preconnect to Google Fonts for faster font loading
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.googleapis.com',
+      },
+      {
+        rel: 'preconnect',
+        href: 'https://fonts.gstatic.com',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'stylesheet',
         href: appCss,
