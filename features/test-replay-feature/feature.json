@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Test Replay Functionality",
   "description": "Allow users to replay previous typing tests by selecting from their history. Re-generate the same snippet and allow users to retry and compare performance.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 3,
   "complexity": "moderate",
   "dependencies": [
