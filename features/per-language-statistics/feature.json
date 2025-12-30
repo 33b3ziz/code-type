@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Language-Specific Statistics",
   "description": "Calculate and display separate statistics for each programming language: average WPM, accuracy, total tests, and performance trends. Help users identify which languages they're strongest in.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [

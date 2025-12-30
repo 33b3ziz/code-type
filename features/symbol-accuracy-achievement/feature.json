@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Perfect Symbol Accuracy Achievement",
   "description": "Award achievement when user achieves 100% accuracy specifically on code symbols during a test. Requires tracking symbol accuracy separately.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [
