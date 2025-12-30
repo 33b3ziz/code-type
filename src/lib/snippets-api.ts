@@ -1,11 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq, and, sql, count, gte, lte } from 'drizzle-orm'
+import { and, count, eq, sql } from 'drizzle-orm'
+import type {Difficulty, Language, SnippetCategory} from '@/db/schema';
 import { db } from '@/db'
-import { snippets, type Language, type Difficulty, type SnippetCategory } from '@/db/schema'
+import {    snippets } from '@/db/schema'
 
 // Types for API responses
 export interface SnippetResponse {
-  id: string
+  id: number
   title: string
   code: string
   language: Language
@@ -15,7 +16,7 @@ export interface SnippetResponse {
 }
 
 export interface PaginatedSnippetsResponse {
-  snippets: SnippetResponse[]
+  snippets: Array<SnippetResponse>
   total: number
   page: number
   pageSize: number
@@ -43,7 +44,7 @@ export const getRandomSnippetFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<SnippetResponse | null> => {
     const conditions = buildFilterConditions(data)
 
-    const [snippet] = await db
+    const results = await db
       .select({
         id: snippets.id,
         title: snippets.title,
@@ -58,7 +59,7 @@ export const getRandomSnippetFn = createServerFn({ method: 'GET' })
       .orderBy(sql`RANDOM()`)
       .limit(1)
 
-    return snippet ?? null
+    return results[0] ?? null
   })
 
 /**
@@ -72,12 +73,12 @@ export const getSnippetsFn = createServerFn({ method: 'GET' })
     const conditions = buildFilterConditions(filters)
 
     // Get total count
-    const [countResult] = await db
+    const countResults = await db
       .select({ total: count() })
       .from(snippets)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
 
-    const total = countResult?.total ?? 0
+    const total = countResults[0]?.total ?? 0
 
     // Get paginated snippets
     const results = await db
@@ -109,9 +110,9 @@ export const getSnippetsFn = createServerFn({ method: 'GET' })
  * Get a specific snippet by ID
  */
 export const getSnippetByIdFn = createServerFn({ method: 'GET' })
-  .inputValidator((id: string) => id)
+  .inputValidator((id: number) => id)
   .handler(async ({ data: id }): Promise<SnippetResponse | null> => {
-    const [snippet] = await db
+    const snippetResults = await db
       .select({
         id: snippets.id,
         title: snippets.title,
@@ -125,7 +126,7 @@ export const getSnippetByIdFn = createServerFn({ method: 'GET' })
       .where(eq(snippets.id, id))
       .limit(1)
 
-    return snippet ?? null
+    return snippetResults[0] ?? null
   })
 
 /**
@@ -162,12 +163,16 @@ export const getSnippetFilterOptionsFn = createServerFn({
     .groupBy(snippets.category)
 
   // Get code length range
-  const [lengthStats] = await db
+  const lengthStatsResults = await db
     .select({
       minLength: sql<number>`MIN(LENGTH(${snippets.content}))`,
       maxLength: sql<number>`MAX(LENGTH(${snippets.content}))`,
     })
     .from(snippets)
+
+  const lengthStats = lengthStatsResults[0] as { minLength: number; maxLength: number } | undefined
+  const minLength = lengthStats ? lengthStats.minLength : 0
+  const maxLength = lengthStats ? lengthStats.maxLength : 1000
 
   return {
     languages: languageCounts.map((l) => ({
@@ -183,8 +188,8 @@ export const getSnippetFilterOptionsFn = createServerFn({
       count: c.count,
     })),
     lengthRange: {
-      min: lengthStats?.minLength ?? 0,
-      max: lengthStats?.maxLength ?? 1000,
+      min: minLength,
+      max: maxLength,
     },
   }
 })
@@ -194,7 +199,7 @@ export const getSnippetFilterOptionsFn = createServerFn({
  */
 export const getRandomSnippetsFn = createServerFn({ method: 'GET' })
   .inputValidator((data: SnippetFilters & { count?: number }) => data)
-  .handler(async ({ data }): Promise<SnippetResponse[]> => {
+  .handler(async ({ data }): Promise<Array<SnippetResponse>> => {
     const { count: snippetCount = 5, ...filters } = data
     const conditions = buildFilterConditions(filters)
 

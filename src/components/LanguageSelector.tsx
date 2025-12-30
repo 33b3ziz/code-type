@@ -1,3 +1,4 @@
+import type { Language } from '@/db/schema'
 import {
   Select,
   SelectContent,
@@ -6,14 +7,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import type { Language } from '@/db/schema'
 
-const LANGUAGE_OPTIONS: {
+const LANGUAGE_OPTIONS: Array<{
   value: Language | 'all'
   label: string
   description: string
   icon: string
-}[] = [
+}> = [
   {
     value: 'all',
     label: 'All Languages',

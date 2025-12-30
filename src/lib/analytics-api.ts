@@ -3,7 +3,7 @@
  * Functions for calculating user analytics, trends, and per-language statistics
  */
 
-import type { TestResult, Language, Difficulty } from '@/db/schema'
+import type { Difficulty, Language, TestResult } from '@/db/schema'
 
 export interface TrendPoint {
   date: string // ISO date string (YYYY-MM-DD)
@@ -12,9 +12,9 @@ export interface TrendPoint {
 }
 
 export interface AccuracyTrend {
-  daily: TrendPoint[]
-  weekly: TrendPoint[]
-  monthly: TrendPoint[]
+  daily: Array<TrendPoint>
+  weekly: Array<TrendPoint>
+  monthly: Array<TrendPoint>
   overall: {
     current: number
     previous: number
@@ -24,9 +24,9 @@ export interface AccuracyTrend {
 }
 
 export interface WPMTrend {
-  daily: TrendPoint[]
-  weekly: TrendPoint[]
-  monthly: TrendPoint[]
+  daily: Array<TrendPoint>
+  weekly: Array<TrendPoint>
+  monthly: Array<TrendPoint>
   overall: {
     current: number
     previous: number
@@ -49,7 +49,7 @@ export interface LanguageStats {
 }
 
 export interface LanguageBreakdown {
-  languages: LanguageStats[]
+  languages: Array<LanguageStats>
   strongest: Language | null
   needsWork: Language | null
   mostPracticed: Language | null
@@ -74,10 +74,10 @@ export interface WeaknessArea {
 /**
  * Get results from localStorage
  */
-function getResults(userId: string): TestResult[] {
+function getResults(userId: string): Array<TestResult> {
   if (typeof window === 'undefined') return []
 
-  const results: TestResult[] = JSON.parse(
+  const results: Array<TestResult> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   )
 
@@ -89,8 +89,8 @@ function getResults(userId: string): TestResult[] {
 /**
  * Group results by date (YYYY-MM-DD)
  */
-function groupByDate(results: TestResult[]): Map<string, TestResult[]> {
-  const groups = new Map<string, TestResult[]>()
+function groupByDate(results: Array<TestResult>): Map<string, Array<TestResult>> {
+  const groups = new Map<string, Array<TestResult>>()
 
   for (const result of results) {
     const date = new Date(result.completedAt).toISOString().split('T')[0]
@@ -105,8 +105,8 @@ function groupByDate(results: TestResult[]): Map<string, TestResult[]> {
 /**
  * Group results by week (YYYY-WW)
  */
-function groupByWeek(results: TestResult[]): Map<string, TestResult[]> {
-  const groups = new Map<string, TestResult[]>()
+function groupByWeek(results: Array<TestResult>): Map<string, Array<TestResult>> {
+  const groups = new Map<string, Array<TestResult>>()
 
   for (const result of results) {
     const date = new Date(result.completedAt)
@@ -124,8 +124,8 @@ function groupByWeek(results: TestResult[]): Map<string, TestResult[]> {
 /**
  * Group results by month (YYYY-MM)
  */
-function groupByMonth(results: TestResult[]): Map<string, TestResult[]> {
-  const groups = new Map<string, TestResult[]>()
+function groupByMonth(results: Array<TestResult>): Map<string, Array<TestResult>> {
+  const groups = new Map<string, Array<TestResult>>()
 
   for (const result of results) {
     const date = new Date(result.completedAt)
@@ -153,10 +153,10 @@ function getWeekNumber(date: Date): number {
  * Calculate trend points from grouped results
  */
 function calculateTrendPoints(
-  groups: Map<string, TestResult[]>,
+  groups: Map<string, Array<TestResult>>,
   metric: 'accuracy' | 'wpm'
-): TrendPoint[] {
-  const points: TrendPoint[] = []
+): Array<TrendPoint> {
+  const points: Array<TrendPoint> = []
 
   groups.forEach((results, date) => {
     const values = results.map((r) => (metric === 'accuracy' ? r.accuracy : r.wpm))
@@ -286,8 +286,8 @@ export async function getLanguageStats(userId: string): Promise<LanguageBreakdow
 
   // For demo purposes, we'll simulate language data based on snippetId
   // In production, this would join with the snippets table
-  const languages: Language[] = ['javascript', 'typescript', 'python']
-  const languageResults = new Map<Language, TestResult[]>()
+  const languages: Array<Language> = ['javascript', 'typescript', 'python']
+  const languageResults = new Map<Language, Array<TestResult>>()
 
   // Distribute results across languages based on snippetId
   for (const result of results) {
@@ -298,7 +298,7 @@ export async function getLanguageStats(userId: string): Promise<LanguageBreakdow
     languageResults.set(lang, existing)
   }
 
-  const stats: LanguageStats[] = []
+  const stats: Array<LanguageStats> = []
 
   for (const lang of languages) {
     const langResults = languageResults.get(lang) || []
@@ -386,10 +386,10 @@ export async function getLanguageStats(userId: string): Promise<LanguageBreakdow
 /**
  * Get difficulty breakdown stats
  */
-export async function getDifficultyStats(userId: string): Promise<DifficultyStats[]> {
+export async function getDifficultyStats(userId: string): Promise<Array<DifficultyStats>> {
   const results = getResults(userId)
-  const difficulties: Difficulty[] = ['easy', 'medium', 'hard', 'expert']
-  const difficultyResults = new Map<Difficulty, TestResult[]>()
+  const difficulties: Array<Difficulty> = ['beginner', 'intermediate', 'advanced', 'hardcore']
+  const difficultyResults = new Map<Difficulty, Array<TestResult>>()
 
   // Distribute results across difficulties based on snippetId
   for (const result of results) {
@@ -430,9 +430,9 @@ export async function getDifficultyStats(userId: string): Promise<DifficultyStat
 /**
  * Identify user's weaknesses
  */
-export async function identifyWeaknesses(userId: string): Promise<WeaknessArea[]> {
+export async function identifyWeaknesses(userId: string): Promise<Array<WeaknessArea>> {
   const results = getResults(userId)
-  const weaknesses: WeaknessArea[] = []
+  const weaknesses: Array<WeaknessArea> = []
 
   if (results.length < 3) {
     return [

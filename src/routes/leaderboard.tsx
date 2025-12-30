@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { Trophy, Medal, TrendingUp, Users, Clock } from 'lucide-react'
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { Clock, Trophy, Users } from 'lucide-react'
+import type {LeaderboardEntry, TimeFrame} from '@/lib/leaderboard-server-api';
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -10,11 +10,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
+  
+  
   getLeaderboardFn,
-  getUserLeaderboardRankFn,
   getRankMedal,
-  type TimeFrame,
-  type LeaderboardEntry,
+  getUserLeaderboardRankFn
 } from '@/lib/leaderboard-server-api'
 import { getCurrentUserFn } from '@/lib/auth'
 
@@ -39,7 +39,7 @@ export const Route = createFileRoute('/leaderboard')({
     return { leaderboard, user, userRank, timeFrame: deps.timeFrame }
   },
   validateSearch: (search: Record<string, unknown>) => ({
-    timeFrame: (search.timeFrame as TimeFrame) || 'alltime',
+    timeFrame: (search.timeFrame as TimeFrame | undefined) ?? 'alltime',
   }),
 })
 

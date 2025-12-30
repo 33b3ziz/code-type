@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type {
-  SnippetFilters,
-  PaginationParams,
-  SnippetResponse,
   PaginatedSnippetsResponse,
+  PaginationParams,
+  SnippetFilters,
+  SnippetResponse,
 } from '@/lib/snippets-api'
 
 // Test the types and interfaces for the snippets API
@@ -39,7 +39,7 @@ describe('Snippets API Types', () => {
       const filters: SnippetFilters = {
         language: 'typescript',
         difficulty: 'intermediate',
-        category: 'react_components',
+        category: 'react-components',
         minLength: 50,
         maxLength: 1000,
       }
@@ -74,7 +74,7 @@ describe('Snippets API Types', () => {
   describe('SnippetResponse', () => {
     it('has all required fields', () => {
       const snippet: SnippetResponse = {
-        id: 'test-id',
+        id: 1,
         title: 'Test Snippet',
         code: 'const x = 1;',
         language: 'javascript',

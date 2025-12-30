@@ -1,10 +1,11 @@
+import type {ErrorHeatmapData} from '@/lib/error-analysis';
 import { cn } from '@/lib/utils'
 import {
-  type ErrorHeatmapData,
+  
   KEYBOARD_LAYOUT,
   getErrorIntensity,
   getHeatmapColor,
-  identifyWeaknesses,
+  identifyWeaknesses
 } from '@/lib/error-analysis'
 
 interface ErrorHeatmapProps {

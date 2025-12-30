@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { DifficultySelector, DIFFICULTY_OPTIONS } from '@/components/DifficultySelector'
+import { DIFFICULTY_OPTIONS, DifficultySelector } from '@/components/DifficultySelector'
 
 describe('DifficultySelector', () => {
   it('renders with label by default', () => {

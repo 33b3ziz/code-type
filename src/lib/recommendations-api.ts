@@ -3,22 +3,22 @@
  * AI-powered difficulty and practice recommendations based on user performance
  */
 
-import type { TestResult, Language, Difficulty } from '@/db/schema'
+import type { Difficulty, Language, TestResult } from '@/db/schema'
 
 export interface DifficultyRecommendation {
   recommended: Difficulty
   reason: string
   confidence: 'low' | 'medium' | 'high'
-  alternatives: {
+  alternatives: Array<{
     difficulty: Difficulty
     reason: string
-  }[]
+  }>
 }
 
 export interface LanguageRecommendation {
   recommended: Language
   reason: string
-  practiceOrder: Language[]
+  practiceOrder: Array<Language>
 }
 
 export interface PracticeRecommendation {
@@ -42,10 +42,10 @@ export interface PerformanceProfile {
 /**
  * Get results from localStorage
  */
-function getResults(userId: string): TestResult[] {
+function getResults(userId: string): Array<TestResult> {
   if (typeof window === 'undefined') return []
 
-  const results: TestResult[] = JSON.parse(
+  const results: Array<TestResult> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   )
 
@@ -130,11 +130,11 @@ export async function getDifficultyRecommendation(
 
   if (!profile) {
     return {
-      recommended: 'easy',
+      recommended: 'beginner',
       reason: 'Complete more tests to get personalized recommendations',
       confidence: 'low',
       alternatives: [
-        { difficulty: 'medium', reason: 'Good starting point if comfortable with typing' },
+        { difficulty: 'intermediate', reason: 'Good starting point if comfortable with typing' },
       ],
     }
   }
@@ -148,52 +148,52 @@ export async function getDifficultyRecommendation(
 
   if (averageAccuracy < 85) {
     // Low accuracy - recommend easier
-    recommended = averageWpm < 30 ? 'easy' : 'easy'
+    recommended = averageWpm < 30 ? 'beginner' : 'beginner'
     reason = 'Focus on accuracy before increasing difficulty'
     confidence = totalTests >= 10 ? 'high' : 'medium'
   } else if (averageAccuracy < 92) {
     // Moderate accuracy
     if (averageWpm < 40) {
-      recommended = 'easy'
+      recommended = 'beginner'
       reason = 'Build speed and accuracy together at this level'
     } else if (averageWpm < 60) {
-      recommended = 'medium'
-      reason = 'Good balance of speed and accuracy for medium difficulty'
+      recommended = 'intermediate'
+      reason = 'Good balance of speed and accuracy for intermediate difficulty'
     } else {
-      recommended = 'medium'
+      recommended = 'intermediate'
       reason = 'Strong speed, focus on maintaining accuracy'
     }
     confidence = totalTests >= 10 ? 'high' : 'medium'
   } else if (averageAccuracy < 97) {
     // Good accuracy
     if (averageWpm < 50) {
-      recommended = 'medium'
+      recommended = 'intermediate'
       reason = 'High accuracy - ready for more challenge'
     } else if (averageWpm < 70) {
-      recommended = 'hard'
-      reason = 'Strong performance - hard difficulty will push your limits'
+      recommended = 'advanced'
+      reason = 'Strong performance - advanced difficulty will push your limits'
     } else {
-      recommended = 'hard'
-      reason = 'Excellent performance - hard is your sweet spot'
+      recommended = 'advanced'
+      reason = 'Excellent performance - advanced is your sweet spot'
     }
     confidence = totalTests >= 10 ? 'high' : 'medium'
   } else {
     // Excellent accuracy (97%+)
     if (averageWpm < 60) {
-      recommended = 'hard'
-      reason = 'Near-perfect accuracy - hard difficulty is appropriate'
+      recommended = 'advanced'
+      reason = 'Near-perfect accuracy - advanced difficulty is appropriate'
     } else if (averageWpm < 80) {
-      recommended = 'expert'
-      reason = 'Outstanding performance - challenge yourself with expert'
+      recommended = 'hardcore'
+      reason = 'Outstanding performance - challenge yourself with hardcore'
     } else {
-      recommended = 'expert'
-      reason = 'You are a typing master - expert is your playground'
+      recommended = 'hardcore'
+      reason = 'You are a typing master - hardcore is your playground'
     }
     confidence = totalTests >= 10 ? 'high' : 'medium'
   }
 
   // Adjust based on trend
-  if (trend === 'declining' && recommended !== 'easy') {
+  if (trend === 'declining' && recommended !== 'beginner') {
     const easier = getDifficulty(-1, recommended)
     return {
       recommended: easier,
@@ -204,7 +204,7 @@ export async function getDifficultyRecommendation(
   }
 
   // Generate alternatives
-  const alternatives: { difficulty: Difficulty; reason: string }[] = []
+  const alternatives: Array<{ difficulty: Difficulty; reason: string }> = []
   const harder = getDifficulty(1, recommended)
   const easier = getDifficulty(-1, recommended)
 
@@ -231,7 +231,7 @@ export async function getLanguageRecommendation(
   userId: string
 ): Promise<LanguageRecommendation> {
   const results = getResults(userId)
-  const languages: Language[] = ['javascript', 'typescript', 'python']
+  const languages: Array<Language> = ['javascript', 'typescript', 'python']
 
   // Calculate stats per language
   const langStats = new Map<Language, { avgWpm: number; avgAccuracy: number; count: number }>()
@@ -271,7 +271,7 @@ export async function getLanguageRecommendation(
 
   if (unpracticed.length > 0) {
     recommended = unpracticed[0]
-    reason = `Try ${getLanguageDisplayName(recommended)} - you haven\'t practiced it yet`
+    reason = `Try ${getLanguageDisplayName(recommended)} - you haven't practiced it yet`
   } else {
     recommended = weakest
     const stats = langStats.get(weakest)!
@@ -328,9 +328,9 @@ export async function getPracticeRecommendation(
   let estimatedChallenge: 'easy' | 'appropriate' | 'challenging'
   if (!profile) {
     estimatedChallenge = 'appropriate'
-  } else if (diffRec.recommended === 'easy') {
+  } else if (diffRec.recommended === 'beginner') {
     estimatedChallenge = profile.averageWpm > 40 ? 'easy' : 'appropriate'
-  } else if (diffRec.recommended === 'expert') {
+  } else if (diffRec.recommended === 'hardcore') {
     estimatedChallenge = profile.averageAccuracy < 95 ? 'challenging' : 'appropriate'
   } else {
     estimatedChallenge = 'appropriate'
@@ -347,7 +347,7 @@ export async function getPracticeRecommendation(
 
 // Helper functions
 function getDifficulty(offset: number, current: Difficulty): Difficulty {
-  const difficulties: Difficulty[] = ['easy', 'medium', 'hard', 'expert']
+  const difficulties: Array<Difficulty> = ['beginner', 'intermediate', 'advanced', 'hardcore']
   const index = difficulties.indexOf(current)
   const newIndex = Math.max(0, Math.min(difficulties.length - 1, index + offset))
   return difficulties[newIndex]

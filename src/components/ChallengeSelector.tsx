@@ -17,7 +17,7 @@ export interface ChallengeOption {
   duration: number | null // null for endless, custom handled separately
 }
 
-export const CHALLENGE_OPTIONS: ChallengeOption[] = [
+export const CHALLENGE_OPTIONS: Array<ChallengeOption> = [
   {
     value: '30s',
     label: '30 Seconds',

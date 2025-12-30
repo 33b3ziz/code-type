@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ACHIEVEMENTS } from '@/lib/achievements'
 
 // Test the achievement checking logic without database dependencies

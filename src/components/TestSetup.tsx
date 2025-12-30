@@ -1,13 +1,14 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
+import type { Difficulty, Language } from '@/db/schema'
+import type {ChallengeType} from '@/components/ChallengeSelector';
 import { cn } from '@/lib/utils'
 import { DifficultySelector } from '@/components/DifficultySelector'
 import { LanguageSelector } from '@/components/LanguageSelector'
 import {
   ChallengeSelector,
-  getChallengeDuration,
-  type ChallengeType,
+  
+  getChallengeDuration
 } from '@/components/ChallengeSelector'
-import type { Language, Difficulty } from '@/db/schema'
 
 export interface TestConfig {
   language: Language | 'all'
@@ -48,7 +49,7 @@ export function TestSetup({ onStart, className }: TestSetupProps) {
 
   const goToStep = (newStep: Step) => setStep(newStep)
 
-  const steps: { id: Step; label: string }[] = [
+  const steps: Array<{ id: Step; label: string }> = [
     { id: 'language', label: 'Language' },
     { id: 'difficulty', label: 'Difficulty' },
     { id: 'challenge', label: 'Challenge' },

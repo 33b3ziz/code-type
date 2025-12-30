@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  getLeaderboard,
-  getUserRank,
-  getTopUsers,
-  getDailyLeaderboard,
-  getWeeklyLeaderboard,
-  getAllTimeLeaderboard,
-  formatRank,
-  getRankSuffix,
-  type TimeFrame,
-} from '@/lib/leaderboard-api'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TestResult } from '@/db/schema'
+import {
+  
+  formatRank,
+  getAllTimeLeaderboard,
+  getDailyLeaderboard,
+  getLeaderboard,
+  getRankSuffix,
+  getTopUsers,
+  getUserRank,
+  getWeeklyLeaderboard
+} from '@/lib/leaderboard-api'
 
 // Mock localStorage
 const localStorageMock = (() => {

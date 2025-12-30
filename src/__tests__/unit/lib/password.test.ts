@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   hashPassword,
-  verifyPassword,
-  validatePassword,
   validateEmail,
+  validatePassword,
   validateUsername,
+  verifyPassword,
 } from '@/lib/password'
 
 describe('Password Utilities', () => {

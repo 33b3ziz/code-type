@@ -42,7 +42,7 @@ export interface AchievementDefinition {
 }
 
 // Achievement definitions
-export const ACHIEVEMENTS: AchievementDefinition[] = [
+export const ACHIEVEMENTS: Array<AchievementDefinition> = [
   // Speed achievements
   {
     slug: 'speed-demon-40',
@@ -237,7 +237,7 @@ export function getAchievementBySlug(slug: string): AchievementDefinition | unde
   return ACHIEVEMENTS.find((a) => a.slug === slug)
 }
 
-export function getAchievementsByType(type: AchievementType): AchievementDefinition[] {
+export function getAchievementsByType(type: AchievementType): Array<AchievementDefinition> {
   return ACHIEVEMENTS.filter((a) => a.type === type)
 }
 

@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { snippets, type SnippetSeed } from '@/db/seed/snippets'
-import type { Language, Difficulty, SnippetCategory } from '@/db/schema'
+import { describe, expect, it } from 'vitest'
+import type { Difficulty, Language, SnippetCategory } from '@/db/schema'
+import { snippets } from '@/db/seed/snippets'
 
 describe('Code Snippets Seed Data', () => {
   describe('Data integrity', () => {
@@ -41,7 +41,7 @@ describe('Code Snippets Seed Data', () => {
   })
 
   describe('Language coverage', () => {
-    const expectedLanguages: Language[] = ['javascript', 'typescript', 'python']
+    const expectedLanguages: Array<Language> = ['javascript', 'typescript', 'python']
 
     expectedLanguages.forEach((language) => {
       it(`includes ${language} snippets`, () => {
@@ -59,7 +59,7 @@ describe('Code Snippets Seed Data', () => {
   })
 
   describe('Difficulty coverage', () => {
-    const expectedDifficulties: Difficulty[] = [
+    const expectedDifficulties: Array<Difficulty> = [
       'beginner',
       'intermediate',
       'advanced',
@@ -84,11 +84,11 @@ describe('Code Snippets Seed Data', () => {
   })
 
   describe('Category coverage', () => {
-    const expectedCategories: SnippetCategory[] = [
+    const expectedCategories: Array<SnippetCategory> = [
       'functions',
       'loops',
       'conditionals',
-      'react_components',
+      'react-components',
     ]
 
     expectedCategories.forEach((category) => {
@@ -144,7 +144,7 @@ describe('Code Snippets Seed Data', () => {
 
     it('TypeScript snippets with React are categorized correctly', () => {
       const reactSnippets = snippets.filter(
-        (s) => s.category === 'react_components'
+        (s) => s.category === 'react-components'
       )
       reactSnippets.forEach((snippet) => {
         expect(snippet.language).toBe('typescript')

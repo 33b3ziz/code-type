@@ -3,7 +3,7 @@
  * Functions for saving and fetching typing test results
  */
 
-import type { TestResult, NewTestResult, Language, Difficulty } from '@/db/schema'
+import type { Difficulty, Language, TestResult } from '@/db/schema'
 
 export interface TestResultInput {
   userId: string
@@ -88,11 +88,11 @@ export async function saveTestResult(result: TestResultInput): Promise<TestResul
 export async function getRecentResults(
   userId: string,
   limit: number = 10
-): Promise<TestResultWithDetails[]> {
+): Promise<Array<TestResultWithDetails>> {
   // In production, this would be an API call
   if (typeof window === 'undefined') return []
 
-  const results: TestResult[] = JSON.parse(
+  const results: Array<TestResult> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   )
 
@@ -110,7 +110,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
     return getEmptyStats()
   }
 
-  const results: TestResult[] = JSON.parse(
+  const results: Array<TestResult> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   ).filter((r: TestResult) => r.userId === userId)
 
@@ -172,7 +172,7 @@ export async function getPersonalBest(
 ): Promise<PersonalBest | null> {
   if (typeof window === 'undefined') return null
 
-  const results: TestResultWithDetails[] = JSON.parse(
+  const results: Array<TestResultWithDetails> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   ).filter((r: TestResultWithDetails) => {
     if (r.userId !== userId) return false

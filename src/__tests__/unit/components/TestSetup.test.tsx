@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { TestSetup, QuickStart, type TestConfig } from '@/components/TestSetup'
+import { describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import type {TestConfig} from '@/components/TestSetup';
+import { QuickStart,  TestSetup } from '@/components/TestSetup'
 
 describe('TestSetup', () => {
   describe('rendering', () => {

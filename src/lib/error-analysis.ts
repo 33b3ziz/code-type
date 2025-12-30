@@ -12,18 +12,18 @@ export interface CharacterError {
 
 export interface ErrorHeatmapData {
   characterErrors: Map<string, CharacterError>
-  topErrors: CharacterError[]
+  topErrors: Array<CharacterError>
   totalErrors: number
   totalCharacters: number
   overallErrorRate: number
 }
 
 export interface KeyboardRow {
-  keys: string[]
+  keys: Array<string>
 }
 
 // Standard QWERTY keyboard layout
-export const KEYBOARD_LAYOUT: KeyboardRow[] = [
+export const KEYBOARD_LAYOUT: Array<KeyboardRow> = [
   { keys: ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='] },
   { keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'] },
   { keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"] },
@@ -56,7 +56,7 @@ export function normalizeCharacter(char: string): string {
  */
 export function analyzeErrors(
   errors: Map<number, string>,
-  typedText: string,
+  _typedText: string,
   expectedText: string
 ): ErrorHeatmapData {
   const characterErrors = new Map<string, CharacterError>()
@@ -78,7 +78,7 @@ export function analyzeErrors(
 
   // Count errors for each character
   let totalErrors = 0
-  errors.forEach((expectedChar, position) => {
+  errors.forEach((expectedChar) => {
     const normalized = normalizeCharacter(expectedChar)
     const entry = characterErrors.get(normalized)
     if (entry) {
@@ -140,8 +140,8 @@ export function getHeatmapColor(intensity: number): string {
 /**
  * Identify weakness categories based on error patterns
  */
-export function identifyWeaknesses(heatmapData: ErrorHeatmapData): string[] {
-  const weaknesses: string[] = []
+export function identifyWeaknesses(heatmapData: ErrorHeatmapData): Array<string> {
+  const weaknesses: Array<string> = []
   const { topErrors, characterErrors } = heatmapData
 
   // Check for symbol weakness
@@ -183,7 +183,7 @@ export function identifyWeaknesses(heatmapData: ErrorHeatmapData): string[] {
 /**
  * Merge multiple heatmap data sets (for aggregate analysis)
  */
-export function mergeHeatmapData(datasets: ErrorHeatmapData[]): ErrorHeatmapData {
+export function mergeHeatmapData(datasets: Array<ErrorHeatmapData>): ErrorHeatmapData {
   const merged = new Map<string, CharacterError>()
 
   datasets.forEach((data) => {

@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  normalizeCharacter,
+  KEYBOARD_LAYOUT,
+  SHIFT_VARIANTS,
   analyzeErrors,
   getErrorIntensity,
   getHeatmapColor,
   identifyWeaknesses,
   mergeHeatmapData,
-  KEYBOARD_LAYOUT,
-  SHIFT_VARIANTS,
+  normalizeCharacter,
 } from '@/lib/error-analysis'
 
 describe('normalizeCharacter', () => {

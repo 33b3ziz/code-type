@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq, desc, sql, gte } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { testResults, snippets, users } from '@/db/schema'
+import { snippets, testResults } from '@/db/schema'
 
 export interface UserStats {
   totalTests: number
@@ -107,7 +107,7 @@ export const getUserStatsFn = createServerFn({ method: 'GET' })
  */
 export const getRecentResultsFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: string; limit?: number }) => data)
-  .handler(async ({ data }): Promise<RecentResult[]> => {
+  .handler(async ({ data }): Promise<Array<RecentResult>> => {
     const { userId, limit = 10 } = data
 
     const results = await db
@@ -146,18 +146,20 @@ export const getUserRankFn = createServerFn({ method: 'GET' })
   .inputValidator((userId: string) => userId)
   .handler(async ({ data: userId }): Promise<number | null> => {
     // Get user's best WPM
-    const [userBest] = await db
+    const userBestResults = await db
       .select({ bestWpm: sql<number>`MAX(${testResults.wpm})` })
       .from(testResults)
       .where(eq(testResults.userId, userId))
 
-    if (!userBest?.bestWpm) return null
+    const userBest = userBestResults[0] as { bestWpm: number } | undefined
+    if (!userBest || !userBest.bestWpm) return null
 
     // Count users with higher best WPM
-    const [rankResult] = await db
+    const rankResults = await db
       .select({ count: sql<number>`COUNT(DISTINCT ${testResults.userId})` })
       .from(testResults)
       .where(sql`${testResults.wpm} > ${userBest.bestWpm}`)
 
+    const rankResult = rankResults[0] as { count: number } | undefined
     return (rankResult?.count ?? 0) + 1
   })

@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
+  KEYWORDS,
+  SINGLE_CHAR_SYMBOLS,
+  calculateAccuracyMetrics,
+  calculatePerformance,
+  calculateWPMMetrics,
   findKeywords,
   isKeywordPosition,
   isSymbol,
-  calculateAccuracyMetrics,
-  calculateWPMMetrics,
-  calculatePerformance,
-  KEYWORDS,
-  SINGLE_CHAR_SYMBOLS,
 } from '@/lib/performance-metrics'
 
 describe('findKeywords', () => {

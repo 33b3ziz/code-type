@@ -1,4 +1,4 @@
-import type { Language, Difficulty, SnippetCategory } from '../schema'
+import type { Difficulty, Language, SnippetCategory } from '../schema'
 
 export interface SnippetSeed {
   title: string
@@ -8,7 +8,7 @@ export interface SnippetSeed {
   category: SnippetCategory
 }
 
-export const snippets: SnippetSeed[] = [
+export const snippets: Array<SnippetSeed> = [
   // ============================================
   // JAVASCRIPT - BEGINNER
   // ============================================

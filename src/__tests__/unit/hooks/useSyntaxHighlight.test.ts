@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { useSyntaxHighlight, flattenTokensToChars } from '@/hooks/useSyntaxHighlight'
+import type { Language } from '@/db/schema'
+import { flattenTokensToChars, useSyntaxHighlight } from '@/hooks/useSyntaxHighlight'
 
 describe('useSyntaxHighlight', () => {
   describe('highlighting', () => {
@@ -97,15 +98,15 @@ describe('useSyntaxHighlight', () => {
 
     it('re-highlights when language changes', async () => {
       const { result, rerender } = renderHook(
-        ({ code, language }) => useSyntaxHighlight(code, language),
-        { initialProps: { code: 'x = 1', language: 'javascript' as const } }
+        ({ code, language }: { code: string; language: Language }) => useSyntaxHighlight(code, language),
+        { initialProps: { code: 'x = 1', language: 'javascript' as Language } }
       )
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
       })
 
-      rerender({ code: 'x = 1', language: 'python' as const })
+      rerender({ code: 'x = 1', language: 'python' })
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)

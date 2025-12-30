@@ -3,15 +3,15 @@
  * Shows ranked users with filters for timeframe, language, and difficulty
  */
 
-import { useState, useEffect } from 'react'
-import type { Language, Difficulty } from '@/db/schema'
+import { useEffect, useState } from 'react'
+import type {LeaderboardEntry, LeaderboardFilters, TimeFrame} from '@/lib/leaderboard-api';
 import {
-  getLeaderboard,
+  
+  
+  
   formatRank,
-  getRankSuffix,
-  type TimeFrame,
-  type LeaderboardEntry,
-  type LeaderboardFilters,
+  getLeaderboard,
+  getRankSuffix
 } from '@/lib/leaderboard-api'
 
 export interface LeaderboardProps {
@@ -29,7 +29,7 @@ export function Leaderboard({
   limit = 10,
   className = '',
 }: LeaderboardProps) {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [entries, setEntries] = useState<Array<LeaderboardEntry>>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<LeaderboardFilters>({
     timeFrame: defaultTimeFrame,
@@ -118,7 +118,7 @@ interface TimeFrameTabsProps {
 }
 
 function TimeFrameTabs({ selected, onChange }: TimeFrameTabsProps) {
-  const tabs: { value: TimeFrame; label: string }[] = [
+  const tabs: Array<{ value: TimeFrame; label: string }> = [
     { value: 'daily', label: 'Today' },
     { value: 'weekly', label: 'This Week' },
     { value: 'monthly', label: 'This Month' },
@@ -208,7 +208,7 @@ export function MiniLeaderboard({
   limit = 5,
   className = '',
 }: MiniLeaderboardProps) {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [entries, setEntries] = useState<Array<LeaderboardEntry>>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

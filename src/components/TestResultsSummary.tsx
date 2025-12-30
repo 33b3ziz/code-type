@@ -1,8 +1,8 @@
+import type { AccuracyMetrics, WPMMetrics } from '@/lib/performance-metrics'
+import type { ErrorHeatmapData } from '@/lib/error-analysis'
 import { cn } from '@/lib/utils'
 import { formatDuration } from '@/lib/results-api'
-import type { AccuracyMetrics, WPMMetrics } from '@/lib/performance-metrics'
 import { ErrorHeatmapCompact } from '@/components/ErrorHeatmap'
-import type { ErrorHeatmapData } from '@/lib/error-analysis'
 
 export interface TestResultsSummaryProps {
   wpm: WPMMetrics

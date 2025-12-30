@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { SocialShare, ShareButton, generateShareImage } from '@/components/SocialShare'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { ShareButton, SocialShare, generateShareImage } from '@/components/SocialShare'
 
 // Mock window.open
 const mockOpen = vi.fn()

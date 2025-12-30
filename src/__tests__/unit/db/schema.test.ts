@@ -1,17 +1,17 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  users,
-  userSettings,
+  achievementTypeEnum,
+  achievements,
+  difficultyEnum,
+  languageEnum,
+  leaderboardEntries,
+  leaderboardPeriodEnum,
+  snippetCategoryEnum,
   snippets,
   testResults,
-  achievements,
   userAchievements,
-  leaderboardEntries,
-  languageEnum,
-  difficultyEnum,
-  snippetCategoryEnum,
-  achievementTypeEnum,
-  leaderboardPeriodEnum,
+  userSettings,
+  users,
 } from '@/db/schema'
 
 describe('Database Schema', () => {

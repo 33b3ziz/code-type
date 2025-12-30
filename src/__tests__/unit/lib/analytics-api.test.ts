@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { TestResult } from '@/db/schema'
 import {
   getAccuracyTrend,
-  getWPMTrend,
-  getLanguageStats,
   getDifficultyStats,
-  identifyWeaknesses,
-  getLanguageDisplayName,
   getLanguageColor,
+  getLanguageDisplayName,
+  getLanguageStats,
+  getWPMTrend,
+  identifyWeaknesses,
 } from '@/lib/analytics-api'
-import type { TestResult } from '@/db/schema'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -197,10 +197,10 @@ describe('analytics-api', () => {
       const stats = await getDifficultyStats('user_1')
 
       expect(stats).toHaveLength(4)
-      expect(stats.map(s => s.difficulty)).toContain('easy')
-      expect(stats.map(s => s.difficulty)).toContain('medium')
-      expect(stats.map(s => s.difficulty)).toContain('hard')
-      expect(stats.map(s => s.difficulty)).toContain('expert')
+      expect(stats.map(s => s.difficulty)).toContain('beginner')
+      expect(stats.map(s => s.difficulty)).toContain('intermediate')
+      expect(stats.map(s => s.difficulty)).toContain('advanced')
+      expect(stats.map(s => s.difficulty)).toContain('hardcore')
     })
   })
 

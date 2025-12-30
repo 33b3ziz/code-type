@@ -1,19 +1,23 @@
 import { createServerFn } from '@tanstack/react-start'
 import { eq } from 'drizzle-orm'
+import { useAppSession } from './session'
 import { db } from '@/db'
 import { userSettings } from '@/db/schema'
-import { useAppSession } from './session'
+
+// Setting types
+export type Theme = 'light' | 'dark' | 'system'
+export type CaretStyle = 'line' | 'block' | 'underline'
 
 // Default settings
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: UserSettings = {
   autoIndent: true,
   tabSize: 2,
   soundEnabled: false,
   soundVolume: 50,
-  theme: 'dark' as const,
+  theme: 'dark',
   showLineNumbers: true,
   smoothCaret: true,
-  caretStyle: 'line' as const,
+  caretStyle: 'line',
   fontSize: 16,
   strictMode: false,
   showWpm: true,
@@ -21,23 +25,23 @@ export const DEFAULT_SETTINGS = {
   showTimer: true,
 }
 
-export type UserSettings = typeof DEFAULT_SETTINGS
-
-export interface SettingsUpdate {
-  autoIndent?: boolean
-  tabSize?: number
-  soundEnabled?: boolean
-  soundVolume?: number
-  theme?: 'light' | 'dark' | 'system'
-  showLineNumbers?: boolean
-  smoothCaret?: boolean
-  caretStyle?: 'line' | 'block' | 'underline'
-  fontSize?: number
-  strictMode?: boolean
-  showWpm?: boolean
-  showAccuracy?: boolean
-  showTimer?: boolean
+export interface UserSettings {
+  autoIndent: boolean
+  tabSize: number
+  soundEnabled: boolean
+  soundVolume: number
+  theme: Theme
+  showLineNumbers: boolean
+  smoothCaret: boolean
+  caretStyle: CaretStyle
+  fontSize: number
+  strictMode: boolean
+  showWpm: boolean
+  showAccuracy: boolean
+  showTimer: boolean
 }
+
+export type SettingsUpdate = Partial<UserSettings>
 
 /**
  * Get current user's settings
@@ -51,30 +55,31 @@ export const getSettingsFn = createServerFn({ method: 'GET' }).handler(
       return DEFAULT_SETTINGS
     }
 
-    const [settings] = await db
+    const results = await db
       .select()
       .from(userSettings)
       .where(eq(userSettings.userId, userId))
       .limit(1)
 
+    const settings = results[0] as typeof results[number] | undefined
     if (!settings) {
       return DEFAULT_SETTINGS
     }
 
     return {
-      autoIndent: settings.autoIndent,
-      tabSize: settings.tabSize,
-      soundEnabled: settings.soundEnabled,
-      soundVolume: settings.soundVolume,
-      theme: settings.theme,
-      showLineNumbers: settings.showLineNumbers,
-      smoothCaret: settings.smoothCaret,
-      caretStyle: settings.caretStyle,
-      fontSize: settings.fontSize,
-      strictMode: settings.strictMode,
-      showWpm: settings.showWpm,
-      showAccuracy: settings.showAccuracy,
-      showTimer: settings.showTimer,
+      autoIndent: settings.autoIndent ?? DEFAULT_SETTINGS.autoIndent,
+      tabSize: settings.tabSize ?? DEFAULT_SETTINGS.tabSize,
+      soundEnabled: settings.soundEnabled ?? DEFAULT_SETTINGS.soundEnabled,
+      soundVolume: settings.soundVolume ?? DEFAULT_SETTINGS.soundVolume,
+      theme: (settings.theme as Theme | null) ?? DEFAULT_SETTINGS.theme,
+      showLineNumbers: settings.showLineNumbers ?? DEFAULT_SETTINGS.showLineNumbers,
+      smoothCaret: settings.smoothCaret ?? DEFAULT_SETTINGS.smoothCaret,
+      caretStyle: (settings.caretStyle as CaretStyle | null) ?? DEFAULT_SETTINGS.caretStyle,
+      fontSize: settings.fontSize ?? DEFAULT_SETTINGS.fontSize,
+      strictMode: settings.strictMode ?? DEFAULT_SETTINGS.strictMode,
+      showWpm: settings.showWpm ?? DEFAULT_SETTINGS.showWpm,
+      showAccuracy: settings.showAccuracy ?? DEFAULT_SETTINGS.showAccuracy,
+      showTimer: settings.showTimer ?? DEFAULT_SETTINGS.showTimer,
     }
   }
 )
@@ -93,12 +98,13 @@ export const updateSettingsFn = createServerFn({ method: 'POST' })
     }
 
     // Check if settings exist
-    const [existing] = await db
+    const existingResults = await db
       .select({ id: userSettings.id })
       .from(userSettings)
       .where(eq(userSettings.userId, userId))
       .limit(1)
 
+    const existing = existingResults[0] as { id: number } | undefined
     if (existing) {
       // Update existing settings
       await db
