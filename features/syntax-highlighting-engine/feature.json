@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Code Syntax Highlighting",
   "description": "Implement syntax highlighting for JavaScript, TypeScript, and Python code snippets. Display color-coded keywords, operators, strings, and comments for better code readability in the typing test.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "moderate",
   "dependencies": [

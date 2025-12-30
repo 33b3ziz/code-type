@@ -3,7 +3,7 @@
   "category": "UI",
   "title": "Test Configuration Workflow",
   "description": "Create a multi-step workflow guiding users through test setup: select language, select difficulty, select challenge format, then start test. Ensure proper state management throughout.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "moderate",
   "dependencies": [
