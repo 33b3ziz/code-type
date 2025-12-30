@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "All-Time Leaderboard Rankings",
   "description": "Implement all-time leaderboard that never resets and shows cumulative best performance across all time. Track users' personal records for each language/difficulty combination.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [

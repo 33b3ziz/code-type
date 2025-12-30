@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Weekly Leaderboard Rankings",
   "description": "Implement weekly leaderboard logic that resets rankings every Monday. Track aggregate performance across all tests within the current week per language/difficulty.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [

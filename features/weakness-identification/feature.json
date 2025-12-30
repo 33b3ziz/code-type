@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "User Weakness Analysis",
   "description": "Analyze test history to identify user's slowest characters, symbols, keywords, and code patterns. Provide actionable insights about areas needing improvement based on aggregate performance data.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "moderate",
   "dependencies": [

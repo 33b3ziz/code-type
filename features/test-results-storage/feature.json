@@ -3,7 +3,7 @@
   "category": "Database",
   "title": "Test Results Persistence",
   "description": "Store all test results in the database including snippet ID, language, difficulty, WPM, accuracy, symbol accuracy, keyword accuracy, duration, and timestamp for each user.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "simple",
   "dependencies": [

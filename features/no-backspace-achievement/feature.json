@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "No Backspace Run Achievement",
   "description": "Implement logic to detect and award achievement when user completes a test without using backspace. Requires tracking backspace usage throughout the typing test.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [
