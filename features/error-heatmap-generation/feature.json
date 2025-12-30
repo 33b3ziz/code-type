@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Error Heatmap Analysis",
   "description": "Generate a visual heatmap showing which characters or keys slow down users or cause errors most frequently. Identify weakness patterns to help users focus on problematic areas.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "moderate",
   "dependencies": [

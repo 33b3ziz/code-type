@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Programming WPM Formula",
   "description": "Implement the custom Programming WPM formula that assigns higher weights to keywords, applies penalties for symbol errors, and optionally ignores whitespace. Make weights configurable for experimentation.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "moderate",
   "dependencies": [
