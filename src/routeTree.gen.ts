@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TestRoute = TestRouteImport.update({
@@ -24,9 +28,29 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,34 +61,75 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/profile': typeof ProfileRoute
+  '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mcp' | '/settings' | '/test'
+  fullPaths:
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/mcp'
+    | '/profile'
+    | '/register'
+    | '/settings'
+    | '/test'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mcp' | '/settings' | '/test'
-  id: '__root__' | '/' | '/mcp' | '/settings' | '/test'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/mcp'
+    | '/profile'
+    | '/register'
+    | '/settings'
+    | '/test'
+  id:
+    | '__root__'
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/mcp'
+    | '/profile'
+    | '/register'
+    | '/settings'
+    | '/test'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  ProfileRoute: typeof ProfileRoute
+  RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
   TestRoute: typeof TestRoute
 }
@@ -85,11 +150,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,7 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  ProfileRoute: ProfileRoute,
+  RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
   TestRoute: TestRoute,
 }

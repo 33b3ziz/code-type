@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Keyboard, RefreshCw, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -86,10 +86,10 @@ function TestPage() {
   }, [language, difficulty])
 
   // Handle test completion
-  const handleComplete = (testResult: TypingResult) => {
+  const handleComplete = useCallback((testResult: TypingResult) => {
     setResult(testResult)
     setShowResult(true)
-  }
+  }, [])
 
   // Handle new test
   const handleNewTest = () => {

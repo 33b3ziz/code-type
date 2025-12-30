@@ -47,7 +47,7 @@ export const getRandomSnippetFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -84,7 +84,7 @@ export const getSnippetsFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -115,7 +115,7 @@ export const getSnippetByIdFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -164,8 +164,8 @@ export const getSnippetFilterOptionsFn = createServerFn({
   // Get code length range
   const [lengthStats] = await db
     .select({
-      minLength: sql<number>`MIN(LENGTH(${snippets.code}))`,
-      maxLength: sql<number>`MAX(LENGTH(${snippets.code}))`,
+      minLength: sql<number>`MIN(LENGTH(${snippets.content}))`,
+      maxLength: sql<number>`MAX(LENGTH(${snippets.content}))`,
     })
     .from(snippets)
 
@@ -202,7 +202,7 @@ export const getRandomSnippetsFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -235,11 +235,11 @@ function buildFilterConditions(filters: SnippetFilters) {
   }
 
   if (filters.minLength !== undefined) {
-    conditions.push(sql`LENGTH(${snippets.code}) >= ${filters.minLength}`)
+    conditions.push(sql`LENGTH(${snippets.content}) >= ${filters.minLength}`)
   }
 
   if (filters.maxLength !== undefined) {
-    conditions.push(sql`LENGTH(${snippets.code}) <= ${filters.maxLength}`)
+    conditions.push(sql`LENGTH(${snippets.content}) <= ${filters.maxLength}`)
   }
 
   return conditions
