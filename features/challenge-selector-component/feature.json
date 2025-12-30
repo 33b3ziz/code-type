@@ -3,7 +3,7 @@
   "category": "UI",
   "title": "Challenge Format Selector",
   "description": "Build a UI component for selecting challenge formats: 30-second, 60-second, 120-second timed tests, endless mode, and custom length selection. Initialize timer based on user choice.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "simple",
   "dependencies": [

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Settings, Volume2, Eye, Keyboard, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ import {
   DEFAULT_SETTINGS,
   type UserSettings,
 } from '@/lib/settings-api'
+import { useTheme } from '@/components/ThemeProvider'
 
 export const Route = createFileRoute('/settings')({
   component: SettingsPage,
@@ -32,6 +33,12 @@ function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>(initialSettings)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const { setTheme } = useTheme()
+
+  // Sync theme with ThemeProvider on mount and when settings change
+  useEffect(() => {
+    setTheme(settings.theme)
+  }, [settings.theme, setTheme])
 
   const handleChange = async <K extends keyof UserSettings>(
     key: K,

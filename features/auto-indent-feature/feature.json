@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Auto-Indent Support",
   "description": "Implement auto-indent toggle that automatically inserts proper indentation when typing on new lines. Make this feature toggleable in settings to respect user preferences.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "moderate",
   "dependencies": [

@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Keyword Accuracy Metrics",
   "description": "Track accuracy separately for programming keywords (e.g., function, return, const) versus regular characters. Provide keyword-specific accuracy percentages in results.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "simple",
   "dependencies": [

@@ -1,5 +1,11 @@
 # CodeType Feature Implementation Plan
 
+## Key Decisions
+- **E2E Testing**: Playwright
+- **PR Strategy**: One feature per PR
+- **Syntax Highlighting**: Shiki (VS Code's engine)
+- **Charts**: Deferred to Phase 10
+
 ## Overview
 This is the comprehensive implementation plan for all 56 features of the CodeType typing test application. All features are treated as not started regardless of their current status property.
 

@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Symbol Accuracy Metrics",
   "description": "Track accuracy specifically for code symbols like {}, [], =>, !=== separately from letters. Highlight symbol accuracy as a distinct metric to help users focus on operator typing precision.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 1,
   "complexity": "simple",
   "dependencies": [
