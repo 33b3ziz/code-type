@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { TestReplay, ReplayComparison } from '@/components/TestReplay'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { ReplayComparison, TestReplay } from '@/components/TestReplay'
 
 // Mock formatDate
 vi.mock('@/lib/results-api', () => ({
@@ -14,7 +14,7 @@ describe('TestReplay', () => {
     snippetId: 123,
     snippetTitle: 'Array Methods',
     language: 'javascript' as const,
-    difficulty: 'medium' as const,
+    difficulty: 'intermediate' as const,
     previousWpm: 65,
     previousAccuracy: 94,
     completedAt: new Date('2024-01-15'),
@@ -36,7 +36,7 @@ describe('TestReplay', () => {
 
     expect(screen.getByTestId('replay-info')).toBeInTheDocument()
     expect(screen.getByText('JavaScript')).toBeInTheDocument()
-    expect(screen.getByText('Medium')).toBeInTheDocument()
+    expect(screen.getByText('Intermediate')).toBeInTheDocument()
     expect(screen.getByText('Array Methods')).toBeInTheDocument()
   })
 

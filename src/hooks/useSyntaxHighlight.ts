@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { createHighlighter, type Highlighter, type BundledLanguage } from 'shiki'
+import { useEffect, useState } from 'react'
+import {   createHighlighter } from 'shiki'
+import type {BundledLanguage, Highlighter} from 'shiki';
 import type { Language } from '@/db/schema'
 
 // Map our language types to Shiki language identifiers
@@ -16,7 +17,7 @@ export interface HighlightedToken {
 }
 
 export interface HighlightedLine {
-  tokens: HighlightedToken[]
+  tokens: Array<HighlightedToken>
   lineNumber: number
 }
 
@@ -33,7 +34,7 @@ async function getHighlighter(): Promise<Highlighter> {
 }
 
 export function useSyntaxHighlight(code: string, language: Language) {
-  const [tokens, setTokens] = useState<HighlightedLine[]>([])
+  const [tokens, setTokens] = useState<Array<HighlightedLine>>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -55,7 +56,7 @@ export function useSyntaxHighlight(code: string, language: Language) {
 
         if (cancelled) return
 
-        const lines: HighlightedLine[] = result.tokens.map((lineTokens, idx) => ({
+        const lines: Array<HighlightedLine> = result.tokens.map((lineTokens, idx) => ({
           lineNumber: idx + 1,
           tokens: lineTokens.map((token) => ({
             content: token.content,
@@ -88,7 +89,7 @@ export function useSyntaxHighlight(code: string, language: Language) {
 
 // Flatten tokens into a character array for the typing test
 export function flattenTokensToChars(
-  tokens: HighlightedLine[]
+  tokens: Array<HighlightedLine>
 ): Array<{ char: string; color: string }> {
   const chars: Array<{ char: string; color: string }> = []
 

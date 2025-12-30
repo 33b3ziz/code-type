@@ -1,9 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Keyboard, RefreshCw, ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Keyboard, RefreshCw } from 'lucide-react'
+import type { TypingResult } from '@/hooks/useTypingTest'
+import type { Language } from '@/db/schema'
+import type {Difficulty} from '@/components/DifficultySelector';
+import type {SnippetResponse} from '@/lib/snippets-api';
 import { Button } from '@/components/ui/button'
 import { TypingTest } from '@/components/TypingTest'
-import { DifficultySelector, type Difficulty } from '@/components/DifficultySelector'
+import {  DifficultySelector } from '@/components/DifficultySelector'
 import {
   Select,
   SelectContent,
@@ -12,9 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { getRandomSnippetFn, type SnippetResponse } from '@/lib/snippets-api'
-import type { TypingResult } from '@/hooks/useTypingTest'
-import type { Language } from '@/db/schema'
+import {  getRandomSnippetFn } from '@/lib/snippets-api'
 
 interface TestSearchParams {
   language?: Language

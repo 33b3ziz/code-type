@@ -3,7 +3,7 @@
  * Enables users to share their test achievements and scores on social media
  */
 
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface ShareableResult {
   wpm: number
@@ -31,7 +31,7 @@ export function SocialShare({
   const [copied, setCopied] = useState(false)
 
   const generateShareText = useCallback((): string => {
-    const lines: string[] = []
+    const lines: Array<string> = []
 
     if (result.isPersonalBest) {
       lines.push(`New Personal Best on ${appName}!`)
@@ -81,7 +81,7 @@ export function SocialShare({
   }, [generateShareText])
 
   const handleNativeShare = useCallback(async () => {
-    if (!navigator.share) return
+    if (typeof navigator === 'undefined' || !('share' in navigator)) return
 
     try {
       await navigator.share({
@@ -136,7 +136,7 @@ export function SocialShare({
       {/* Share Buttons */}
       <div className="share-buttons" data-testid="share-buttons">
         {/* Native Share (if available) */}
-        {typeof navigator !== 'undefined' && navigator.share && (
+        {typeof navigator !== 'undefined' && 'share' in navigator && (
           <button
             onClick={handleNativeShare}
             className="share-btn share-native"
@@ -231,7 +231,7 @@ export function ShareButton({ result, variant = 'icon', className = '' }: ShareB
   const [showPopup, setShowPopup] = useState(false)
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && 'share' in navigator) {
       try {
         await navigator.share({
           title: `My CodeType Score`,

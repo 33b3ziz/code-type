@@ -3,9 +3,10 @@
  * Displays a paginated list of user's past typing tests
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import type { Language, Difficulty } from '@/db/schema'
-import { getRecentResults, formatDuration, formatDate, type TestResultWithDetails } from '@/lib/results-api'
+import { useEffect, useMemo, useState } from 'react'
+import type { Difficulty, Language } from '@/db/schema'
+import type {TestResultWithDetails} from '@/lib/results-api';
+import {  formatDate, formatDuration, getRecentResults } from '@/lib/results-api'
 
 export interface TypingHistoryProps {
   userId: string
@@ -20,7 +21,7 @@ export function TypingHistory({
   onViewDetails,
   className = '',
 }: TypingHistoryProps) {
-  const [results, setResults] = useState<TestResultWithDetails[]>([])
+  const [results, setResults] = useState<Array<TestResultWithDetails>>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [filter, setFilter] = useState<{
@@ -105,10 +106,10 @@ export function TypingHistory({
             onChange={(e) => setFilter({ ...filter, difficulty: e.target.value as Difficulty | 'all' })}
           >
             <option value="all">All Difficulties</option>
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-            <option value="expert">Expert</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+            <option value="hardcore">Hardcore</option>
           </select>
         </div>
       </div>
@@ -189,10 +190,10 @@ function HistoryRow({ result, onViewDetails }: HistoryRowProps) {
   }
 
   const difficultyLabels: Record<Difficulty, string> = {
-    easy: 'Easy',
-    medium: 'Medium',
-    hard: 'Hard',
-    expert: 'Expert',
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced',
+    hardcore: 'Hardcore',
   }
 
   return (

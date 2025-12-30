@@ -1,16 +1,16 @@
 import { createServerFn } from '@tanstack/react-start'
 import { redirect } from '@tanstack/react-router'
 import { eq, or } from 'drizzle-orm'
-import { db } from '@/db'
-import { users } from '@/db/schema'
 import { useAppSession } from './session'
 import {
   hashPassword,
-  verifyPassword,
-  validatePassword,
   validateEmail,
+  validatePassword,
   validateUsername,
+  verifyPassword,
 } from './password'
+import { db } from '@/db'
+import { users } from '@/db/schema'
 
 // Types for auth responses
 export interface AuthError {
@@ -134,7 +134,7 @@ export const loginFn = createServerFn({ method: 'POST' })
 
     // Find user by email or username
     const identifier = emailOrUsername.toLowerCase().trim()
-    const [user] = await db
+    const userResults = await db
       .select({
         id: users.id,
         email: users.email,
@@ -145,6 +145,7 @@ export const loginFn = createServerFn({ method: 'POST' })
       .where(or(eq(users.email, identifier), eq(users.username, identifier)))
       .limit(1)
 
+    const user = userResults[0] as typeof userResults[number] | undefined
     if (!user) {
       return { error: 'Invalid credentials' }
     }
@@ -194,7 +195,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       return null
     }
 
-    const [user] = await db
+    const userResults = await db
       .select({
         id: users.id,
         email: users.email,
@@ -205,7 +206,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
       .where(eq(users.id, userId))
       .limit(1)
 
-    return user || null
+    return userResults[0] ?? null
   }
 )
 

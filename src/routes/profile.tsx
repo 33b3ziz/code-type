@@ -1,19 +1,19 @@
 import { useState } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  User,
-  Trophy,
-  TrendingUp,
+  Calendar,
   Clock,
-  Target,
-  Zap,
   LogOut,
   Settings,
-  Calendar,
+  Target,
+  TrendingUp,
+  Trophy,
+  User,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { getCurrentUserFn, logoutFn } from '@/lib/auth'
-import { getUserStatsFn, getRecentResultsFn } from '@/lib/profile-api'
+import { getRecentResultsFn, getUserStatsFn } from '@/lib/profile-api'
 
 export const Route = createFileRoute('/profile')({
   component: ProfilePage,
@@ -32,7 +32,6 @@ export const Route = createFileRoute('/profile')({
 
 function ProfilePage() {
   const { user, stats, recentResults } = Route.useLoaderData()
-  const navigate = useNavigate()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const handleLogout = async () => {
@@ -72,25 +71,25 @@ function ProfilePage() {
     {
       icon: <Zap className="w-5 h-5" />,
       label: 'Best WPM',
-      value: stats?.bestWpm ?? 0,
+      value: stats.bestWpm,
       color: 'text-yellow-400',
     },
     {
       icon: <TrendingUp className="w-5 h-5" />,
       label: 'Average WPM',
-      value: stats?.averageWpm ?? 0,
+      value: stats.averageWpm,
       color: 'text-cyan-400',
     },
     {
       icon: <Target className="w-5 h-5" />,
       label: 'Average Accuracy',
-      value: `${stats?.averageAccuracy ?? 0}%`,
+      value: `${stats.averageAccuracy}%`,
       color: 'text-green-400',
     },
     {
       icon: <Trophy className="w-5 h-5" />,
       label: 'Tests Completed',
-      value: stats?.totalTests ?? 0,
+      value: stats.totalTests,
       color: 'text-purple-400',
     },
   ]
@@ -158,16 +157,16 @@ function ProfilePage() {
               <div className="flex justify-between">
                 <span className="text-gray-400">Total Time Typing</span>
                 <span className="text-white font-mono">
-                  {formatTime(stats?.totalTimeSpent ?? 0)}
+                  {formatTime(stats.totalTimeSpent)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Tests This Week</span>
-                <span className="text-white font-mono">{stats?.testsThisWeek ?? 0}</span>
+                <span className="text-white font-mono">{stats.testsThisWeek}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Best Accuracy</span>
-                <span className="text-white font-mono">{stats?.bestAccuracy ?? 0}%</span>
+                <span className="text-white font-mono">{stats.bestAccuracy}%</span>
               </div>
             </div>
           </div>
@@ -182,17 +181,17 @@ function ProfilePage() {
                 <span className="text-gray-400">Recent Improvement</span>
                 <span
                   className={`font-mono ${
-                    (stats?.improvement ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                    stats.improvement >= 0 ? 'text-green-400' : 'text-red-400'
                   }`}
                 >
-                  {(stats?.improvement ?? 0) >= 0 ? '+' : ''}
-                  {stats?.improvement ?? 0} WPM
+                  {stats.improvement >= 0 ? '+' : ''}
+                  {stats.improvement} WPM
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Characters Typed</span>
                 <span className="text-white font-mono">
-                  {(stats?.totalCharacters ?? 0).toLocaleString()}
+                  {stats.totalCharacters.toLocaleString()}
                 </span>
               </div>
             </div>

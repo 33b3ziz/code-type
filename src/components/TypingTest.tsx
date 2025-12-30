@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useTypingTest, type TypingResult } from '@/hooks/useTypingTest'
+import type {TypingResult} from '@/hooks/useTypingTest';
+import {  useTypingTest } from '@/hooks/useTypingTest'
 import { cn } from '@/lib/utils'
 
 export interface TypingTestProps {
@@ -154,8 +155,6 @@ export function TypingTest({
                 const charState = characterStates[globalIndex]
                 charIndex++
 
-                if (!charState) return null
-
                 return (
                   <span
                     key={globalIndex}
@@ -186,7 +185,7 @@ export function TypingTest({
                 charIndex++
 
                 // Add cursor at end of line if needed
-                if (newlineState?.state === 'cursor') {
+                if (newlineState.state === 'cursor') {
                   lineContent.push(
                     <span key={`newline-${lineIndex}`} className="relative">
                       <span className="absolute left-0 top-0 w-[2px] h-full bg-cyan-400 animate-pulse" />

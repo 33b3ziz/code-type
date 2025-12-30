@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
-import { eq, desc, sql, gte, and } from 'drizzle-orm'
+import { and, desc, eq, gte, sql } from 'drizzle-orm'
+import type {Difficulty, Language} from '@/db/schema';
 import { db } from '@/db'
-import { testResults, users, type Language, type Difficulty } from '@/db/schema'
+import {   testResults, users } from '@/db/schema'
 
 export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'alltime'
 
@@ -24,7 +25,7 @@ export interface LeaderboardFilters {
 }
 
 export interface LeaderboardResponse {
-  entries: LeaderboardEntry[]
+  entries: Array<LeaderboardEntry>
   total: number
   userRank?: number
 }
@@ -35,11 +36,12 @@ function getTimeFrameStartDate(timeFrame: TimeFrame): Date {
   switch (timeFrame) {
     case 'daily':
       return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    case 'weekly':
+    case 'weekly': {
       const weekStart = new Date(now)
       weekStart.setDate(now.getDate() - now.getDay())
       weekStart.setHours(0, 0, 0, 0)
       return weekStart
+    }
     case 'monthly':
       return new Date(now.getFullYear(), now.getMonth(), 1)
     case 'alltime':
@@ -76,14 +78,14 @@ export const getLeaderboardFn = createServerFn({ method: 'GET' })
       .offset(offset)
 
     // Get total count of unique users
-    const [countResult] = await db
+    const countResults = await db
       .select({ count: sql<number>`COUNT(DISTINCT ${testResults.userId})` })
       .from(testResults)
       .where(gte(testResults.completedAt, startDate))
 
-    const total = countResult?.count ?? 0
+    const total = countResults[0]?.count ?? 0
 
-    const entries: LeaderboardEntry[] = results.map((r, index) => ({
+    const entries: Array<LeaderboardEntry> = results.map((r, index) => ({
       rank: offset + index + 1,
       userId: r.userId,
       username: r.username,
@@ -109,7 +111,7 @@ export const getUserLeaderboardRankFn = createServerFn({ method: 'GET' })
     const startDate = getTimeFrameStartDate(timeFrame)
 
     // Get user's best WPM in the time frame
-    const [userBest] = await db
+    const userBestResults = await db
       .select({ bestWpm: sql<number>`MAX(${testResults.wpm})` })
       .from(testResults)
       .where(
@@ -119,10 +121,11 @@ export const getUserLeaderboardRankFn = createServerFn({ method: 'GET' })
         )
       )
 
-    if (!userBest?.bestWpm) return null
+    const userBest = userBestResults[0] as { bestWpm: number } | undefined
+    if (!userBest || !userBest.bestWpm) return null
 
     // Count users with higher best WPM
-    const [rankResult] = await db
+    const rankResults = await db
       .select({
         count: sql<number>`COUNT(DISTINCT ${testResults.userId})`,
       })
@@ -140,7 +143,7 @@ export const getUserLeaderboardRankFn = createServerFn({ method: 'GET' })
         )
       )
 
-    return (rankResult?.count ?? 0) + 1
+    return (rankResults[0]?.count ?? 0) + 1
   })
 
 /**

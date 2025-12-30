@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useCallback } from 'react'
-import { X, Trophy, AlertCircle, CheckCircle, Info } from 'lucide-react'
+import { createContext, useCallback, useContext, useState } from 'react'
+import { AlertCircle, CheckCircle, Info, Trophy, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type NotificationType = 'success' | 'error' | 'info' | 'achievement'
@@ -13,7 +13,7 @@ export interface Notification {
 }
 
 interface NotificationContextValue {
-  notifications: Notification[]
+  notifications: Array<Notification>
   addNotification: (notification: Omit<Notification, 'id'>) => void
   removeNotification: (id: string) => void
   clearAll: () => void
@@ -28,7 +28,7 @@ export function NotificationProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notifications, setNotifications] = useState<Array<Notification>>([])
 
   const addNotification = useCallback(
     (notification: Omit<Notification, 'id'>) => {
@@ -80,7 +80,7 @@ export function useNotifications() {
 }
 
 interface NotificationContainerProps {
-  notifications: Notification[]
+  notifications: Array<Notification>
   onDismiss: (id: string) => void
 }
 

@@ -1,17 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import type {AccuracyCriteria, ConsistencyCriteria, SpeedCriteria} from '@/lib/achievements';
 import {
   ACHIEVEMENTS,
-  getAchievementBySlug,
-  getAchievementsByType,
-  serializeCriteria,
-  parseCriteria,
-  checkSpeedAchievement,
+  
+  
+  
+  
   checkAccuracyAchievement,
   checkConsistencyAchievement,
-  type SpeedCriteria,
-  type AccuracyCriteria,
-  type ConsistencyCriteria,
-  type AchievementDefinition,
+  checkSpeedAchievement,
+  getAchievementBySlug,
+  getAchievementsByType,
+  parseCriteria,
+  serializeCriteria
 } from '@/lib/achievements'
 
 describe('Achievement Definitions', () => {

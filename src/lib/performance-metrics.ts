@@ -9,7 +9,7 @@ import type { Language } from '@/db/schema'
 const CHARS_PER_WORD = 5
 
 // Programming keywords by language
-export const KEYWORDS: Record<Language, string[]> = {
+export const KEYWORDS: Record<Language, Array<string>> = {
   javascript: [
     'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while',
     'do', 'switch', 'case', 'break', 'continue', 'default', 'try', 'catch',
@@ -84,15 +84,15 @@ export interface PerformanceResult {
   totalChars: number
   correctChars: number
   incorrectChars: number
-  keywordsTyped: KeywordMatch[]
+  keywordsTyped: Array<KeywordMatch>
 }
 
 /**
  * Find all keyword occurrences in code
  */
-export function findKeywords(code: string, language: Language): KeywordMatch[] {
+export function findKeywords(code: string, language: Language): Array<KeywordMatch> {
   const keywords = KEYWORDS[language]
-  const matches: KeywordMatch[] = []
+  const matches: Array<KeywordMatch> = []
 
   // Create regex pattern for whole-word matching
   const pattern = new RegExp(
@@ -117,7 +117,7 @@ export function findKeywords(code: string, language: Language): KeywordMatch[] {
  */
 export function isKeywordPosition(
   position: number,
-  keywordMatches: KeywordMatch[]
+  keywordMatches: Array<KeywordMatch>
 ): boolean {
   return keywordMatches.some(
     (m) => position >= m.startIndex && position < m.endIndex

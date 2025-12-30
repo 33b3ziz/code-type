@@ -1,28 +1,29 @@
-import { eq, and, desc, count, sql } from 'drizzle-orm'
-import { db } from '@/db'
-import { userAchievements, achievements, testResults } from '@/db/schema'
+import { and, count, desc, eq, sql } from 'drizzle-orm'
 import {
   ACHIEVEMENTS,
-  getAchievementBySlug,
-  checkSpeedAchievement,
+  
+  
+  
+  
+  
   checkAccuracyAchievement,
   checkConsistencyAchievement,
-  type AchievementDefinition,
-  type SpeedCriteria,
-  type AccuracyCriteria,
-  type ConsistencyCriteria,
-  type SpecialCriteria,
+  checkSpeedAchievement,
+  getAchievementBySlug
 } from './achievements'
+import type { AchievementDefinition, SpecialCriteria} from './achievements';
+import { db } from '@/db'
+import { achievements, snippets, testResults, userAchievements } from '@/db/schema'
 
 export interface UserAchievementRecord {
-  id: string
+  id: number
   slug: string
   name: string
   description: string
   type: string
-  points: number
-  iconName: string
-  unlockedAt: Date
+  points: number | null
+  iconUrl: string | null
+  unlockedAt: Date | null
 }
 
 export interface AchievementProgress {
@@ -53,30 +54,32 @@ export async function awardAchievement(
   }
 
   // Get or create achievement record in DB
-  let [achievement] = await db
+  const achievementResults = await db
     .select({ id: achievements.id })
     .from(achievements)
     .where(eq(achievements.slug, achievementSlug))
     .limit(1)
 
+  let achievement = achievementResults[0] as { id: number } | undefined
   if (!achievement) {
     // Create the achievement record
-    ;[achievement] = await db
+    const insertResults = await db
       .insert(achievements)
       .values({
         slug: definition.slug,
         name: definition.name,
         description: definition.description,
         type: definition.type,
-        criteriaJson: JSON.stringify(definition.criteria),
+        criteria: JSON.stringify(definition.criteria),
         points: definition.points,
-        iconName: definition.iconName,
+        iconUrl: definition.iconName,
       })
       .returning({ id: achievements.id })
+    achievement = insertResults[0]
   }
 
   // Check if user already has this achievement
-  const [existing] = await db
+  const existingResults = await db
     .select({ id: userAchievements.id })
     .from(userAchievements)
     .where(
@@ -87,7 +90,7 @@ export async function awardAchievement(
     )
     .limit(1)
 
-  if (existing) {
+  if (existingResults[0]) {
     return false // Already awarded
   }
 
@@ -127,7 +130,7 @@ export async function hasAchievement(
  */
 export async function getUserAchievements(
   userId: string
-): Promise<UserAchievementRecord[]> {
+): Promise<Array<UserAchievementRecord>> {
   const results = await db
     .select({
       id: userAchievements.id,
@@ -136,7 +139,7 @@ export async function getUserAchievements(
       description: achievements.description,
       type: achievements.type,
       points: achievements.points,
-      iconName: achievements.iconName,
+      iconUrl: achievements.iconUrl,
       unlockedAt: userAchievements.unlockedAt,
     })
     .from(userAchievements)
@@ -151,7 +154,7 @@ export async function getUserAchievements(
  * Get total achievement points for a user
  */
 export async function getUserAchievementPoints(userId: string): Promise<number> {
-  const [result] = await db
+  const results = await db
     .select({
       total: sql<number>`COALESCE(SUM(${achievements.points}), 0)`,
     })
@@ -159,7 +162,7 @@ export async function getUserAchievementPoints(userId: string): Promise<number> 
     .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
     .where(eq(userAchievements.userId, userId))
 
-  return Number(result?.total ?? 0)
+  return Number(results[0]?.total ?? 0)
 }
 
 /**
@@ -167,7 +170,7 @@ export async function getUserAchievementPoints(userId: string): Promise<number> 
  */
 export async function getUserStats(userId: string) {
   // Total tests
-  const [testCountResult] = await db
+  const testCountResults = await db
     .select({ count: count() })
     .from(testResults)
     .where(eq(testResults.userId, userId))
@@ -175,7 +178,7 @@ export async function getUserStats(userId: string) {
   // Tests today
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const [todayCountResult] = await db
+  const todayCountResults = await db
     .select({ count: count() })
     .from(testResults)
     .where(
@@ -205,28 +208,27 @@ export async function getUserStats(userId: string) {
   // Language-specific test counts with 90%+ accuracy
   const languageStats = await db
     .select({
-      language: testResults.language,
+      language: snippets.language,
       count: count(),
     })
     .from(testResults)
+    .innerJoin(snippets, eq(testResults.snippetId, snippets.id))
     .where(
       and(
         eq(testResults.userId, userId),
         sql`${testResults.accuracy} >= 90`
       )
     )
-    .groupBy(testResults.language)
+    .groupBy(snippets.language)
 
   const languageCounts: Record<string, number> = {}
   for (const stat of languageStats) {
-    if (stat.language) {
-      languageCounts[stat.language] = stat.count
-    }
+    languageCounts[stat.language] = stat.count
   }
 
   return {
-    totalTests: testCountResult?.count ?? 0,
-    testsToday: todayCountResult?.count ?? 0,
+    totalTests: testCountResults[0]?.count ?? 0,
+    testsToday: todayCountResults[0]?.count ?? 0,
     consecutiveHighAccuracy,
     languageCounts,
   }
@@ -244,8 +246,8 @@ export async function checkAndAwardAchievements(
     symbolAccuracy?: number
     language: string
   }
-): Promise<string[]> {
-  const awarded: string[] = []
+): Promise<Array<string>> {
+  const awarded: Array<string> = []
   const stats = await getUserStats(userId)
 
   for (const achievement of ACHIEVEMENTS) {
@@ -259,14 +261,14 @@ export async function checkAndAwardAchievements(
     switch (achievement.criteria.type) {
       case 'speed':
         shouldAward = checkSpeedAchievement(
-          achievement.criteria as SpeedCriteria,
+          achievement.criteria,
           testResult.wpm
         )
         break
 
       case 'accuracy':
         shouldAward = checkAccuracyAchievement(
-          achievement.criteria as AccuracyCriteria,
+          achievement.criteria,
           testResult.accuracy,
           stats.consecutiveHighAccuracy
         )
@@ -274,14 +276,14 @@ export async function checkAndAwardAchievements(
 
       case 'consistency':
         shouldAward = checkConsistencyAchievement(
-          achievement.criteria as ConsistencyCriteria,
+          achievement.criteria,
           stats.totalTests
         )
         break
 
       case 'special':
         shouldAward = checkSpecialAchievement(
-          achievement.criteria as SpecialCriteria,
+          achievement.criteria,
           testResult,
           stats
         )
@@ -330,9 +332,10 @@ function checkSpecialAchievement(
     case 'streak':
       return stats.testsToday >= (criteria.value as number)
 
-    case 'language_mastery':
+    case 'language_mastery': {
       const language = criteria.value as string
       return (stats.languageCounts[language] ?? 0) >= 25
+    }
 
     default:
       return false
@@ -344,7 +347,7 @@ function checkSpecialAchievement(
  */
 export async function getAchievementProgress(
   userId: string
-): Promise<AchievementProgress[]> {
+): Promise<Array<AchievementProgress>> {
   const userAchievementsList = await getUserAchievements(userId)
   const unlockedSlugs = new Set(userAchievementsList.map((a) => a.slug))
   const stats = await getUserStats(userId)
@@ -397,7 +400,7 @@ function calculateProgress(
 
   switch (criteria.type) {
     case 'consistency': {
-      const c = criteria as ConsistencyCriteria
+      const c = criteria
       const progress = Math.min(100, (stats.totalTests / c.minTests) * 100)
       return {
         progress,
@@ -406,7 +409,7 @@ function calculateProgress(
     }
 
     case 'accuracy': {
-      const c = criteria as AccuracyCriteria
+      const c = criteria
       if (c.consecutiveTests) {
         const progress = Math.min(
           100,
@@ -421,7 +424,7 @@ function calculateProgress(
     }
 
     case 'special': {
-      const c = criteria as SpecialCriteria
+      const c = criteria
       if (c.condition === 'streak') {
         const target = c.value as number
         const progress = Math.min(100, (stats.testsToday / target) * 100)

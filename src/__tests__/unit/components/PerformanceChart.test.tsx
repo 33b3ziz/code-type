@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import type { TrendPoint } from '@/lib/analytics-api'
 import {
+  LanguageComparisonChart,
   PerformanceChart,
   Sparkline,
-  LanguageComparisonChart,
   StatChange,
 } from '@/components/PerformanceChart'
-import type { TrendPoint } from '@/lib/analytics-api'
 
 describe('PerformanceChart', () => {
-  const sampleData: TrendPoint[] = [
+  const sampleData: Array<TrendPoint> = [
     { date: '2024-01-01', value: 50, count: 3 },
     { date: '2024-01-02', value: 55, count: 2 },
     { date: '2024-01-03', value: 52, count: 4 },

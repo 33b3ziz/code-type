@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import {
   NotificationProvider,
   useNotifications,
@@ -7,8 +7,7 @@ import {
 
 // Test component to use the hook
 function TestComponent() {
-  const { notifications, addNotification, removeNotification, clearAll } =
-    useNotifications()
+  const { notifications, addNotification, clearAll } = useNotifications()
 
   return (
     <div>

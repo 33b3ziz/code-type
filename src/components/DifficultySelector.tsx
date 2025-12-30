@@ -1,3 +1,4 @@
+import type { Difficulty } from '@/db/schema'
 import {
   Select,
   SelectContent,
@@ -6,13 +7,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import type { Difficulty } from '@/db/schema'
 
-const DIFFICULTY_OPTIONS: {
+const DIFFICULTY_OPTIONS: Array<{
   value: Difficulty
   label: string
   description: string
-}[] = [
+}> = [
   {
     value: 'beginner',
     label: 'Beginner',

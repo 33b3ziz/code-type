@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { TestResult } from '@/db/schema'
 import {
   calculatePerformanceProfile,
   getDifficultyRecommendation,
   getLanguageRecommendation,
-  getPracticeRecommendation,
   getMotivationalMessage,
+  getPracticeRecommendation,
 } from '@/lib/recommendations-api'
-import type { TestResult } from '@/db/schema'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -117,12 +117,12 @@ describe('recommendations-api', () => {
   })
 
   describe('getDifficultyRecommendation', () => {
-    it('returns easy for new users', async () => {
+    it('returns beginner for new users', async () => {
       localStorageMock.getItem.mockReturnValue('[]')
 
       const rec = await getDifficultyRecommendation('user_1')
 
-      expect(rec.recommended).toBe('easy')
+      expect(rec.recommended).toBe('beginner')
       expect(rec.confidence).toBe('low')
     })
 
@@ -134,7 +134,7 @@ describe('recommendations-api', () => {
 
       const rec = await getDifficultyRecommendation('user_1')
 
-      expect(['hard', 'expert']).toContain(rec.recommended)
+      expect(['advanced', 'hardcore']).toContain(rec.recommended)
     })
 
     it('recommends easier difficulty for low accuracy', async () => {
@@ -145,7 +145,7 @@ describe('recommendations-api', () => {
 
       const rec = await getDifficultyRecommendation('user_1')
 
-      expect(rec.recommended).toBe('easy')
+      expect(rec.recommended).toBe('beginner')
       expect(rec.reason).toContain('accuracy')
     })
 

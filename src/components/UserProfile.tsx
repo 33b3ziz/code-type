@@ -3,23 +3,25 @@
  * Displays user statistics, typing history, per-language breakdown, and analytics
  */
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { Language } from '@/db/schema'
-import { getUserStats, type UserStats } from '@/lib/results-api'
+import type {UserStats} from '@/lib/results-api';
+import type {AccuracyTrend, LanguageBreakdown, WPMTrend, WeaknessArea} from '@/lib/analytics-api';
+import {  getUserStats } from '@/lib/results-api'
 import {
-  getLanguageStats,
+  
+  
+  
+  
   getAccuracyTrend,
-  getWPMTrend,
-  identifyWeaknesses,
   getLanguageDisplayName,
-  type LanguageBreakdown,
-  type AccuracyTrend,
-  type WPMTrend,
-  type WeaknessArea,
+  getLanguageStats,
+  getWPMTrend,
+  identifyWeaknesses
 } from '@/lib/analytics-api'
 import {
-  getUserRank,
-  type TimeFrame,
+  
+  getUserRank
 } from '@/lib/leaderboard-api'
 
 export interface UserProfileProps {
@@ -33,7 +35,7 @@ export function UserProfile({ userId, username, className = '' }: UserProfilePro
   const [languageBreakdown, setLanguageBreakdown] = useState<LanguageBreakdown | null>(null)
   const [accuracyTrend, setAccuracyTrend] = useState<AccuracyTrend | null>(null)
   const [wpmTrend, setWPMTrend] = useState<WPMTrend | null>(null)
-  const [weaknesses, setWeaknesses] = useState<WeaknessArea[]>([])
+  const [weaknesses, setWeaknesses] = useState<Array<WeaknessArea>>([])
   const [globalRank, setGlobalRank] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -314,6 +316,8 @@ function LanguageCard({
   isStrongest,
   needsWork,
 }: LanguageCardProps) {
+  const trendIcon = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'
+  const trendClass = `trend-${trend}`
   const languageColors: Record<Language, string> = {
     javascript: '#f7df1e',
     typescript: '#3178c6',
@@ -328,6 +332,7 @@ function LanguageCard({
     >
       <div className="language-header">
         <span className="language-name">{getLanguageDisplayName(language)}</span>
+        <span className={`language-trend ${trendClass}`} aria-label={`Trend: ${trend}`}>{trendIcon}</span>
         {isStrongest && <span className="language-badge strongest-badge">Strongest</span>}
         {needsWork && <span className="language-badge needs-work-badge">Needs Work</span>}
       </div>

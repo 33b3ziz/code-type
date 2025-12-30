@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Settings, Volume2, Eye, Keyboard, RotateCcw } from 'lucide-react'
+import { Eye, Keyboard, RotateCcw, Settings, Volume2 } from 'lucide-react'
+import type {UserSettings} from '@/lib/settings-api';
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
@@ -13,11 +14,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  getSettingsFn,
-  updateSettingsFn,
-  resetSettingsFn,
   DEFAULT_SETTINGS,
-  type UserSettings,
+  
+  getSettingsFn,
+  resetSettingsFn,
+  updateSettingsFn
 } from '@/lib/settings-api'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -40,9 +41,9 @@ function SettingsPage() {
     setTheme(settings.theme)
   }, [settings.theme, setTheme])
 
-  const handleChange = async <K extends keyof UserSettings>(
-    key: K,
-    value: UserSettings[K]
+  const handleChange = async <TKey extends keyof UserSettings>(
+    key: TKey,
+    value: UserSettings[TKey]
   ) => {
     const newSettings = { ...settings, [key]: value }
     setSettings(newSettings)

@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Keyboard, LogIn, Eye, EyeOff } from 'lucide-react'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Eye, EyeOff, Keyboard, LogIn } from 'lucide-react'
+import type {AuthResult} from '@/lib/auth';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { loginFn, type AuthResult } from '@/lib/auth'
+import {  loginFn } from '@/lib/auth'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -17,7 +18,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [fieldError, setFieldError] = useState<'email' | 'password' | null>(null)
+  const [fieldError, setFieldError] = useState<'email' | 'username' | 'password' | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 import type { TrendPoint } from '@/lib/analytics-api'
 
 export interface PerformanceChartProps {
-  data: TrendPoint[]
+  data: Array<TrendPoint>
   type?: 'line' | 'bar'
   height?: number
   color?: string
@@ -29,7 +29,7 @@ export function PerformanceChart({
   className = '',
 }: PerformanceChartProps) {
   // Calculate chart dimensions
-  const { min, max, range, normalizedData } = useMemo(() => {
+  const { min, max, normalizedData } = useMemo(() => {
     if (data.length === 0) {
       return { min: 0, max: 100, range: 100, normalizedData: [] }
     }
@@ -142,7 +142,7 @@ export function PerformanceChart({
       {/* X-axis labels */}
       {showLabels && (
         <div className="chart-x-axis" data-testid="chart-x-axis">
-          {normalizedData.map((point, index) => (
+          {normalizedData.map((point) => (
             <span
               key={point.date}
               className="x-label"
@@ -161,7 +161,7 @@ export function PerformanceChart({
  * Sparkline - Minimal inline chart
  */
 export interface SparklineProps {
-  data: number[]
+  data: Array<number>
   width?: number
   height?: number
   color?: string
@@ -227,7 +227,7 @@ export function Sparkline({
  * Language comparison bar chart
  */
 export interface LanguageComparisonChartProps {
-  data: { language: string; value: number; color?: string }[]
+  data: Array<{ language: string; value: number; color?: string }>
   maxValue?: number
   valueLabel?: string
   className?: string

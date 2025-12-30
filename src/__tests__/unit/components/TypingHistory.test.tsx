@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TypingHistory } from '@/components/TypingHistory'
 
@@ -18,7 +18,7 @@ vi.mock('@/lib/results-api', () => ({
       snippet: {
         title: 'Test Snippet',
         language: 'javascript',
-        difficulty: 'medium',
+        difficulty: 'intermediate',
       },
     },
     {
@@ -33,7 +33,7 @@ vi.mock('@/lib/results-api', () => ({
       snippet: {
         title: 'Another Snippet',
         language: 'typescript',
-        difficulty: 'hard',
+        difficulty: 'advanced',
       },
     },
     {
@@ -48,7 +48,7 @@ vi.mock('@/lib/results-api', () => ({
       snippet: {
         title: 'Python Snippet',
         language: 'python',
-        difficulty: 'easy',
+        difficulty: 'beginner',
       },
     },
   ]),
@@ -125,7 +125,7 @@ describe('TypingHistory', () => {
     })
 
     const difficultySelect = screen.getByLabelText('Difficulty:')
-    await user.selectOptions(difficultySelect, 'hard')
+    await user.selectOptions(difficultySelect, 'advanced')
 
     await waitFor(() => {
       const summary = screen.getByTestId('history-summary')
@@ -189,9 +189,16 @@ describe('TypingHistory', () => {
       wpm: 50 + i,
       rawWpm: 55 + i,
       accuracy: 90,
+      symbolAccuracy: 92,
+      keywordAccuracy: 88,
+      charactersTyped: 200,
+      correctCharacters: 180,
+      incorrectCharacters: 20,
+      backspaceCount: 5,
       duration: 60,
       completedAt: new Date(),
-      snippet: { title: `Snippet ${i}`, language: 'javascript' as const, difficulty: 'easy' as const },
+      isStrictMode: false,
+      snippet: { title: `Snippet ${i}`, language: 'javascript' as const, difficulty: 'beginner' as const },
     }))
     vi.mocked(getRecentResults).mockResolvedValueOnce(manyResults)
 

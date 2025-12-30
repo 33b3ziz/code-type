@@ -3,7 +3,7 @@
  * Functions for fetching and managing leaderboard rankings
  */
 
-import type { TestResult, Language, Difficulty } from '@/db/schema'
+import type { Difficulty, Language, TestResult } from '@/db/schema'
 
 export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'alltime'
 
@@ -28,7 +28,7 @@ export interface LeaderboardFilters {
 }
 
 export interface LeaderboardResponse {
-  entries: LeaderboardEntry[]
+  entries: Array<LeaderboardEntry>
   total: number
   userRank?: number // Current user's rank if authenticated
   filters: LeaderboardFilters
@@ -57,11 +57,12 @@ function getTimeFrameStartDate(timeFrame: TimeFrame): Date {
   switch (timeFrame) {
     case 'daily':
       return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    case 'weekly':
+    case 'weekly': {
       const weekStart = new Date(now)
       weekStart.setDate(now.getDate() - now.getDay())
       weekStart.setHours(0, 0, 0, 0)
       return weekStart
+    }
     case 'monthly':
       return new Date(now.getFullYear(), now.getMonth(), 1)
     case 'alltime':
@@ -73,7 +74,7 @@ function getTimeFrameStartDate(timeFrame: TimeFrame): Date {
 /**
  * Filter results by timeframe
  */
-function filterByTimeFrame(results: TestResult[], timeFrame: TimeFrame): TestResult[] {
+function filterByTimeFrame(results: Array<TestResult>, timeFrame: TimeFrame): Array<TestResult> {
   const startDate = getTimeFrameStartDate(timeFrame)
   return results.filter((r) => new Date(r.completedAt) >= startDate)
 }
@@ -81,8 +82,8 @@ function filterByTimeFrame(results: TestResult[], timeFrame: TimeFrame): TestRes
 /**
  * Aggregate results by user for leaderboard
  */
-function aggregateByUser(results: TestResult[]): Map<string, TestResult[]> {
-  const userResults = new Map<string, TestResult[]>()
+function aggregateByUser(results: Array<TestResult>): Map<string, Array<TestResult>> {
+  const userResults = new Map<string, Array<TestResult>>()
 
   for (const result of results) {
     const existing = userResults.get(result.userId) || []
@@ -98,7 +99,7 @@ function aggregateByUser(results: TestResult[]): Map<string, TestResult[]> {
  */
 function calculateEntry(
   userId: string,
-  results: TestResult[],
+  results: Array<TestResult>,
   rank: number
 ): LeaderboardEntry {
   if (results.length === 0) {
@@ -141,14 +142,14 @@ function calculateEntry(
 export async function getLeaderboard(
   filters: LeaderboardFilters
 ): Promise<LeaderboardResponse> {
-  const { timeFrame, language, difficulty, limit = 10, offset = 0 } = filters
+  const { timeFrame, limit = 10, offset = 0 } = filters
 
   if (typeof window === 'undefined') {
     return { entries: [], total: 0, filters }
   }
 
   // Get all results from localStorage
-  let results: TestResult[] = JSON.parse(
+  let results: Array<TestResult> = JSON.parse(
     localStorage.getItem('testResults') || '[]'
   )
 
@@ -163,9 +164,9 @@ export async function getLeaderboard(
   const userResults = aggregateByUser(results)
 
   // Calculate entries and sort by best WPM
-  const entries: LeaderboardEntry[] = []
-  userResults.forEach((userResults, userId) => {
-    entries.push(calculateEntry(userId, userResults, 0))
+  const entries: Array<LeaderboardEntry> = []
+  userResults.forEach((results, userId) => {
+    entries.push(calculateEntry(userId, results, 0))
   })
 
   // Sort by WPM descending
@@ -204,7 +205,7 @@ export async function getUserRank(
 export async function getTopUsers(
   timeFrame: TimeFrame,
   limit: number = 10
-): Promise<LeaderboardEntry[]> {
+): Promise<Array<LeaderboardEntry>> {
   const { entries } = await getLeaderboard({ timeFrame, limit })
   return entries
 }
@@ -212,21 +213,21 @@ export async function getTopUsers(
 /**
  * Get daily leaderboard
  */
-export async function getDailyLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
+export async function getDailyLeaderboard(limit: number = 10): Promise<Array<LeaderboardEntry>> {
   return getTopUsers('daily', limit)
 }
 
 /**
  * Get weekly leaderboard
  */
-export async function getWeeklyLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
+export async function getWeeklyLeaderboard(limit: number = 10): Promise<Array<LeaderboardEntry>> {
   return getTopUsers('weekly', limit)
 }
 
 /**
  * Get all-time leaderboard
  */
-export async function getAllTimeLeaderboard(limit: number = 10): Promise<LeaderboardEntry[]> {
+export async function getAllTimeLeaderboard(limit: number = 10): Promise<Array<LeaderboardEntry>> {
   return getTopUsers('alltime', limit)
 }
 

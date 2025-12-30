@@ -3,9 +3,8 @@
  * Allows users to replay previous typing tests with the same snippet
  */
 
-import { useState } from 'react'
-import type { TestResult, Language, Difficulty } from '@/db/schema'
-import { formatDuration, formatDate } from '@/lib/results-api'
+import type { Difficulty, Language } from '@/db/schema'
+import { formatDate } from '@/lib/results-api'
 
 export interface ReplayableTest {
   id: number
@@ -32,8 +31,6 @@ export function TestReplay({
   onClose,
   className = '',
 }: TestReplayProps) {
-  const [showComparison, setShowComparison] = useState(false)
-
   const handleStartReplay = () => {
     onStartReplay(test.snippetId)
   }

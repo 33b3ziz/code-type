@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { Keyboard, UserPlus, Eye, EyeOff, Check, X } from 'lucide-react'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Check, Eye, EyeOff, Keyboard, UserPlus, X } from 'lucide-react'
+import type {AuthResult} from '@/lib/auth';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { registerFn, type AuthResult } from '@/lib/auth'
+import {  registerFn } from '@/lib/auth'
 
 export const Route = createFileRoute('/register')({
   component: RegisterPage,

@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  Keyboard,
-  Zap,
-  Target,
-  Trophy,
   Code,
+  Keyboard,
+  Play,
+  Target,
   Timer,
   TrendingUp,
-  Play,
+  Trophy,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 

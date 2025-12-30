@@ -1,26 +1,27 @@
 import {
-  Trophy,
-  Zap,
-  Target,
-  Star,
-  Flame,
-  Crown,
   Award,
-  Medal,
-  Shield,
-  Rocket,
-  Wand2,
-  Footprints,
   Ban,
-  Hash,
+  Crown,
   FileCode,
-  FileType,
   FileCode2,
+  FileType,
+  Flame,
+  Footprints,
+  Hash,
+  
+  Medal,
+  Rocket,
+  Shield,
   Sparkles,
-  type LucideIcon,
+  Star,
+  Target,
+  Trophy,
+  Wand2,
+  Zap
 } from 'lucide-react'
+import type {LucideIcon} from 'lucide-react';
 import { cn } from '@/lib/utils'
-import { ACHIEVEMENTS, getAchievementBySlug, type AchievementDefinition } from '@/lib/achievements'
+import { ACHIEVEMENTS,  getAchievementBySlug } from '@/lib/achievements'
 
 export interface AchievementBadgeProps {
   achievementSlug: string
@@ -31,7 +32,7 @@ export interface AchievementBadgeProps {
   className?: string
 }
 
-const iconMap: Record<string, LucideIcon> = {
+const iconMap: Partial<Record<string, LucideIcon>> = {
   Trophy,
   Zap,
   Target,

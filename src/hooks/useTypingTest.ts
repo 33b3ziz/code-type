@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface TypingState {
   // Input tracking
@@ -77,8 +77,8 @@ export function useTypingTest(config: TypingTestConfig) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   // Calculate character states for rendering
-  const getCharacterStates = useCallback((): CharacterState[] => {
-    const chars: CharacterState[] = []
+  const getCharacterStates = useCallback((): Array<CharacterState> => {
+    const chars: Array<CharacterState> = []
     const codeChars = code.split('')
     const typedChars = state.typed.split('')
 
