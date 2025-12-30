@@ -39,7 +39,7 @@ export interface PaginationParams {
  * Get a random snippet matching the given filters
  */
 export const getRandomSnippetFn = createServerFn({ method: 'GET' })
-  .validator((data: SnippetFilters) => data)
+  .inputValidator((data: SnippetFilters) => data)
   .handler(async ({ data }): Promise<SnippetResponse | null> => {
     const conditions = buildFilterConditions(data)
 
@@ -47,7 +47,7 @@ export const getRandomSnippetFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -65,7 +65,7 @@ export const getRandomSnippetFn = createServerFn({ method: 'GET' })
  * Get snippets with filtering and pagination
  */
 export const getSnippetsFn = createServerFn({ method: 'GET' })
-  .validator((data: SnippetFilters & PaginationParams) => data)
+  .inputValidator((data: SnippetFilters & PaginationParams) => data)
   .handler(async ({ data }): Promise<PaginatedSnippetsResponse> => {
     const { page = 1, pageSize = 10, ...filters } = data
     const offset = (page - 1) * pageSize
@@ -84,7 +84,7 @@ export const getSnippetsFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -109,13 +109,13 @@ export const getSnippetsFn = createServerFn({ method: 'GET' })
  * Get a specific snippet by ID
  */
 export const getSnippetByIdFn = createServerFn({ method: 'GET' })
-  .validator((id: string) => id)
+  .inputValidator((id: string) => id)
   .handler(async ({ data: id }): Promise<SnippetResponse | null> => {
     const [snippet] = await db
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -164,8 +164,8 @@ export const getSnippetFilterOptionsFn = createServerFn({
   // Get code length range
   const [lengthStats] = await db
     .select({
-      minLength: sql<number>`MIN(LENGTH(${snippets.code}))`,
-      maxLength: sql<number>`MAX(LENGTH(${snippets.code}))`,
+      minLength: sql<number>`MIN(LENGTH(${snippets.content}))`,
+      maxLength: sql<number>`MAX(LENGTH(${snippets.content}))`,
     })
     .from(snippets)
 
@@ -193,7 +193,7 @@ export const getSnippetFilterOptionsFn = createServerFn({
  * Get multiple random snippets for a typing session
  */
 export const getRandomSnippetsFn = createServerFn({ method: 'GET' })
-  .validator((data: SnippetFilters & { count?: number }) => data)
+  .inputValidator((data: SnippetFilters & { count?: number }) => data)
   .handler(async ({ data }): Promise<SnippetResponse[]> => {
     const { count: snippetCount = 5, ...filters } = data
     const conditions = buildFilterConditions(filters)
@@ -202,7 +202,7 @@ export const getRandomSnippetsFn = createServerFn({ method: 'GET' })
       .select({
         id: snippets.id,
         title: snippets.title,
-        code: snippets.code,
+        code: snippets.content,
         language: snippets.language,
         difficulty: snippets.difficulty,
         category: snippets.category,
@@ -235,11 +235,11 @@ function buildFilterConditions(filters: SnippetFilters) {
   }
 
   if (filters.minLength !== undefined) {
-    conditions.push(sql`LENGTH(${snippets.code}) >= ${filters.minLength}`)
+    conditions.push(sql`LENGTH(${snippets.content}) >= ${filters.minLength}`)
   }
 
   if (filters.maxLength !== undefined) {
-    conditions.push(sql`LENGTH(${snippets.code}) <= ${filters.maxLength}`)
+    conditions.push(sql`LENGTH(${snippets.content}) <= ${filters.maxLength}`)
   }
 
   return conditions

@@ -21,10 +21,12 @@ async function seed() {
     .values(
       snippets.map((snippet) => ({
         title: snippet.title,
-        code: snippet.code,
+        content: snippet.code,
         language: snippet.language,
         difficulty: snippet.difficulty,
         category: snippet.category,
+        characterCount: snippet.code.length,
+        lineCount: snippet.code.split('\n').length,
       }))
     )
     .onConflictDoNothing()

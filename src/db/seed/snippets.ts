@@ -434,7 +434,7 @@ function traverseTree<T>(
 }`,
     language: 'typescript',
     difficulty: 'beginner',
-    category: 'react_components',
+    category: 'react-components',
   },
   {
     title: 'useState Hook',
@@ -452,7 +452,7 @@ function traverseTree<T>(
 }`,
     language: 'typescript',
     difficulty: 'beginner',
-    category: 'react_components',
+    category: 'react-components',
   },
 
   // ============================================
@@ -479,7 +479,7 @@ function traverseTree<T>(
 }`,
     language: 'typescript',
     difficulty: 'intermediate',
-    category: 'react_components',
+    category: 'react-components',
   },
   {
     title: 'Form Handling',
@@ -510,7 +510,7 @@ function traverseTree<T>(
 }`,
     language: 'typescript',
     difficulty: 'intermediate',
-    category: 'react_components',
+    category: 'react-components',
   },
 
   // ============================================
@@ -538,7 +538,7 @@ function traverseTree<T>(
 }`,
     language: 'typescript',
     difficulty: 'advanced',
-    category: 'react_components',
+    category: 'react-components',
   },
   {
     title: 'Context Provider',
@@ -564,7 +564,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 }`,
     language: 'typescript',
     difficulty: 'advanced',
-    category: 'react_components',
+    category: 'react-components',
   },
 
   // ============================================

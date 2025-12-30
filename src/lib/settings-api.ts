@@ -83,7 +83,7 @@ export const getSettingsFn = createServerFn({ method: 'GET' }).handler(
  * Update current user's settings
  */
 export const updateSettingsFn = createServerFn({ method: 'POST' })
-  .validator((data: SettingsUpdate) => data)
+  .inputValidator((data: SettingsUpdate) => data)
   .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
     const session = await useAppSession()
     const userId = session.data.userId
