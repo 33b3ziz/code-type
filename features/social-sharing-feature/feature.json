@@ -3,7 +3,7 @@
   "category": "UI",
   "title": "Social Media Sharing",
   "description": "Enable users to share their test achievements, high scores, or statistics on social media platforms. Generate shareable summaries and images of performance.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 3,
   "complexity": "moderate",
   "dependencies": [

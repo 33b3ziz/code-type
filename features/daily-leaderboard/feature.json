@@ -3,7 +3,7 @@
   "category": "Core",
   "title": "Daily Leaderboard Rankings",
   "description": "Implement daily leaderboard logic that resets rankings each day at midnight UTC. Track users' best WPM per language/difficulty combination within the current day.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [

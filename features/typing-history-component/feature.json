@@ -3,7 +3,7 @@
   "category": "UI",
   "title": "Typing Test History",
   "description": "Display a paginated or scrollable list of user's past typing tests with date, language, difficulty, WPM, and accuracy. Allow users to click on individual tests to view detailed results.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [

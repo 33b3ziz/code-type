@@ -3,7 +3,7 @@
   "category": "UI",
   "title": "Leaderboard Display",
   "description": "Build a leaderboard UI component displaying ranked users with their top scores. Include filters for timeframe, language, and difficulty to allow users to explore different rankings.",
-  "status": "backlog",
+  "status": "verified",
   "priority": 2,
   "complexity": "simple",
   "dependencies": [
