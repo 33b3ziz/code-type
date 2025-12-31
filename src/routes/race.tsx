@@ -150,7 +150,7 @@ function RacePage() {
   // Menu view - create or join a room
   if (view === 'menu') {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
             Multiplayer Race
@@ -165,7 +165,7 @@ function RacePage() {
           <div
             className={cn(
               'w-2 h-2 rounded-full',
-              isConnected ? 'bg-green-500' : 'bg-gray-500'
+              isConnected ? 'bg-green-500' : 'bg-gray-500',
             )}
           />
           <span className="text-sm text-gray-400">
@@ -196,7 +196,7 @@ function RacePage() {
                         'flex-1 py-2 rounded-lg border transition-colors',
                         createSettings.maxPlayers === num
                           ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
-                          : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                          : 'border-slate-600 text-gray-400 hover:border-slate-500',
                       )}
                     >
                       {num}
@@ -219,7 +219,10 @@ function RacePage() {
                           language:
                             lang === 'Any'
                               ? undefined
-                              : (lang.toLowerCase() as 'javascript' | 'typescript' | 'python'),
+                              : (lang.toLowerCase() as
+                                  | 'javascript'
+                                  | 'typescript'
+                                  | 'python'),
                         }))
                       }
                       className={cn(
@@ -227,7 +230,7 @@ function RacePage() {
                         (lang === 'Any' && !createSettings.language) ||
                           createSettings.language === lang.toLowerCase()
                           ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
-                          : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                          : 'border-slate-600 text-gray-400 hover:border-slate-500',
                       )}
                     >
                       {lang}
@@ -240,11 +243,14 @@ function RacePage() {
                 <span className="text-sm text-gray-400">Private Room</span>
                 <button
                   onClick={() =>
-                    setCreateSettings((s) => ({ ...s, isPrivate: !s.isPrivate }))
+                    setCreateSettings((s) => ({
+                      ...s,
+                      isPrivate: !s.isPrivate,
+                    }))
                   }
                   className={cn(
                     'w-12 h-6 rounded-full transition-colors',
-                    createSettings.isPrivate ? 'bg-cyan-500' : 'bg-slate-600'
+                    createSettings.isPrivate ? 'bg-cyan-500' : 'bg-slate-600',
                   )}
                 >
                   <div
@@ -252,7 +258,7 @@ function RacePage() {
                       'w-5 h-5 rounded-full bg-white transition-transform',
                       createSettings.isPrivate
                         ? 'translate-x-6'
-                        : 'translate-x-0.5'
+                        : 'translate-x-0.5',
                     )}
                   />
                 </button>

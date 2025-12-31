@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as RaceRouteImport } from './routes/race'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -32,6 +33,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RaceRoute = RaceRouteImport.update({
+  id: '/race',
+  path: '/race',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
+  '/race': typeof RaceRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
+  '/race': typeof RaceRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
+  '/race': typeof RaceRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
   '/test': typeof TestRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/practice'
     | '/profile'
+    | '/race'
     | '/register'
     | '/settings'
     | '/test'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/practice'
     | '/profile'
+    | '/race'
     | '/register'
     | '/settings'
     | '/test'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/practice'
     | '/profile'
+    | '/race'
     | '/register'
     | '/settings'
     | '/test'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   PracticeRoute: typeof PracticeRoute
   ProfileRoute: typeof ProfileRoute
+  RaceRoute: typeof RaceRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
   TestRoute: typeof TestRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/race': {
+      id: '/race'
+      path: '/race'
+      fullPath: '/race'
+      preLoaderRoute: typeof RaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   PracticeRoute: PracticeRoute,
   ProfileRoute: ProfileRoute,
+  RaceRoute: RaceRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
   TestRoute: TestRoute,
