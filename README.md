@@ -9,6 +9,7 @@ A modern typing test application designed specifically for programmers. Practice
 ## Features
 
 ### Core Typing Test
+
 - **Code Snippets**: 45+ curated snippets across JavaScript, TypeScript, and Python
 - **Difficulty Levels**: Beginner, Intermediate, Advanced, and Expert
 - **Real-time Metrics**: WPM, raw WPM, accuracy, and time tracking
@@ -16,16 +17,19 @@ A modern typing test application designed specifically for programmers. Practice
 - **Sound Effects**: Optional typing sounds with volume control
 
 ### User System
+
 - **Authentication**: Secure login and registration with password hashing
 - **User Profiles**: Track personal statistics, trends, and progress
 - **Settings**: Customizable editor preferences, sound settings, and display options
 
 ### Leaderboard
+
 - **Global Rankings**: Compete with other programmers
 - **Filter by Language**: See top performers in each programming language
 - **Personal Stats**: Track your position and improvement over time
 
 ### Practice Modes
+
 - **Symbol Practice**: Focus on programming symbols (`{}`, `[]`, `=>`, etc.)
 - **Keyword Practice**: Language-specific keywords and syntax
 - **Weak Spot Drills**: Target your most common mistakes
@@ -34,11 +38,13 @@ A modern typing test application designed specifically for programmers. Practice
 - **Warm-up Routine**: Quick exercises before tests
 
 ### Multiplayer (Preview)
+
 - **Race Rooms**: Create or join typing races
 - **Real-time Competition**: See other players' progress live
 - **Race Results**: Compare WPM, accuracy, and finish times
 
 ### Analytics & Insights
+
 - **Performance Charts**: Visualize your progress over time
 - **Error Analysis**: Heatmaps showing common mistake patterns
 - **Typing History**: Review past test results
@@ -65,32 +71,38 @@ A modern typing test application designed specifically for programmers. Practice
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/33b3ziz/code-type.git
    cd code-type
    ```
 
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
 
    Configure your `DATABASE_URL` in `.env`:
+
    ```
    DATABASE_URL=postgresql://user:password@localhost:5432/codetype
    ```
 
 4. Set up the database:
+
    ```bash
    pnpm db:push
    ```
 
 5. Start the development server:
+
    ```bash
    pnpm dev
    ```
@@ -147,15 +159,15 @@ src/
 
 ## Key Components
 
-| Component | Description |
-|-----------|-------------|
-| `TypingTest` | Main typing interface with real-time feedback |
-| `DifficultySelector` | Choose test difficulty level |
-| `LanguageSelector` | Filter snippets by programming language |
-| `Leaderboard` | Global rankings display |
-| `UserProfile` | Personal statistics and trends |
-| `PerformanceChart` | Progress visualization |
-| `ErrorHeatmap` | Mistake pattern analysis |
+| Component            | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `TypingTest`         | Main typing interface with real-time feedback |
+| `DifficultySelector` | Choose test difficulty level                  |
+| `LanguageSelector`   | Filter snippets by programming language       |
+| `Leaderboard`        | Global rankings display                       |
+| `UserProfile`        | Personal statistics and trends                |
+| `PerformanceChart`   | Progress visualization                        |
+| `ErrorHeatmap`       | Mistake pattern analysis                      |
 
 ## Contributing
 
@@ -164,11 +176,5 @@ src/
 3. Commit changes: `git commit -m 'feat: add my feature'`
 4. Push to branch: `git push origin feature/my-feature`
 5. Open a Pull Request
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
 
 Built with [TanStack Start](https://tanstack.com/start)
