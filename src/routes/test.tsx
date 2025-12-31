@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import {  getRandomSnippetFn } from '@/lib/snippets-api'
+import { getRandomSnippetFn } from '@/lib/snippets-api'
+import { getOrCreateDemoUserFn, saveTestResultFn } from '@/lib/results-server-api'
 
 interface TestSearchParams {
   language?: Language
@@ -94,10 +95,34 @@ function TestPage() {
   }, [language, difficulty])
 
   // Handle test completion
-  const handleComplete = useCallback((testResult: TypingResult) => {
+  const handleComplete = useCallback(async (testResult: TypingResult) => {
     setResult(testResult)
     setShowResult(true)
-  }, [])
+
+    // Save result to database for leaderboard
+    if (snippet) {
+      try {
+        // Get or create demo user for non-authenticated users
+        const demoUser = await getOrCreateDemoUserFn()
+        await saveTestResultFn({
+          data: {
+            userId: demoUser.id,
+            snippetId: snippet.id,
+            wpm: testResult.wpm,
+            rawWpm: testResult.rawWpm,
+            accuracy: testResult.accuracy,
+            charactersTyped: testResult.totalChars,
+            correctCharacters: testResult.correctChars,
+            incorrectCharacters: testResult.incorrectChars,
+            backspaceCount: testResult.backspaceCount,
+            duration: Math.round(testResult.duration),
+          },
+        })
+      } catch (error) {
+        console.error('Failed to save test result:', error)
+      }
+    }
+  }, [snippet])
 
   // Handle new test
   const handleNewTest = () => {
