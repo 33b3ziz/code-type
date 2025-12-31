@@ -51,6 +51,15 @@ export const leaderboardPeriodEnum = pgEnum('leaderboard_period', [
   'alltime',
 ])
 
+export const practiceModeEnum = pgEnum('practice_mode', [
+  'symbols',
+  'keywords',
+  'weak-spots',
+  'speed',
+  'accuracy',
+  'warm-up',
+])
+
 // Users table
 export const users = pgTable(
   'users',
@@ -215,6 +224,32 @@ export const leaderboardEntries = pgTable(
   ]
 )
 
+// Practice sessions table
+export const practiceSessions = pgTable(
+  'practice_sessions',
+  {
+    id: serial('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    mode: practiceModeEnum('mode').notNull(),
+    language: languageEnum('language'),
+    difficulty: difficultyEnum('difficulty'),
+    targetCharacters: text('target_characters'), // For symbol/weak-spot practice
+    duration: integer('duration').notNull(), // in seconds
+    charactersTyped: integer('characters_typed').notNull(),
+    correctCharacters: integer('correct_characters').notNull(),
+    accuracy: real('accuracy').notNull(),
+    wpm: real('wpm').notNull(),
+    completedAt: timestamp('completed_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('practice_sessions_user_idx').on(table.userId),
+    index('practice_sessions_mode_idx').on(table.mode),
+    index('practice_sessions_user_mode_idx').on(table.userId, table.mode),
+  ]
+)
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   settings: one(userSettings, {
@@ -224,6 +259,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   testResults: many(testResults),
   achievements: many(userAchievements),
   leaderboardEntries: many(leaderboardEntries),
+  practiceSessions: many(practiceSessions),
 }))
 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
@@ -280,6 +316,16 @@ export const leaderboardEntriesRelations = relations(
   })
 )
 
+export const practiceSessionsRelations = relations(
+  practiceSessions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [practiceSessions.userId],
+      references: [users.id],
+    }),
+  })
+)
+
 // Type exports for use in application
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
@@ -295,6 +341,8 @@ export type UserAchievement = typeof userAchievements.$inferSelect
 export type NewUserAchievement = typeof userAchievements.$inferInsert
 export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect
 export type NewLeaderboardEntry = typeof leaderboardEntries.$inferInsert
+export type PracticeSession = typeof practiceSessions.$inferSelect
+export type NewPracticeSession = typeof practiceSessions.$inferInsert
 
 // Enum type exports
 export type Language = (typeof languageEnum.enumValues)[number]
@@ -302,3 +350,4 @@ export type Difficulty = (typeof difficultyEnum.enumValues)[number]
 export type SnippetCategory = (typeof snippetCategoryEnum.enumValues)[number]
 export type AchievementType = (typeof achievementTypeEnum.enumValues)[number]
 export type LeaderboardPeriod = (typeof leaderboardPeriodEnum.enumValues)[number]
+export type PracticeMode = (typeof practiceModeEnum.enumValues)[number]

@@ -13,6 +13,7 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
@@ -36,6 +37,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
+  '/practice': typeof PracticeRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/mcp'
+    | '/practice'
     | '/profile'
     | '/register'
     | '/settings'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/mcp'
+    | '/practice'
     | '/profile'
     | '/register'
     | '/settings'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/login'
     | '/mcp'
+    | '/practice'
     | '/profile'
     | '/register'
     | '/settings'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
+  PracticeRoute: typeof PracticeRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRoute
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   McpRoute: McpRoute,
+  PracticeRoute: PracticeRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRoute,
