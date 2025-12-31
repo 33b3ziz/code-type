@@ -7,9 +7,11 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Header from '../components/Header'
+import { LiveAnnouncerProvider } from '../components/LiveAnnouncer'
 import { ThemeProvider } from '../components/ThemeProvider'
 import { NotificationProvider } from '../components/Notifications'
 import { SkipLink } from '../components/SkipLink'
+import { ErrorBoundary } from '../components/ui/error-boundary'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
@@ -58,6 +60,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: 'https://fonts.gstatic.com',
         crossOrigin: 'anonymous',
       },
+      // JetBrains Mono font for code display
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap',
+      },
       {
         rel: 'stylesheet',
         href: appCss,
@@ -78,23 +85,27 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider defaultTheme="dark">
           <NotificationProvider>
-            <SkipLink />
-            <Header />
-            <main id="main-content">
-              {children}
-            </main>
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-                TanStackQueryDevtools,
-              ]}
-            />
+            <LiveAnnouncerProvider>
+              <SkipLink />
+              <Header />
+              <main id="main-content">
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
+              </main>
+              <TanStackDevtools
+                config={{
+                  position: 'bottom-right',
+                }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                  TanStackQueryDevtools,
+                ]}
+              />
+            </LiveAnnouncerProvider>
           </NotificationProvider>
         </ThemeProvider>
         <Scripts />

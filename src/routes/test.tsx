@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
+
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Keyboard, RefreshCw } from 'lucide-react'
+
+import type { Difficulty } from '@/components/DifficultySelector'
+import type { SnippetResponse } from '@/lib/snippets-api'
 import type { TypingResult } from '@/hooks/useTypingTest'
 import type { Language } from '@/db/schema'
-import type {Difficulty} from '@/components/DifficultySelector';
-import type {SnippetResponse} from '@/lib/snippets-api';
 import { Button } from '@/components/ui/button'
 import { TypingTest } from '@/components/TypingTest'
-import {  DifficultySelector } from '@/components/DifficultySelector'
+import { DifficultySelector } from '@/components/DifficultySelector'
+import { useSoundStore } from '@/stores/sound-store'
 import {
   Select,
   SelectContent,
@@ -36,6 +39,9 @@ export const Route = createFileRoute('/test')({
 function TestPage() {
   const navigate = useNavigate()
   const searchParams = Route.useSearch()
+
+  // Sound settings from store
+  const { enabled: soundEnabled, volume: soundVolume } = useSoundStore()
 
   // Filters
   const [language, setLanguage] = useState<Language | 'all'>(
@@ -178,6 +184,7 @@ function TestPage() {
               onComplete={handleComplete}
               showLineNumbers={true}
               fontSize={16}
+              sound={{ enabled: soundEnabled, volume: soundVolume }}
             />
 
             {/* Results */}
