@@ -21,7 +21,7 @@ import {
   WeakSpotDrill,
 } from '@/components/practice'
 import { Button } from '@/components/ui/button'
-import { calculatePracticeScore, getRecommendedMode, PRACTICE_MODES } from '@/lib/practice-modes'
+import { PRACTICE_MODES, calculatePracticeScore, getRecommendedMode } from '@/lib/practice-modes'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/practice')({

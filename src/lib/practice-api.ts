@@ -163,7 +163,7 @@ export const getPracticeStatsFn = createServerFn({ method: 'GET' })
 export const getBestPracticeSessionFn = createServerFn({ method: 'GET' })
   .inputValidator((data: { userId: string; mode: PracticeMode }) => data)
   .handler(async ({ data }): Promise<PracticeSessionResponse | null> => {
-    const [session] = await db
+    const results = await db
       .select({
         id: practiceSessions.id,
         mode: practiceSessions.mode,
@@ -184,8 +184,5 @@ export const getBestPracticeSessionFn = createServerFn({ method: 'GET' })
       .orderBy(desc(practiceSessions.wpm), desc(practiceSessions.accuracy))
       .limit(1)
 
-    if (!session) {
-      return null
-    }
-    return session
+    return results[0] ?? null
   })
