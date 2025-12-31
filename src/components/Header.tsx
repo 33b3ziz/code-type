@@ -2,37 +2,44 @@ import { Link } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import {
+  Dumbbell,
   Home,
   Keyboard,
   Menu,
   Settings,
   Trophy,
   User,
+  Users,
   X,
 } from 'lucide-react'
+
+import { ThemeToggle } from './ThemeToggle'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
-        <button
-          onClick={() => setIsOpen(true)}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-          aria-label="Open menu"
-        >
-          <Menu size={24} />
-        </button>
-        <h1 className="ml-4 text-xl font-semibold">
-          <Link to="/">
-            <img
-              src="/tanstack-word-logo-white.svg"
-              alt="TanStack Logo"
-              className="h-10"
-            />
-          </Link>
-        </h1>
+      <header className="p-4 flex items-center justify-between bg-gray-800 text-white shadow-lg">
+        <div className="flex items-center">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="ml-4 text-xl font-semibold">
+            <Link to="/">
+              <img
+                src="/tanstack-word-logo-white.svg"
+                alt="TanStack Logo"
+                className="h-10"
+              />
+            </Link>
+          </h1>
+        </div>
+        <ThemeToggle />
       </header>
 
       <aside
@@ -76,6 +83,32 @@ export default function Header() {
           >
             <Keyboard size={20} />
             <span className="font-medium">Typing Test</span>
+          </Link>
+
+          <Link
+            to="/practice"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <Dumbbell size={20} />
+            <span className="font-medium">Practice</span>
+          </Link>
+
+          <Link
+            to="/race"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <Users size={20} />
+            <span className="font-medium">Multiplayer Race</span>
           </Link>
 
           <Link

@@ -51,6 +51,22 @@ export const leaderboardPeriodEnum = pgEnum('leaderboard_period', [
   'alltime',
 ])
 
+export const practiceModeEnum = pgEnum('practice_mode', [
+  'symbols',
+  'keywords',
+  'weak-spots',
+  'speed',
+  'accuracy',
+  'warm-up',
+])
+
+export const raceStatusEnum = pgEnum('race_status', [
+  'waiting',
+  'countdown',
+  'racing',
+  'finished',
+])
+
 // Users table
 export const users = pgTable(
   'users',
@@ -215,6 +231,89 @@ export const leaderboardEntries = pgTable(
   ]
 )
 
+// Practice sessions table
+export const practiceSessions = pgTable(
+  'practice_sessions',
+  {
+    id: serial('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    mode: practiceModeEnum('mode').notNull(),
+    language: languageEnum('language'),
+    difficulty: difficultyEnum('difficulty'),
+    targetCharacters: text('target_characters'), // For symbol/weak-spot practice
+    duration: integer('duration').notNull(), // in seconds
+    charactersTyped: integer('characters_typed').notNull(),
+    correctCharacters: integer('correct_characters').notNull(),
+    accuracy: real('accuracy').notNull(),
+    wpm: real('wpm').notNull(),
+    completedAt: timestamp('completed_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('practice_sessions_user_idx').on(table.userId),
+    index('practice_sessions_mode_idx').on(table.mode),
+    index('practice_sessions_user_mode_idx').on(table.userId, table.mode),
+  ]
+)
+
+// Multiplayer races table
+export const races = pgTable(
+  'races',
+  {
+    id: serial('id').primaryKey(),
+    code: varchar('code', { length: 6 }).notNull().unique(), // 6-char join code
+    hostId: uuid('host_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    snippetId: integer('snippet_id').references(() => snippets.id, {
+      onDelete: 'set null',
+    }),
+    status: raceStatusEnum('status').default('waiting').notNull(),
+    maxPlayers: integer('max_players').default(4).notNull(),
+    countdownDuration: integer('countdown_duration').default(3).notNull(), // seconds
+    language: languageEnum('language'),
+    difficulty: difficultyEnum('difficulty'),
+    isPrivate: boolean('is_private').default(false).notNull(),
+    startedAt: timestamp('started_at'),
+    finishedAt: timestamp('finished_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('races_code_idx').on(table.code),
+    index('races_host_idx').on(table.hostId),
+    index('races_status_idx').on(table.status),
+    index('races_created_at_idx').on(table.createdAt),
+  ]
+)
+
+// Race participants table
+export const raceParticipants = pgTable(
+  'race_participants',
+  {
+    id: serial('id').primaryKey(),
+    raceId: integer('race_id')
+      .notNull()
+      .references(() => races.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    progress: real('progress').default(0).notNull(), // 0-100
+    wpm: real('wpm').default(0).notNull(),
+    accuracy: real('accuracy').default(100).notNull(),
+    isReady: boolean('is_ready').default(false).notNull(),
+    isFinished: boolean('is_finished').default(false).notNull(),
+    finishTime: integer('finish_time'), // ms since race start
+    position: integer('position'), // 1st, 2nd, etc.
+    joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('race_participants_race_idx').on(table.raceId),
+    index('race_participants_user_idx').on(table.userId),
+    index('race_participants_race_user_idx').on(table.raceId, table.userId),
+  ]
+)
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   settings: one(userSettings, {
@@ -224,6 +323,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   testResults: many(testResults),
   achievements: many(userAchievements),
   leaderboardEntries: many(leaderboardEntries),
+  practiceSessions: many(practiceSessions),
+  hostedRaces: many(races),
+  raceParticipations: many(raceParticipants),
 }))
 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
@@ -235,6 +337,7 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
 
 export const snippetsRelations = relations(snippets, ({ many }) => ({
   testResults: many(testResults),
+  races: many(races),
 }))
 
 export const testResultsRelations = relations(testResults, ({ one }) => ({
@@ -280,6 +383,42 @@ export const leaderboardEntriesRelations = relations(
   })
 )
 
+export const practiceSessionsRelations = relations(
+  practiceSessions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [practiceSessions.userId],
+      references: [users.id],
+    }),
+  })
+)
+
+export const racesRelations = relations(races, ({ one, many }) => ({
+  host: one(users, {
+    fields: [races.hostId],
+    references: [users.id],
+  }),
+  snippet: one(snippets, {
+    fields: [races.snippetId],
+    references: [snippets.id],
+  }),
+  participants: many(raceParticipants),
+}))
+
+export const raceParticipantsRelations = relations(
+  raceParticipants,
+  ({ one }) => ({
+    race: one(races, {
+      fields: [raceParticipants.raceId],
+      references: [races.id],
+    }),
+    user: one(users, {
+      fields: [raceParticipants.userId],
+      references: [users.id],
+    }),
+  })
+)
+
 // Type exports for use in application
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
@@ -295,6 +434,12 @@ export type UserAchievement = typeof userAchievements.$inferSelect
 export type NewUserAchievement = typeof userAchievements.$inferInsert
 export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect
 export type NewLeaderboardEntry = typeof leaderboardEntries.$inferInsert
+export type PracticeSession = typeof practiceSessions.$inferSelect
+export type NewPracticeSession = typeof practiceSessions.$inferInsert
+export type Race = typeof races.$inferSelect
+export type NewRace = typeof races.$inferInsert
+export type RaceParticipant = typeof raceParticipants.$inferSelect
+export type NewRaceParticipant = typeof raceParticipants.$inferInsert
 
 // Enum type exports
 export type Language = (typeof languageEnum.enumValues)[number]
@@ -302,3 +447,5 @@ export type Difficulty = (typeof difficultyEnum.enumValues)[number]
 export type SnippetCategory = (typeof snippetCategoryEnum.enumValues)[number]
 export type AchievementType = (typeof achievementTypeEnum.enumValues)[number]
 export type LeaderboardPeriod = (typeof leaderboardPeriodEnum.enumValues)[number]
+export type PracticeMode = (typeof practiceModeEnum.enumValues)[number]
+export type RaceStatus = (typeof raceStatusEnum.enumValues)[number]

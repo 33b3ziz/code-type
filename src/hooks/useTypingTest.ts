@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface TypingState {
   // Input tracking
@@ -76,8 +76,8 @@ export function useTypingTest(config: TypingTestConfig) {
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Calculate character states for rendering
-  const getCharacterStates = useCallback((): Array<CharacterState> => {
+  // Calculate character states for rendering (memoized for performance)
+  const characterStates = useMemo((): Array<CharacterState> => {
     const chars: Array<CharacterState> = []
     const codeChars = code.split('')
     const typedChars = state.typed.split('')
@@ -392,8 +392,8 @@ export function useTypingTest(config: TypingTestConfig) {
     inputRef.current?.focus()
   }, [])
 
-  // Calculate current stats
-  const getCurrentStats = useCallback(() => {
+  // Calculate current stats (memoized for performance)
+  const currentStats = useMemo(() => {
     if (!state.isStarted || !state.startTime) {
       return { wpm: 0, accuracy: 100, elapsed: 0 }
     }
@@ -415,11 +415,17 @@ export function useTypingTest(config: TypingTestConfig) {
     return { wpm: rawWpm, accuracy, elapsed }
   }, [state.isStarted, state.startTime, state.typed.length, state.correctChars, state.incorrectChars])
 
+  // Memoize progress calculation
+  const progress = useMemo(
+    () => Math.min(100, (state.cursorPosition / code.length) * 100),
+    [state.cursorPosition, code.length]
+  )
+
   return {
     // State
     state,
-    characterStates: getCharacterStates(),
-    currentStats: getCurrentStats(),
+    characterStates,
+    currentStats,
 
     // Refs
     inputRef,
@@ -433,6 +439,6 @@ export function useTypingTest(config: TypingTestConfig) {
     focus,
 
     // Progress
-    progress: Math.min(100, (state.cursorPosition / code.length) * 100),
+    progress,
   }
 }

@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react'
-import type {TypingResult} from '@/hooks/useTypingTest';
-import {  useTypingTest } from '@/hooks/useTypingTest'
+
+import type { TypingResult } from '@/hooks/useTypingTest'
+import { useTypingTestWithSound } from '@/hooks/useTypingTestWithSound'
 import { cn } from '@/lib/utils'
+
+interface SoundConfig {
+  enabled: boolean
+  volume: number
+}
 
 export interface TypingTestProps {
   code: string
@@ -15,6 +21,7 @@ export interface TypingTestProps {
   className?: string
   tabSize?: number
   autoIndent?: boolean
+  sound?: SoundConfig
 }
 
 export function TypingTest({
@@ -29,7 +36,9 @@ export function TypingTest({
   className,
   tabSize = 2,
   autoIndent = false,
+  sound,
 }: TypingTestProps) {
+  // Always use the sound-enabled hook - it gracefully handles disabled/missing sound config
   const {
     state,
     characterStates,
@@ -40,13 +49,14 @@ export function TypingTest({
     reset,
     focus,
     progress,
-  } = useTypingTest({
+  } = useTypingTestWithSound({
     code,
     onComplete,
     strictMode,
     allowBackspace,
     tabSize,
     autoIndent,
+    sound,
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -66,33 +76,48 @@ export function TypingTest({
   let charIndex = 0
 
   return (
-    <div className={cn('relative', className)}>
+    <div
+      className={cn('relative', className)}
+      role="application"
+      aria-label={`Typing test${title ? `: ${title}` : ''} in ${language}`}
+    >
       {/* Header */}
       {title && (
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-white">{title}</h2>
+            <h2 className="text-lg font-semibold text-white" id="typing-test-title">
+              {title}
+            </h2>
             <span className="text-sm text-gray-400 capitalize">{language}</span>
           </div>
           <button
             onClick={reset}
             className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            aria-label="Reset typing test"
           >
             Reset
           </button>
         </div>
       )}
 
-      {/* Stats Bar */}
-      <div className="flex items-center gap-6 mb-4 text-sm">
+      {/* Stats Bar - Live region for screen readers */}
+      <div
+        className="flex items-center gap-6 mb-4 text-sm"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <div className="flex items-center gap-2">
-          <span className="text-gray-400">WPM:</span>
-          <span className="text-cyan-400 font-mono font-bold">
+          <span className="text-gray-400" id="wpm-label">WPM:</span>
+          <span
+            className="text-cyan-400 font-mono font-bold"
+            aria-labelledby="wpm-label"
+          >
             {currentStats.wpm}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-400">Accuracy:</span>
+          <span className="text-gray-400" id="accuracy-label">Accuracy:</span>
           <span
             className={cn(
               'font-mono font-bold',
@@ -102,13 +127,21 @@ export function TypingTest({
                   ? 'text-yellow-400'
                   : 'text-red-400'
             )}
+            aria-labelledby="accuracy-label"
           >
             {currentStats.accuracy}%
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-400">Progress:</span>
-          <div className="w-32 h-2 bg-slate-700 rounded-full overflow-hidden">
+          <span className="text-gray-400" id="progress-label">Progress:</span>
+          <div
+            className="w-32 h-2 bg-slate-700 rounded-full overflow-hidden"
+            role="progressbar"
+            aria-valuenow={Math.round(progress)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-labelledby="progress-label"
+          >
             <div
               className="h-full bg-cyan-500 transition-all duration-150"
               style={{ width: `${progress}%` }}
@@ -127,6 +160,7 @@ export function TypingTest({
           state.isFinished && 'opacity-75'
         )}
         style={{ fontSize: `${fontSize}px` }}
+        aria-describedby="typing-instructions"
       >
         {/* Hidden input for capturing keystrokes */}
         <input
@@ -140,6 +174,8 @@ export function TypingTest({
           autoCapitalize="off"
           spellCheck={false}
           disabled={state.isFinished}
+          aria-label={`Type the ${language} code shown. ${state.isStarted ? `Progress: ${Math.round(progress)}%` : 'Press any key to start.'}`}
+          aria-describedby="typing-test-title"
         />
 
         {/* Code lines */}
@@ -218,7 +254,11 @@ export function TypingTest({
 
       {/* Completion message */}
       {state.isFinished && (
-        <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-center">
+        <div
+          className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-center"
+          role="alert"
+          aria-live="assertive"
+        >
           <p className="text-cyan-400 font-semibold">Test Complete!</p>
           <p className="text-gray-400 text-sm mt-1">
             {currentStats.wpm} WPM with {currentStats.accuracy}% accuracy
@@ -227,11 +267,17 @@ export function TypingTest({
       )}
 
       {/* Instructions */}
-      {!state.isStarted && (
-        <p className="mt-4 text-center text-gray-500 text-sm">
-          Click here and start typing to begin the test
-        </p>
-      )}
+      <p
+        id="typing-instructions"
+        className={cn(
+          'mt-4 text-center text-gray-500 text-sm',
+          state.isStarted && 'sr-only'
+        )}
+      >
+        {!state.isStarted
+          ? 'Click here and start typing to begin the test'
+          : `Typing in progress. ${Math.round(progress)}% complete.`}
+      </p>
     </div>
   )
 }

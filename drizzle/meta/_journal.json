@@ -15,6 +15,20 @@
       "when": 1767111113664,
       "tag": "0001_redundant_texas_twister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767185676694,
+      "tag": "0002_material_korath",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767186630557,
+      "tag": "0003_thin_hellcat",
+      "breakpoints": true
     }
   ]
 }

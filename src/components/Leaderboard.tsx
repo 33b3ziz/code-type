@@ -98,7 +98,20 @@ export function Leaderboard({
           <p>No entries yet. Be the first!</p>
         </div>
       ) : (
-        <div className="leaderboard-list" data-testid="leaderboard-list">
+        <div
+          className="leaderboard-list"
+          data-testid="leaderboard-list"
+          role="table"
+          aria-label="Leaderboard rankings"
+        >
+          {/* Screen reader only header row */}
+          <div role="row" className="sr-only">
+            <span role="columnheader">Rank</span>
+            <span role="columnheader">User</span>
+            <span role="columnheader">Best WPM</span>
+            <span role="columnheader">Average WPM</span>
+            <span role="columnheader">Accuracy</span>
+          </div>
           {entries.map((entry) => (
             <LeaderboardRow
               key={entry.userId}
@@ -156,14 +169,16 @@ function LeaderboardRow({ entry, isCurrentUser }: LeaderboardRowProps) {
     <div
       className={`leaderboard-row ${isCurrentUser ? 'current-user' : ''} ${isTopThree ? 'top-three' : ''}`}
       data-testid={`leaderboard-row-${entry.rank}`}
+      role="row"
+      aria-label={`Rank ${entry.rank}: ${entry.username}${isCurrentUser ? ' (You)' : ''}`}
     >
-      <div className="leaderboard-rank">
-        <span className={`rank-badge rank-${entry.rank}`}>
+      <div className="leaderboard-rank" role="cell">
+        <span className={`rank-badge rank-${entry.rank}`} aria-label={`Rank ${entry.rank}`}>
           {rankDisplay}
         </span>
       </div>
-      <div className="leaderboard-user">
-        <span className="user-avatar">
+      <div className="leaderboard-user" role="cell">
+        <span className="user-avatar" aria-hidden="true">
           {entry.username.charAt(0).toUpperCase()}
         </span>
         <div className="user-info">
@@ -171,23 +186,23 @@ function LeaderboardRow({ entry, isCurrentUser }: LeaderboardRowProps) {
             {entry.username}
             {isCurrentUser && <span className="you-badge">(You)</span>}
           </span>
-          <span className="user-meta">
+          <span className="user-meta" aria-label={`${entry.testsCompleted} tests completed`}>
             {entry.testsCompleted} tests
           </span>
         </div>
       </div>
-      <div className="leaderboard-stats">
+      <div className="leaderboard-stats" role="cell">
         <div className="stat-item">
-          <span className="stat-value">{entry.wpm}</span>
-          <span className="stat-label">Best WPM</span>
+          <span className="stat-value" aria-label={`Best WPM: ${entry.wpm}`}>{entry.wpm}</span>
+          <span className="stat-label" aria-hidden="true">Best WPM</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value">{entry.averageWpm}</span>
-          <span className="stat-label">Avg WPM</span>
+          <span className="stat-value" aria-label={`Average WPM: ${entry.averageWpm}`}>{entry.averageWpm}</span>
+          <span className="stat-label" aria-hidden="true">Avg WPM</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value">{entry.accuracy}%</span>
-          <span className="stat-label">Accuracy</span>
+          <span className="stat-value" aria-label={`Accuracy: ${entry.accuracy}%`}>{entry.accuracy}%</span>
+          <span className="stat-label" aria-hidden="true">Accuracy</span>
         </div>
       </div>
     </div>
