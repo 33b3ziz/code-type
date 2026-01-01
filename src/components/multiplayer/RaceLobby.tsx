@@ -8,11 +8,12 @@ import { useState } from 'react'
 import { Button } from '../ui/button'
 import { PlayerCard } from './PlayerCard'
 
-import type { RaceRoom, RaceSettings } from '@/lib/websocket/types'
+import type { RacePlayer, RaceRoom } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
 export interface RaceLobbyProps {
   room: RaceRoom
+  players: Array<RacePlayer>
   currentPlayerId: string | null
   isConnected: boolean
   onReady: () => void
@@ -25,6 +26,7 @@ export interface RaceLobbyProps {
 
 export function RaceLobby({
   room,
+  players,
   currentPlayerId,
   isConnected,
   onReady,
@@ -37,9 +39,9 @@ export function RaceLobby({
   const [chatMessage, setChatMessage] = useState('')
 
   const isHost = room.hostId === currentPlayerId
-  const currentPlayer = room.players.find((p) => p.id === currentPlayerId)
-  const isReady = currentPlayer?.isFinished ?? false // Using isFinished as ready state temporarily
-  const canStart = isHost && room.players.length >= 2
+  const currentPlayer = players.find((p) => p.id === currentPlayerId)
+  const isReady = currentPlayer?.isReady ?? false
+  const canStart = isHost && players.length >= 2
 
   const handleSendChat = (e: React.FormEvent) => {
     e.preventDefault()
@@ -104,7 +106,7 @@ export function RaceLobby({
           <div>
             <span className="text-gray-500">Players</span>
             <p className="text-white font-medium">
-              {room.players.length}/{room.maxPlayers}
+              {players.length}/{room.maxPlayers}
             </p>
           </div>
           <div>
@@ -131,10 +133,10 @@ export function RaceLobby({
       {/* Players List */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-300 mb-3">
-          Players ({room.players.length}/{room.maxPlayers})
+          Players ({players.length}/{room.maxPlayers})
         </h3>
         <div className="space-y-2">
-          {room.players.map((player) => (
+          {players.map((player) => (
             <PlayerCard
               key={player.id}
               player={player}
@@ -144,7 +146,7 @@ export function RaceLobby({
           ))}
 
           {/* Empty slots */}
-          {Array.from({ length: room.maxPlayers - room.players.length }).map(
+          {Array.from({ length: room.maxPlayers - players.length }).map(
             (_, i) => (
               <div
                 key={`empty-${i}`}
@@ -173,7 +175,7 @@ export function RaceLobby({
             onClick={onStartRace}
             disabled={!canStart}
           >
-            {room.players.length < 2
+            {players.length < 2
               ? 'Need at least 2 players'
               : 'Start Race'}
           </Button>

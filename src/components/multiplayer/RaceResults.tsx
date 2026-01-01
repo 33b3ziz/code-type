@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 
 import { Button } from '../ui/button'
 
-import type { RaceResult, RaceRoom } from '@/lib/websocket/types'
+import type { RaceResult, RaceRoom } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
 export interface RaceResultsProps {

@@ -3,7 +3,7 @@
  * Displays a single player's info in the race lobby or progress view
  */
 
-import type { RacePlayer } from '@/lib/websocket/types'
+import type { RacePlayer } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
 export interface PlayerCardProps {

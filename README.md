@@ -37,11 +37,12 @@ A modern typing test application designed specifically for programmers. Practice
 - **Accuracy Mode**: Focus on precision over speed
 - **Warm-up Routine**: Quick exercises before tests
 
-### Multiplayer (Preview)
+### Multiplayer Racing
 
-- **Race Rooms**: Create or join typing races
-- **Real-time Competition**: See other players' progress live
+- **Race Rooms**: Create or join typing races with room codes
+- **Real-time Competition**: See other players' progress live via Pusher
 - **Race Results**: Compare WPM, accuracy, and finish times
+- **Chat**: Communicate with other players in the lobby
 
 ### Analytics & Insights
 
@@ -58,6 +59,7 @@ A modern typing test application designed specifically for programmers. Practice
 - **Database**: PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) v4 + [shadcn/ui](https://ui.shadcn.com/)
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Real-time**: [Pusher](https://pusher.com/) (for multiplayer racing)
 - **Font**: JetBrains Mono (optimized for code display)
 
 ## Getting Started
@@ -89,10 +91,21 @@ A modern typing test application designed specifically for programmers. Practice
    cp .env.example .env
    ```
 
-   Configure your `DATABASE_URL` in `.env`:
+   Configure your `.env` file with the following variables:
 
-   ```
+   ```env
+   # Database
    DATABASE_URL=postgresql://user:password@localhost:5432/codetype
+
+   # Pusher (for multiplayer racing - get from https://pusher.com/)
+   PUSHER_APP_ID=your_app_id
+   PUSHER_KEY=your_key
+   PUSHER_SECRET=your_secret
+   PUSHER_CLUSTER=us2
+
+   # Client-side Pusher
+   VITE_PUSHER_KEY=your_key
+   VITE_PUSHER_CLUSTER=us2
    ```
 
 4. Set up the database:
@@ -148,8 +161,9 @@ src/
 ├── hooks/               # Custom React hooks
 │   ├── useTypingTest.ts # Core typing test logic
 │   ├── useTimer.ts      # Timer functionality
-│   └── useWebSocket.ts  # Multiplayer WebSocket
+│   └── usePusherRace.ts # Multiplayer racing hook
 ├── lib/                 # Utilities and APIs
+│   ├── pusher/          # Pusher configuration and race API
 │   ├── *-api.ts         # Client-side API functions
 │   └── *-server-api.ts  # Server-side API functions
 ├── routes/              # File-based routes
