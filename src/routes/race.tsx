@@ -1,18 +1,18 @@
 /**
  * Race Route
- * Multiplayer typing race page
+ * Multiplayer typing race page with Pusher
  */
 
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
-import { AlertCircle, Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import { AlertCircle, Loader2, Wifi, WifiOff } from 'lucide-react'
 
-import type { RaceResult, RaceSettings } from '@/lib/websocket/types'
+import type { RaceResult, RaceSettings } from '@/lib/pusher/types'
 import { RaceLobby } from '@/components/multiplayer/RaceLobby'
 import { RaceProgress } from '@/components/multiplayer/RaceProgress'
 import { RaceResults } from '@/components/multiplayer/RaceResults'
 import { Button } from '@/components/ui/button'
-import { useWebSocket } from '@/hooks/useWebSocket'
+import { usePusherRace } from '@/hooks/usePusherRace'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/race')({
@@ -26,46 +26,34 @@ function RacePage() {
   const [countdown, setCountdown] = useState<number | undefined>(undefined)
   const [results, setResults] = useState<Array<RaceResult>>([])
   const [joinCode, setJoinCode] = useState('')
-  const [connectionError, setConnectionError] = useState<string | null>(null)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [pendingAction, setPendingAction] = useState<'create' | 'join' | null>(null)
   const [createSettings, setCreateSettings] = useState<Partial<RaceSettings>>({
     maxPlayers: 4,
     countdownDuration: 3,
     isPrivate: false,
   })
 
-  // WebSocket URL - would typically come from environment config
-  const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
-
   const {
-    status,
     isConnected,
-    connect,
-    disconnect,
+    isLoading,
+    error,
     room,
     playerId,
+    players,
     createRoom,
     joinRoom,
     leaveRoom,
     setReady,
     setUnready,
     startRace,
-    updateProgress,
-    finishRace,
+    updateProgress: _updateProgress,
+    finishRace: _finishRace,
     sendChat,
-  } = useWebSocket({
-    url: wsUrl,
-    autoConnect: false,
+  } = usePusherRace({
     events: {
       onRoomCreated: () => {
-        setConnectionError(null)
-        setIsConnecting(false)
         setView('lobby')
       },
       onRoomJoined: () => {
-        setConnectionError(null)
-        setIsConnecting(false)
         setView('lobby')
       },
       onCountdownStart: (seconds) => {
@@ -84,84 +72,45 @@ function RacePage() {
       },
       onError: (code, message) => {
         console.error(`Race error [${code}]: ${message}`)
-        setConnectionError(message)
-        setIsConnecting(false)
+      },
+      onRoomUpdated: (updatedRoom) => {
+        // Update view based on room status
+        switch (updatedRoom.status) {
+          case 'waiting':
+            setView('lobby')
+            break
+          case 'countdown':
+            setView('lobby') // Show countdown overlay on lobby
+            break
+          case 'racing':
+            setView('racing')
+            break
+          case 'finished':
+            setView('results')
+            break
+        }
       },
     },
   })
 
-  // Handle connection status changes
-  useEffect(() => {
-    if (status === 'error') {
-      setConnectionError('Failed to connect to game server. Make sure the WebSocket server is running (pnpm ws:server).')
-      setIsConnecting(false)
-      setPendingAction(null)
-    } else if (status === 'connected' && pendingAction) {
-      // Execute pending action when connected
-      if (pendingAction === 'create') {
-        createRoom(createSettings)
-      } else if (pendingAction === 'join') {
-        joinRoom(joinCode.trim().toUpperCase())
-      }
-      setPendingAction(null)
-    }
-  }, [status, pendingAction, createRoom, joinRoom, createSettings, joinCode])
+  const handleCreateRoom = useCallback(async () => {
+    await createRoom(createSettings)
+  }, [createRoom, createSettings])
 
-  // Update view based on room status
-  useEffect(() => {
-    if (room) {
-      switch (room.status) {
-        case 'waiting':
-          setView('lobby')
-          break
-        case 'countdown':
-          setView('lobby') // Show countdown overlay on lobby
-          break
-        case 'racing':
-          setView('racing')
-          break
-        case 'finished':
-          setView('results')
-          break
-      }
-    }
-  }, [room?.status])
-
-  const handleCreateRoom = useCallback(() => {
-    setConnectionError(null)
-    setIsConnecting(true)
-
-    if (isConnected) {
-      createRoom(createSettings)
-    } else {
-      setPendingAction('create')
-      connect()
-    }
-  }, [isConnected, connect, createRoom, createSettings])
-
-  const handleJoinRoom = useCallback(() => {
+  const handleJoinRoom = useCallback(async () => {
     if (!joinCode.trim()) return
+    await joinRoom(joinCode.trim().toUpperCase())
+  }, [joinRoom, joinCode])
 
-    setConnectionError(null)
-    setIsConnecting(true)
-
-    if (isConnected) {
-      joinRoom(joinCode.trim().toUpperCase())
-    } else {
-      setPendingAction('join')
-      connect()
-    }
-  }, [isConnected, connect, joinRoom, joinCode])
-
-  const handleLeaveRoom = useCallback(() => {
-    leaveRoom()
+  const handleLeaveRoom = useCallback(async () => {
+    await leaveRoom()
     setView('menu')
     setResults([])
     setCountdown(undefined)
   }, [leaveRoom])
 
   const handlePlayAgain = useCallback(() => {
-    // Host starts a new race with the same players
+    // Reset to lobby for new race with the same players
     setView('lobby')
     setResults([])
   }, [])
@@ -181,7 +130,7 @@ function RacePage() {
 
         {/* Connection Status */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {status === 'connecting' || status === 'reconnecting' ? (
+          {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
               <span className="text-sm text-cyan-400">Connecting...</span>
@@ -189,32 +138,26 @@ function RacePage() {
           ) : isConnected ? (
             <>
               <Wifi className="w-4 h-4 text-green-500" />
-              <span className="text-sm text-green-400">Connected to server</span>
+              <span className="text-sm text-green-400">Connected to room</span>
             </>
           ) : (
             <>
               <WifiOff className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-400">Not connected</span>
+              <span className="text-sm text-gray-400">Ready to connect</span>
             </>
           )}
         </div>
 
         {/* Error Message */}
-        {connectionError && (
+        {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-red-400 text-sm">{connectionError}</p>
+              <p className="text-red-400 text-sm">{error}</p>
               <p className="text-gray-500 text-xs mt-1">
-                Run <code className="bg-slate-700 px-1 rounded">pnpm ws:server</code> in a separate terminal to start the game server.
+                Make sure you have configured Pusher environment variables.
               </p>
             </div>
-            <button
-              onClick={() => setConnectionError(null)}
-              className="text-gray-500 hover:text-gray-400"
-            >
-              &times;
-            </button>
           </div>
         )}
 
@@ -310,11 +253,11 @@ function RacePage() {
               </div>
             </div>
 
-            <Button onClick={handleCreateRoom} className="w-full" disabled={isConnecting}>
-              {isConnecting ? (
+            <Button onClick={handleCreateRoom} className="w-full" disabled={isLoading}>
+              {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Connecting...
+                  Creating...
                 </>
               ) : (
                 'Create Room'
@@ -351,12 +294,12 @@ function RacePage() {
             <Button
               onClick={handleJoinRoom}
               className="w-full"
-              disabled={joinCode.length !== 6 || isConnecting}
+              disabled={joinCode.length !== 6 || isLoading}
             >
-              {isConnecting ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Connecting...
+                  Joining...
                 </>
               ) : (
                 'Join Room'
@@ -369,8 +312,8 @@ function RacePage() {
         <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
           <h3 className="text-sm font-medium text-gray-300 mb-2">How to play multiplayer:</h3>
           <ol className="text-sm text-gray-500 space-y-1 list-decimal list-inside">
-            <li>Start the WebSocket server: <code className="bg-slate-700 px-1 rounded text-cyan-400">pnpm ws:server</code></li>
             <li>Create a room or join with a room code</li>
+            <li>Share the room code with friends</li>
             <li>Wait for other players to join</li>
             <li>When everyone is ready, the host starts the race</li>
           </ol>
@@ -385,6 +328,7 @@ function RacePage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <RaceLobby
           room={room}
+          players={players}
           currentPlayerId={playerId}
           isConnected={isConnected}
           onReady={setReady}
@@ -403,6 +347,7 @@ function RacePage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <RaceProgress
           room={room}
+          players={players}
           currentPlayerId={playerId}
           countdown={countdown}
         />

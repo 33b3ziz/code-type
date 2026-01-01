@@ -7,11 +7,12 @@ import { useMemo } from 'react'
 
 import { PlayerCard } from './PlayerCard'
 
-import type { RacePlayer, RaceRoom } from '@/lib/websocket/types'
+import type { RacePlayer, RaceRoom } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
 export interface RaceProgressProps {
   room: RaceRoom
+  players: Array<RacePlayer>
   currentPlayerId: string | null
   countdown?: number
   className?: string
@@ -19,13 +20,14 @@ export interface RaceProgressProps {
 
 export function RaceProgress({
   room,
+  players,
   currentPlayerId,
   countdown,
   className = '',
 }: RaceProgressProps) {
   // Sort players by progress (highest first)
   const sortedPlayers = useMemo(() => {
-    return [...room.players].sort((a, b) => {
+    return [...players].sort((a, b) => {
       // Finished players come first, sorted by position
       if (a.isFinished && b.isFinished) {
         return (a.position ?? 0) - (b.position ?? 0)
@@ -36,10 +38,10 @@ export function RaceProgress({
       // Then by progress
       return b.progress - a.progress
     })
-  }, [room.players])
+  }, [players])
 
-  const finishedCount = room.players.filter((p) => p.isFinished).length
-  const currentPlayer = room.players.find((p) => p.id === currentPlayerId)
+  const finishedCount = players.filter((p) => p.isFinished).length
+  const currentPlayer = players.find((p) => p.id === currentPlayerId)
 
   return (
     <div className={cn('race-progress', className)}>
@@ -61,7 +63,7 @@ export function RaceProgress({
         <div>
           <h2 className="text-xl font-bold text-white">Race in Progress</h2>
           <p className="text-gray-400 text-sm">
-            {finishedCount}/{room.players.length} finished
+            {finishedCount}/{players.length} finished
           </p>
         </div>
         <div className="text-right">
@@ -89,7 +91,6 @@ export function RaceProgress({
               player={player}
               position={index + 1}
               isCurrentUser={player.id === currentPlayerId}
-              totalPlayers={room.players.length}
             />
           ))}
         </div>
@@ -115,14 +116,12 @@ interface RaceTrackRowProps {
   player: RacePlayer
   position: number
   isCurrentUser: boolean
-  totalPlayers: number
 }
 
 function RaceTrackRow({
   player,
   position,
   isCurrentUser,
-  totalPlayers,
 }: RaceTrackRowProps) {
   // Calculate color based on position
   const getPlayerColor = () => {
