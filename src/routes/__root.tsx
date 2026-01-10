@@ -60,10 +60,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: 'https://fonts.gstatic.com',
         crossOrigin: 'anonymous',
       },
-      // JetBrains Mono font for code display
+      // JetBrains Mono font for code display, Exo 2 for headings
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap',
       },
       {
         rel: 'stylesheet',
