@@ -1,6 +1,6 @@
 /**
  * Theme Toggle Component
- * Cycles through light, dark, and system themes
+ * Cycles through light, dark, and system themes with smooth animations
  */
 
 import { Monitor, Moon, Sun } from 'lucide-react'
@@ -37,11 +37,16 @@ export function ThemeToggle() {
   return (
     <button
       onClick={handleToggle}
-      className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+      className="relative p-2.5 rounded-xl bg-secondary/50 hover:bg-secondary border border-border hover:border-brand-blue/30 transition-all duration-200 group"
       aria-label={`Current theme: ${THEME_LABELS[theme]}. Click to switch.`}
       title={THEME_LABELS[theme]}
     >
-      <Icon size={20} />
+      <Icon
+        size={18}
+        className="text-muted-foreground group-hover:text-brand-blue transition-colors"
+      />
+      {/* Subtle glow on hover */}
+      <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none glow-blue-sm" />
     </button>
   )
 }
