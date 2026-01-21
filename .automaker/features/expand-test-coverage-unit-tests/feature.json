@@ -1,0 +1,14 @@
+{
+  "id": "expand-test-coverage-unit-tests",
+  "category": "Testing",
+  "title": "Expand Test Coverage with Unit Tests",
+  "description": "Increase Vitest unit test coverage for core hooks, utilities, and calculation functions to at least 80%. Focus on performance metrics, error analysis, and state management logic.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-20T19:10:28.535Z",
+  "updatedAt": "2026-01-20T19:28:06.700Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:11:18.516Z"
+}

@@ -261,6 +261,103 @@ export const roomStore = {
     return room
   },
 
+  // Kick a player from the room (host only)
+  kickPlayer(code: string, hostId: string, targetPlayerId: string): { room: RaceRoom; kicked: boolean } | { error: string } {
+    const room = rooms.get(code.toUpperCase())
+    if (!room) return { error: 'Room not found' }
+
+    // Verify the requester is the host
+    if (room.hostId !== hostId) {
+      return { error: 'Only the host can kick players' }
+    }
+
+    // Cannot kick yourself (the host)
+    if (targetPlayerId === hostId) {
+      return { error: 'Cannot kick yourself' }
+    }
+
+    // Check if target player exists
+    if (!room.players[targetPlayerId]) {
+      return { error: 'Player not found in room' }
+    }
+
+    // Cannot kick during a race
+    if (room.status === 'racing' || room.status === 'countdown') {
+      return { error: 'Cannot kick players during a race' }
+    }
+
+    // Remove the player
+    delete room.players[targetPlayerId]
+
+    return { room, kicked: true }
+  },
+
+  // Update room settings (host only)
+  updateSettings(code: string, hostId: string, settings: Partial<RaceSettings>): RaceRoom | { error: string } {
+    const room = rooms.get(code.toUpperCase())
+    if (!room) return { error: 'Room not found' }
+
+    // Verify the requester is the host
+    if (room.hostId !== hostId) {
+      return { error: 'Only the host can update settings' }
+    }
+
+    // Cannot change settings during a race
+    if (room.status === 'racing' || room.status === 'countdown') {
+      return { error: 'Cannot change settings during a race' }
+    }
+
+    // Update settings
+    if (settings.maxPlayers !== undefined) {
+      // Don't allow reducing below current player count
+      const currentPlayerCount = Object.keys(room.players).length
+      if (settings.maxPlayers < currentPlayerCount) {
+        return { error: `Cannot set max players below current player count (${currentPlayerCount})` }
+      }
+      room.maxPlayers = settings.maxPlayers
+      room.settings.maxPlayers = settings.maxPlayers
+    }
+
+    if (settings.countdownDuration !== undefined) {
+      room.settings.countdownDuration = settings.countdownDuration
+    }
+
+    if (settings.language !== undefined) {
+      room.settings.language = settings.language
+    }
+
+    if (settings.difficulty !== undefined) {
+      room.settings.difficulty = settings.difficulty
+    }
+
+    if (settings.isPrivate !== undefined) {
+      room.settings.isPrivate = settings.isPrivate
+    }
+
+    return room
+  },
+
+  // Transfer host to another player
+  transferHost(code: string, currentHostId: string, newHostId: string): RaceRoom | { error: string } {
+    const room = rooms.get(code.toUpperCase())
+    if (!room) return { error: 'Room not found' }
+
+    // Verify the requester is the current host
+    if (room.hostId !== currentHostId) {
+      return { error: 'Only the host can transfer host privileges' }
+    }
+
+    // Check if new host exists in the room
+    if (!room.players[newHostId]) {
+      return { error: 'Target player not found in room' }
+    }
+
+    // Transfer host
+    room.hostId = newHostId
+
+    return room
+  },
+
   // Cleanup old rooms
   cleanup(): void {
     const now = Date.now()

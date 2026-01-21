@@ -1,0 +1,16 @@
+{
+  "id": "build-error-heatmap-visualization",
+  "category": "Analytics",
+  "title": "Build Error Heatmap Visualization",
+  "description": "Create an interactive error heatmap component that visualizes which characters and character combinations cause the most typing errors. Include filtering by language and time period.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "enhance-performance-metrics-calculation"
+  ],
+  "createdAt": "2026-01-20T19:10:28.531Z",
+  "updatedAt": "2026-01-20T20:13:43.787Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:50:51.093Z"
+}

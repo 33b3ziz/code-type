@@ -6,6 +6,7 @@
 import { useMemo } from 'react'
 
 import { Button } from '../ui/button'
+import { ShareButton } from '../SocialShare'
 
 import type { RaceResult, RaceRoom } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
@@ -16,6 +17,7 @@ export interface RaceResultsProps {
   currentPlayerId: string | null
   onPlayAgain: () => void
   onLeaveRoom: () => void
+  onViewHistory?: () => void
   className?: string
 }
 
@@ -25,6 +27,7 @@ export function RaceResults({
   currentPlayerId,
   onPlayAgain,
   onLeaveRoom,
+  onViewHistory,
   className = '',
 }: RaceResultsProps) {
   const sortedResults = useMemo(() => {
@@ -35,6 +38,18 @@ export function RaceResults({
   const isHost = room.hostId === currentPlayerId
   const hasWinner = sortedResults.length > 0
   const winner = hasWinner ? sortedResults[0] : null
+
+  // Create shareable result for the current user
+  const shareableResult = useMemo(() => {
+    if (!currentResult) return null
+    return {
+      wpm: Math.round(currentResult.wpm),
+      accuracy: Math.round(currentResult.accuracy),
+      language: room.settings.language || 'Code',
+      difficulty: room.settings.difficulty || 'Standard',
+      isPersonalBest: currentResult.position === 1,
+    }
+  }, [currentResult, room.settings])
 
   // Medal colors - only top 3 get special colors
   const medalColors = new Map([
@@ -117,6 +132,17 @@ export function RaceResults({
         </div>
       )}
 
+      {/* Share Your Result */}
+      {currentResult && shareableResult && (
+        <div className="mb-6 flex justify-center">
+          <ShareButton
+            result={shareableResult}
+            variant="full"
+            className="share-race-result"
+          />
+        </div>
+      )}
+
       {/* Full Results */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-300 mb-3">Final Standings</h3>
@@ -173,19 +199,32 @@ export function RaceResults({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4">
-        {isHost ? (
-          <Button className="flex-1" onClick={onPlayAgain}>
-            Start New Race
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-4">
+          {isHost ? (
+            <Button className="flex-1" onClick={onPlayAgain}>
+              Start New Race
+            </Button>
+          ) : (
+            <Button variant="outline" className="flex-1" disabled>
+              Waiting for host...
+            </Button>
+          )}
+          <Button variant="outline" onClick={onLeaveRoom}>
+            Leave Room
           </Button>
-        ) : (
-          <Button variant="outline" className="flex-1" disabled>
-            Waiting for host...
+        </div>
+
+        {/* Race History Link */}
+        {onViewHistory && (
+          <Button
+            variant="ghost"
+            className="w-full text-gray-400 hover:text-cyan-400"
+            onClick={onViewHistory}
+          >
+            View Race History
           </Button>
         )}
-        <Button variant="outline" onClick={onLeaveRoom}>
-          Leave Room
-        </Button>
       </div>
     </div>
   )

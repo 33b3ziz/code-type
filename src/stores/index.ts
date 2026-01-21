@@ -24,3 +24,6 @@ export {
 
 // Sound Store
 export { useSoundStore, type SoundType } from './sound-store'
+
+// Practice Store
+export { usePracticeStore } from './practice-store'

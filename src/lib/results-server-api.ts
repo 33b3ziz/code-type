@@ -7,7 +7,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { desc, eq } from 'drizzle-orm'
 
 import { db } from '@/db'
-import { testResults, users } from '@/db/schema'
+import { type KeystrokeEvent, testResults, users } from '@/db/schema'
 
 export interface SaveTestResultInput {
   userId: string
@@ -20,6 +20,8 @@ export interface SaveTestResultInput {
   incorrectCharacters: number
   backspaceCount: number
   duration: number
+  isStrictMode?: boolean
+  keystrokeData?: KeystrokeEvent[]
 }
 
 export interface TestResultResponse {
@@ -34,7 +36,9 @@ export interface TestResultResponse {
   incorrectCharacters: number
   backspaceCount: number
   duration: number
+  isStrictMode: boolean
   completedAt: Date
+  keystrokeData?: KeystrokeEvent[] | null
 }
 
 /**
@@ -57,6 +61,8 @@ export const saveTestResultFn = createServerFn({ method: 'POST' })
         incorrectCharacters: data.incorrectCharacters,
         backspaceCount: data.backspaceCount,
         duration: data.duration,
+        isStrictMode: data.isStrictMode ?? false,
+        keystrokeData: data.keystrokeData ?? null,
       })
       .returning()
 
@@ -72,7 +78,9 @@ export const saveTestResultFn = createServerFn({ method: 'POST' })
       incorrectCharacters: result.incorrectCharacters,
       backspaceCount: result.backspaceCount ?? 0,
       duration: result.duration,
+      isStrictMode: result.isStrictMode ?? false,
       completedAt: result.completedAt,
+      keystrokeData: result.keystrokeData ?? null,
     }
   })
 
@@ -101,7 +109,9 @@ export const getRecentResultsFn = createServerFn({ method: 'GET' })
       incorrectCharacters: r.incorrectCharacters,
       backspaceCount: r.backspaceCount ?? 0,
       duration: r.duration,
+      isStrictMode: r.isStrictMode ?? false,
       completedAt: r.completedAt,
+      keystrokeData: r.keystrokeData ?? null,
     }))
   })
 

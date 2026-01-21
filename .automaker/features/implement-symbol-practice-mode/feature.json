@@ -1,0 +1,17 @@
+{
+  "id": "implement-symbol-practice-mode",
+  "category": "Practice",
+  "title": "Implement Symbol Practice Mode",
+  "description": "Develop a dedicated practice mode focused on special characters and symbols commonly used in code. Generate symbol-heavy code snippets and track symbol accuracy separately.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "build-practice-mode-selector",
+    "fix-typing-test-state-management"
+  ],
+  "createdAt": "2026-01-20T19:10:28.533Z",
+  "updatedAt": "2026-01-20T19:50:50.943Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:35:36.639Z"
+}

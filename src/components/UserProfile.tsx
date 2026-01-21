@@ -6,21 +6,28 @@
 import { useEffect, useState } from 'react'
 
 import {
+  ProfileAchievements,
   ProfileActivity,
+  ProfileCharts,
+  ProfileDifficulty,
   ProfileHeader,
   ProfileLanguages,
+  ProfileRecommendations,
   ProfileStats,
   ProfileTrends,
   ProfileWeaknesses,
 } from './profile'
-import type { AccuracyTrend, LanguageBreakdown, WPMTrend, WeaknessArea } from '@/lib/analytics-api'
+import type { AccuracyTrend, DifficultyStats, LanguageBreakdown, WPMTrend, WeaknessArea } from '@/lib/analytics-api'
+import type { AchievementProgress } from '@/lib/achievement-tracker'
 import type { UserStats } from '@/lib/results-api'
 import {
   getAccuracyTrend,
+  getDifficultyStats,
   getLanguageStats,
   getWPMTrend,
   identifyWeaknesses,
 } from '@/lib/analytics-api'
+import { getAchievementProgress } from '@/lib/achievement-tracker'
 import { getUserRank } from '@/lib/leaderboard-api'
 import { getUserStats } from '@/lib/results-api'
 
@@ -37,16 +44,20 @@ interface ProfileData {
   wpmTrend: WPMTrend | null
   weaknesses: Array<WeaknessArea>
   globalRank: number | null
+  achievements: Array<AchievementProgress>
+  difficultyStats: Array<DifficultyStats>
 }
 
 async function loadProfileData(userId: string): Promise<ProfileData> {
-  const [userStats, langStats, accTrend, wTrend, weak, rank] = await Promise.all([
+  const [userStats, langStats, accTrend, wTrend, weak, rank, achievementProgress, diffStats] = await Promise.all([
     getUserStats(userId),
     getLanguageStats(userId),
     getAccuracyTrend(userId),
     getWPMTrend(userId),
     identifyWeaknesses(userId),
     getUserRank(userId, { timeFrame: 'alltime' }),
+    getAchievementProgress(userId),
+    getDifficultyStats(userId),
   ])
 
   return {
@@ -56,6 +67,8 @@ async function loadProfileData(userId: string): Promise<ProfileData> {
     wpmTrend: wTrend,
     weaknesses: weak,
     globalRank: rank,
+    achievements: achievementProgress,
+    difficultyStats: diffStats,
   }
 }
 
@@ -67,6 +80,8 @@ export function UserProfile({ userId, username, className = '' }: UserProfilePro
     wpmTrend: null,
     weaknesses: [],
     globalRank: null,
+    achievements: [],
+    difficultyStats: [],
   })
   const [loading, setLoading] = useState(true)
 
@@ -106,6 +121,11 @@ export function UserProfile({ userId, username, className = '' }: UserProfilePro
         accuracyTrend={data.accuracyTrend}
       />
 
+      <ProfileCharts
+        wpmTrend={data.wpmTrend}
+        accuracyTrend={data.accuracyTrend}
+      />
+
       <ProfileTrends
         wpmTrend={data.wpmTrend}
         accuracyTrend={data.accuracyTrend}
@@ -115,7 +135,17 @@ export function UserProfile({ userId, username, className = '' }: UserProfilePro
         <ProfileLanguages languageBreakdown={data.languageBreakdown} />
       )}
 
+      {data.difficultyStats.length > 0 && (
+        <ProfileDifficulty difficultyStats={data.difficultyStats} />
+      )}
+
+      {data.achievements.length > 0 && (
+        <ProfileAchievements achievements={data.achievements} />
+      )}
+
       <ProfileWeaknesses weaknesses={data.weaknesses} />
+
+      <ProfileRecommendations userId={userId} />
 
       <ProfileActivity stats={data.stats} />
     </div>

@@ -5,6 +5,9 @@
 
 import type { Language, PracticeMode } from '@/db/schema'
 
+// Difficulty level for practice modes
+export type ModeDifficulty = 'beginner' | 'intermediate' | 'advanced'
+
 // Practice mode configuration
 export interface PracticeModeConfig {
   id: PracticeMode
@@ -15,6 +18,10 @@ export interface PracticeModeConfig {
   defaultDuration: number // in seconds
   requiresLanguage: boolean
   requiresDifficulty: boolean
+  // New fields for enhanced selector
+  difficulty: ModeDifficulty
+  estimatedDuration: string // Human-readable duration
+  shortDescription: string // Brief tagline
 }
 
 export const PRACTICE_MODES: Record<PracticeMode, PracticeModeConfig> = {
@@ -22,61 +29,79 @@ export const PRACTICE_MODES: Record<PracticeMode, PracticeModeConfig> = {
     id: 'symbols',
     name: 'Symbol Practice',
     description: 'Master brackets, operators, and special characters common in code',
+    shortDescription: 'Master code symbols',
     icon: '{ }',
     color: 'cyan',
     defaultDuration: 60,
     requiresLanguage: true,
     requiresDifficulty: false,
+    difficulty: 'intermediate',
+    estimatedDuration: '1-2 min',
   },
   keywords: {
     id: 'keywords',
     name: 'Keyword Drills',
     description: 'Practice language-specific keywords and reserved words',
+    shortDescription: 'Learn language keywords',
     icon: 'fn',
     color: 'purple',
     defaultDuration: 60,
     requiresLanguage: true,
     requiresDifficulty: false,
+    difficulty: 'beginner',
+    estimatedDuration: '1-2 min',
   },
   'weak-spots': {
     id: 'weak-spots',
     name: 'Weak Spot Training',
     description: 'Focus on characters where you make the most mistakes',
+    shortDescription: 'Target your weaknesses',
     icon: '!',
     color: 'red',
     defaultDuration: 90,
     requiresLanguage: false,
     requiresDifficulty: false,
+    difficulty: 'advanced',
+    estimatedDuration: '1-3 min',
   },
   speed: {
     id: 'speed',
     name: 'Speed Challenge',
     description: 'Push your typing speed with familiar patterns',
+    shortDescription: 'Race against time',
     icon: '>>',
     color: 'green',
     defaultDuration: 30,
     requiresLanguage: true,
     requiresDifficulty: true,
+    difficulty: 'advanced',
+    estimatedDuration: '30s-1 min',
   },
   accuracy: {
     id: 'accuracy',
     name: 'Accuracy Focus',
     description: 'Prioritize precision over speed with strict error feedback',
+    shortDescription: 'Perfect your precision',
     icon: '%',
     color: 'yellow',
     defaultDuration: 120,
     requiresLanguage: true,
     requiresDifficulty: true,
+    difficulty: 'intermediate',
+    estimatedDuration: '2-3 min',
   },
   'warm-up': {
     id: 'warm-up',
     name: 'Warm-Up Routine',
     description: 'Start your session with a quick warm-up sequence',
+    shortDescription: 'Get your fingers ready',
     icon: '~',
     color: 'orange',
     defaultDuration: 60,
     requiresLanguage: false,
     requiresDifficulty: false,
+    difficulty: 'beginner',
+    estimatedDuration: '1 min',
   },
 }
 
@@ -139,6 +164,239 @@ export const WARMUP_PATTERNS = [
   'pack my box with five dozen liquor jugs',
 ]
 
+// Symbol categories for tracking accuracy
+export const SYMBOL_CATEGORIES = {
+  brackets: ['{', '}', '[', ']', '(', ')', '<', '>'],
+  operators: ['=', '+', '-', '*', '/', '%', '!', '&', '|', '^', '~'],
+  comparison: ['<', '>', '=', '!'],
+  punctuation: [';', ':', ',', '.', "'", '"', '`'],
+  special: ['@', '#', '$', '_', '\\', '?'],
+} as const
+
+export type SymbolCategory = keyof typeof SYMBOL_CATEGORIES
+
+// Symbol-heavy code snippets by language
+// These are real code patterns that emphasize special characters
+export const SYMBOL_CODE_SNIPPETS: Record<Language, Array<{ code: string; description: string }>> = {
+  javascript: [
+    {
+      code: `const fn = (a, b) => ({ ...a, ...b });`,
+      description: 'Arrow function with spread',
+    },
+    {
+      code: `const [x, y] = [1, 2]; const { a, b } = obj;`,
+      description: 'Destructuring',
+    },
+    {
+      code: `arr.filter(x => x > 0).map(x => x * 2);`,
+      description: 'Array chaining',
+    },
+    {
+      code: `const val = obj?.prop ?? 'default';`,
+      description: 'Optional chaining and nullish',
+    },
+    {
+      code: `\`Hello \${name}! You have \${count} items.\``,
+      description: 'Template literal',
+    },
+    {
+      code: `if (a === b && c !== d || e >= f) {}`,
+      description: 'Conditionals',
+    },
+    {
+      code: `const obj = { key: 'value', fn: () => {} };`,
+      description: 'Object literal',
+    },
+    {
+      code: `arr.reduce((acc, val) => acc + val, 0);`,
+      description: 'Reduce pattern',
+    },
+    {
+      code: `async () => { try { await fn(); } catch (e) {} }`,
+      description: 'Async try-catch',
+    },
+    {
+      code: `const [a, ...rest] = [1, 2, 3, 4, 5];`,
+      description: 'Rest spread',
+    },
+    {
+      code: `export { foo as bar } from './module';`,
+      description: 'Re-export',
+    },
+    {
+      code: `obj['key'] = obj['key'] ?? [];`,
+      description: 'Bracket notation',
+    },
+    {
+      code: `const fn = ({ a = 1, b = 2 } = {}) => a + b;`,
+      description: 'Default params',
+    },
+    {
+      code: `items?.length ? items[0] : null;`,
+      description: 'Ternary with optional',
+    },
+    {
+      code: `[...arr1, ...arr2].filter(Boolean);`,
+      description: 'Spread and filter',
+    },
+  ],
+  typescript: [
+    {
+      code: `type Fn<T, R> = (arg: T) => R;`,
+      description: 'Generic type',
+    },
+    {
+      code: `const fn: <T>(x: T) => T = (x) => x;`,
+      description: 'Generic function',
+    },
+    {
+      code: `interface Props { data?: Array<{ id: number }> }`,
+      description: 'Interface with generics',
+    },
+    {
+      code: `type Result = { ok: true; data: T } | { ok: false };`,
+      description: 'Discriminated union',
+    },
+    {
+      code: `const obj = { a: 1, b: 2 } as const;`,
+      description: 'Const assertion',
+    },
+    {
+      code: `type Keys = keyof typeof obj;`,
+      description: 'Keyof typeof',
+    },
+    {
+      code: `function fn<T extends { id: number }>(x: T): T {}`,
+      description: 'Constrained generic',
+    },
+    {
+      code: `type Pick<T, K> = { [P in K]: T[P] };`,
+      description: 'Mapped type',
+    },
+    {
+      code: `const [state, setState] = useState<T | null>(null);`,
+      description: 'Generic state',
+    },
+    {
+      code: `type Awaited<T> = T extends Promise<infer R> ? R : T;`,
+      description: 'Conditional type',
+    },
+    {
+      code: `const fn = <T,>(arr: T[]): T | undefined => arr[0];`,
+      description: 'Array generic',
+    },
+    {
+      code: `interface Map<K, V> { get(key: K): V | undefined; }`,
+      description: 'Generic interface',
+    },
+    {
+      code: `type NonNull<T> = T extends null | undefined ? never : T;`,
+      description: 'Exclude nulls',
+    },
+    {
+      code: `const assert: <T>(x: T) => asserts x is NonNullable<T>;`,
+      description: 'Type assertion',
+    },
+    {
+      code: `Record<string, { [key: string]: unknown }>;`,
+      description: 'Nested record',
+    },
+  ],
+  python: [
+    {
+      code: `result = [x**2 for x in range(10) if x % 2 == 0]`,
+      description: 'List comprehension',
+    },
+    {
+      code: `data = {k: v for k, v in items.items()}`,
+      description: 'Dict comprehension',
+    },
+    {
+      code: `fn = lambda x, y: x + y if x > 0 else y`,
+      description: 'Lambda with conditional',
+    },
+    {
+      code: `@decorator(arg="value")`,
+      description: 'Decorator with args',
+    },
+    {
+      code: `def fn(*args, **kwargs) -> None: pass`,
+      description: 'Variadic function',
+    },
+    {
+      code: `result = obj["key"] if "key" in obj else None`,
+      description: 'Dict access',
+    },
+    {
+      code: `f"Hello {name}! Count: {len(items)}"`,
+      description: 'F-string',
+    },
+    {
+      code: `data = {"a": 1, "b": 2, **extra}`,
+      description: 'Dict spread',
+    },
+    {
+      code: `[*list1, *list2, item]`,
+      description: 'List unpacking',
+    },
+    {
+      code: `a, *rest, b = [1, 2, 3, 4, 5]`,
+      description: 'Extended unpacking',
+    },
+    {
+      code: `result = (x := expensive_fn())`,
+      description: 'Walrus operator',
+    },
+    {
+      code: `class Cls(Base): __slots__ = ["a", "b"]`,
+      description: 'Class with slots',
+    },
+    {
+      code: `assert len(items) > 0, "Empty list!"`,
+      description: 'Assert statement',
+    },
+    {
+      code: `with open("f.txt", "r") as f: data = f.read()`,
+      description: 'Context manager',
+    },
+    {
+      code: `items = [(k, v) for k, v in d.items() if v > 0]`,
+      description: 'Tuple comprehension',
+    },
+  ],
+}
+
+// Helper to categorize a character
+export function getSymbolCategory(char: string): SymbolCategory | null {
+  for (const [category, chars] of Object.entries(SYMBOL_CATEGORIES)) {
+    if (chars.includes(char as (typeof chars)[number])) {
+      return category as SymbolCategory
+    }
+  }
+  return null
+}
+
+// Interface for tracking symbol accuracy by category
+export interface SymbolAccuracyStats {
+  brackets: { correct: number; total: number }
+  operators: { correct: number; total: number }
+  comparison: { correct: number; total: number }
+  punctuation: { correct: number; total: number }
+  special: { correct: number; total: number }
+  other: { correct: number; total: number }
+}
+
+export function createEmptySymbolStats(): SymbolAccuracyStats {
+  return {
+    brackets: { correct: 0, total: 0 },
+    operators: { correct: 0, total: 0 },
+    comparison: { correct: 0, total: 0 },
+    punctuation: { correct: 0, total: 0 },
+    special: { correct: 0, total: 0 },
+    other: { correct: 0, total: 0 },
+  }
+}
+
 // Generate practice content based on mode
 export function generatePracticeContent(
   mode: PracticeMode,
@@ -163,7 +421,34 @@ export function generatePracticeContent(
   }
 }
 
-function generateSymbolPractice(language: Language, targetLength: number): string {
+function generateSymbolPractice(language: Language, targetLength: number, useCodeSnippets: boolean = true): string {
+  // Use code snippets for more realistic practice
+  if (useCodeSnippets && SYMBOL_CODE_SNIPPETS[language]) {
+    const snippets = SYMBOL_CODE_SNIPPETS[language]
+    const result: Array<string> = []
+    let currentLength = 0
+    const usedIndices = new Set<number>()
+
+    while (currentLength < targetLength) {
+      // Get a random snippet we haven't used recently
+      let index: number
+      if (usedIndices.size >= snippets.length) {
+        usedIndices.clear()
+      }
+      do {
+        index = Math.floor(Math.random() * snippets.length)
+      } while (usedIndices.has(index) && usedIndices.size < snippets.length)
+      
+      usedIndices.add(index)
+      const snippet = snippets[index].code
+      result.push(snippet)
+      currentLength += snippet.length + 1
+    }
+
+    return result.join('\n')
+  }
+
+  // Fallback to symbol pairs (original behavior)
   const symbols = SYMBOL_SETS[language]
   const result: Array<string> = []
   let currentLength = 0

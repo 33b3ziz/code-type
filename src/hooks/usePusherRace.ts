@@ -6,17 +6,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Channel } from 'pusher-js'
 
-import type { RacePlayer, RaceResult, RaceRoom, RaceSettings } from '@/lib/pusher/types'
+import type { ChatMessage, ModerationAction, RacePlayer, RaceResult, RaceRoom, RaceSettings } from '@/lib/pusher/types'
 import { getPusherClient } from '@/lib/pusher/client'
 import {
   createRoomFn,
   finishRaceFn,
   joinRoomFn,
+  kickPlayerFn,
   leaveRoomFn,
+  moderateChatFn,
   sendChatFn,
   setReadyFn,
   startRaceFn,
+  transferHostFn,
   updateProgressFn,
+  updateSettingsFn,
 } from '@/lib/pusher/race-api'
 
 export interface RaceEvents {
@@ -25,13 +29,16 @@ export interface RaceEvents {
   onRoomUpdated?: (room: RaceRoom) => void
   onPlayerJoined?: (player: RacePlayer) => void
   onPlayerLeft?: (playerId: string) => void
+  onPlayerKicked?: (playerId: string) => void
+  onSettingsUpdated?: (settings: RaceSettings) => void
   onCountdownStart?: (seconds: number) => void
   onCountdownTick?: (seconds: number) => void
   onRaceStart?: (snippetId: number, startTime: number) => void
   onPlayerProgress?: (playerId: string, progress: number, wpm: number, accuracy: number) => void
   onPlayerFinished?: (playerId: string, position: number, wpm: number, accuracy: number) => void
   onRaceFinished?: (results: Array<RaceResult>) => void
-  onChatMessage?: (playerId: string, username: string, message: string) => void
+  onChatMessage?: (message: ChatMessage) => void
+  onChatModerated?: (action: ModerationAction) => void
   onError?: (code: string, message: string) => void
 }
 
@@ -50,6 +57,9 @@ export interface UsePusherRaceReturn {
   playerId: string | null
   players: Array<RacePlayer>
 
+  // Chat state
+  chatMessages: ChatMessage[]
+
   // Room actions
   createRoom: (settings?: Partial<RaceSettings>, username?: string) => Promise<void>
   joinRoom: (code: string, username?: string) => Promise<void>
@@ -61,7 +71,16 @@ export interface UsePusherRaceReturn {
   startRace: () => Promise<void>
   updateProgress: (progress: number, wpm: number, accuracy: number) => Promise<void>
   finishRace: (finalWpm: number, finalAccuracy: number) => Promise<void>
-  sendChat: (message: string) => Promise<void>
+  sendChat: (message: string, mentions?: string[]) => Promise<void>
+
+  // Moderation actions
+  deleteMessage: (messageId: string) => Promise<void>
+  mutePlayer: (targetPlayerId: string) => Promise<void>
+
+  // Host actions
+  kickPlayer: (targetPlayerId: string) => Promise<void>
+  updateSettings: (settings: Partial<RaceSettings>) => Promise<void>
+  transferHost: (newHostId: string) => Promise<void>
 }
 
 export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRaceReturn {
@@ -72,6 +91,7 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
   const [error, setError] = useState<string | null>(null)
   const [room, setRoom] = useState<RaceRoom | null>(null)
   const [playerId, setPlayerId] = useState<string | null>(null)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
   const channelRef = useRef<Channel | null>(null)
   const eventsRef = useRef(events)
@@ -119,6 +139,16 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
     })
 
     channel.bind('player-joined', (data: { player: RacePlayer }) => {
+      // Add system message for player join
+      const systemMessage: ChatMessage = {
+        id: `sys-${Date.now()}-join-${data.player.id}`,
+        playerId: 'system',
+        username: 'System',
+        message: `${data.player.username} joined the room`,
+        timestamp: Date.now(),
+        type: 'system',
+      }
+      setChatMessages((prev) => [...prev, systemMessage])
       eventsRef.current.onPlayerJoined?.(data.player)
     })
 
@@ -182,8 +212,32 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
       eventsRef.current.onRaceFinished?.(data.results)
     })
 
-    channel.bind('chat-message', (data: { playerId: string; username: string; message: string }) => {
-      eventsRef.current.onChatMessage?.(data.playerId, data.username, data.message)
+    channel.bind('chat-message', (data: ChatMessage) => {
+      setChatMessages((prev) => [...prev, data])
+      eventsRef.current.onChatMessage?.(data)
+    })
+
+    channel.bind('chat-moderated', (data: ModerationAction) => {
+      if (data.type === 'delete' && data.messageId) {
+        setChatMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === data.messageId ? { ...msg, isModerated: true } : msg
+          )
+        )
+      }
+      eventsRef.current.onChatModerated?.(data)
+    })
+
+    channel.bind('player-kicked', (data: { playerId: string }) => {
+      eventsRef.current.onPlayerKicked?.(data.playerId)
+    })
+
+    channel.bind('settings-updated', (data: { settings: RaceSettings }) => {
+      setRoom((prev) => {
+        if (!prev) return prev
+        return { ...prev, settings: data.settings, maxPlayers: data.settings.maxPlayers }
+      })
+      eventsRef.current.onSettingsUpdated?.(data.settings)
     })
 
     return channel
@@ -211,6 +265,7 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
   const createRoom = useCallback(async (settings?: Partial<RaceSettings>, username?: string) => {
     setIsLoading(true)
     setError(null)
+    setChatMessages([]) // Clear chat history
 
     try {
       const result = await createRoomFn({ data: { settings, username } })
@@ -230,6 +285,7 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
   const joinRoom = useCallback(async (code: string, username?: string) => {
     setIsLoading(true)
     setError(null)
+    setChatMessages([]) // Clear chat history
 
     try {
       const result = await joinRoomFn({ data: { code, username } })
@@ -265,6 +321,7 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
     unsubscribeFromRoom()
     setRoom(null)
     setPlayerId(null)
+    setChatMessages([])
   }, [room, playerId, unsubscribeFromRoom])
 
   // Set player ready
@@ -329,16 +386,96 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
     }
   }, [room, playerId])
 
-  // Send chat message
-  const sendChat = useCallback(async (message: string) => {
+  // Send chat message with mentions support
+  const sendChat = useCallback(async (message: string, mentions?: string[]) => {
     if (!room || !playerId || !message.trim()) return
 
     try {
       await sendChatFn({
-        data: { roomCode: room.code, playerId, message: message.trim() },
+        data: {
+          roomCode: room.code,
+          playerId,
+          message: message.trim(),
+          mentions,
+        },
       })
     } catch {
       // Ignore chat errors
+    }
+  }, [room, playerId])
+
+  // Delete a chat message (moderation)
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!room || !playerId) return
+
+    try {
+      await moderateChatFn({
+        data: {
+          roomCode: room.code,
+          playerId,
+          action: 'delete',
+          messageId,
+        },
+      })
+    } catch {
+      eventsRef.current.onError?.('MODERATION_FAILED', 'Failed to delete message')
+    }
+  }, [room, playerId])
+
+  // Mute a player (moderation)
+  const mutePlayer = useCallback(async (targetPlayerId: string) => {
+    if (!room || !playerId) return
+
+    try {
+      await moderateChatFn({
+        data: {
+          roomCode: room.code,
+          playerId,
+          action: 'mute',
+          targetPlayerId,
+        },
+      })
+    } catch {
+      eventsRef.current.onError?.('MODERATION_FAILED', 'Failed to mute player')
+    }
+  }, [room, playerId])
+
+  // Kick player from room (host only)
+  const kickPlayer = useCallback(async (targetPlayerId: string) => {
+    if (!room || !playerId) return
+
+    try {
+      await kickPlayerFn({
+        data: { roomCode: room.code, playerId, targetPlayerId },
+      })
+    } catch {
+      eventsRef.current.onError?.('KICK_FAILED', 'Failed to kick player')
+    }
+  }, [room, playerId])
+
+  // Update room settings (host only)
+  const updateSettings = useCallback(async (settings: Partial<RaceSettings>) => {
+    if (!room || !playerId) return
+
+    try {
+      await updateSettingsFn({
+        data: { roomCode: room.code, playerId, settings },
+      })
+    } catch {
+      eventsRef.current.onError?.('SETTINGS_FAILED', 'Failed to update settings')
+    }
+  }, [room, playerId])
+
+  // Transfer host (host only)
+  const transferHost = useCallback(async (newHostId: string) => {
+    if (!room || !playerId) return
+
+    try {
+      await transferHostFn({
+        data: { roomCode: room.code, playerId, newHostId },
+      })
+    } catch {
+      eventsRef.current.onError?.('TRANSFER_FAILED', 'Failed to transfer host')
     }
   }, [room, playerId])
 
@@ -352,6 +489,7 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
     room,
     playerId,
     players,
+    chatMessages,
     createRoom,
     joinRoom,
     leaveRoom,
@@ -361,6 +499,11 @@ export function usePusherRace(options: UsePusherRaceOptions = {}): UsePusherRace
     updateProgress,
     finishRace,
     sendChat,
+    deleteMessage,
+    mutePlayer,
+    kickPlayer,
+    updateSettings,
+    transferHost,
   }
 }
 

@@ -5,7 +5,12 @@
 
 import { useQuery } from '@tanstack/react-query'
 import type { Difficulty, Language } from '@/db/schema'
-import type { LeaderboardFilters, TimeFrame } from '@/lib/leaderboard-api'
+import type {
+  LeaderboardFilters,
+  SortBy,
+  SortOrder,
+  TimeFrame,
+} from '@/lib/leaderboard-api'
 import {
   getAllTimeLeaderboard,
   getDailyLeaderboard,
@@ -34,6 +39,8 @@ interface UseLeaderboardOptions {
   timeFrame?: TimeFrame
   language?: Language
   difficulty?: Difficulty
+  sortBy?: SortBy
+  sortOrder?: SortOrder
   limit?: number
   offset?: number
   enabled?: boolean
@@ -48,6 +55,8 @@ export function useLeaderboard(options: UseLeaderboardOptions = {}) {
     timeFrame: filters.timeFrame ?? 'alltime',
     language: filters.language,
     difficulty: filters.difficulty,
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
     limit: filters.limit,
     offset: filters.offset,
   }
@@ -113,7 +122,7 @@ export function useTopUsers(options: UseDailyLeaderboardOptions = {}) {
 
   return useQuery({
     queryKey: leaderboardKeys.topUsers(limit),
-    queryFn: () => getTopUsers(limit),
+    queryFn: () => getTopUsers('alltime', limit),
     enabled,
   })
 }
@@ -122,6 +131,8 @@ interface UseUserRankOptions {
   timeFrame?: TimeFrame
   language?: Language
   difficulty?: Difficulty
+  sortBy?: SortBy
+  sortOrder?: SortOrder
   enabled?: boolean
 }
 
@@ -132,11 +143,18 @@ export function useLeaderboardUserRank(
   userId: string,
   options: UseUserRankOptions = {}
 ) {
-  const { enabled = true, ...filters } = options
+  const { enabled = true, ...filterOptions } = options
+  const filters = {
+    timeFrame: filterOptions.timeFrame ?? 'alltime',
+    language: filterOptions.language,
+    difficulty: filterOptions.difficulty,
+    sortBy: filterOptions.sortBy,
+    sortOrder: filterOptions.sortOrder,
+  }
 
   return useQuery({
     queryKey: leaderboardKeys.userRank(userId, filters),
-    queryFn: () => getUserRank(userId, filters.timeFrame, filters.language),
+    queryFn: () => getUserRank(userId, filters),
     enabled: enabled && !!userId,
   })
 }

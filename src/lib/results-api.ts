@@ -3,7 +3,7 @@
  * Functions for saving and fetching typing test results
  */
 
-import type { Difficulty, Language, TestResult } from '@/db/schema'
+import type { Difficulty, KeystrokeEvent, Language, TestResult } from '@/db/schema'
 
 export interface TestResultInput {
   userId: string
@@ -19,6 +19,7 @@ export interface TestResultInput {
   backspaceCount?: number
   duration: number // seconds
   isStrictMode?: boolean
+  keystrokeData?: KeystrokeEvent[] // For replay feature
 }
 
 export interface TestResultWithDetails extends TestResult {
@@ -70,6 +71,7 @@ export async function saveTestResult(result: TestResultInput): Promise<TestResul
     duration: result.duration,
     completedAt: new Date(),
     isStrictMode: result.isStrictMode ?? false,
+    keystrokeData: result.keystrokeData ?? null, // For replay feature
   }
 
   // Store in localStorage for demo purposes

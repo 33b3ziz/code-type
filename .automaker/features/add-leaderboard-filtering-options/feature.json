@@ -1,0 +1,16 @@
+{
+  "id": "add-leaderboard-filtering-options",
+  "category": "UI",
+  "title": "Add Leaderboard Filtering and Sorting Options",
+  "description": "Extend leaderboard functionality with advanced filtering by time period (daily, weekly, monthly, all-time), language, difficulty, and user-specific metrics. Add sorting by WPM, accuracy, or consistency.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "optimize-leaderboard-performance"
+  ],
+  "createdAt": "2026-01-20T19:10:28.533Z",
+  "updatedAt": "2026-01-20T19:48:53.143Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:28:49.052Z"
+}

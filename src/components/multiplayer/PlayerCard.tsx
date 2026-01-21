@@ -3,6 +3,8 @@
  * Displays a single player's info in the race lobby or progress view
  */
 
+import { X, Crown } from 'lucide-react'
+
 import type { RacePlayer } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
@@ -12,6 +14,9 @@ export interface PlayerCardProps {
   isHost?: boolean
   showProgress?: boolean
   showPosition?: boolean
+  canKick?: boolean
+  onKick?: (playerId: string) => void
+  onMakeHost?: (playerId: string) => void
   className?: string
 }
 
@@ -21,6 +26,9 @@ export function PlayerCard({
   isHost = false,
   showProgress = false,
   showPosition = false,
+  canKick = false,
+  onKick,
+  onMakeHost,
   className = '',
 }: PlayerCardProps) {
   const positionColors: Record<number, string> = {
@@ -103,7 +111,15 @@ export function PlayerCard({
             </div>
             <div className="flex justify-between mt-1 text-xs text-gray-400">
               <span>{Math.round(player.progress)}%</span>
-              <span>{Math.round(player.wpm)} WPM</span>
+              <span className="flex gap-2">
+                <span className="text-cyan-400">{Math.round(player.wpm)} WPM</span>
+                <span className={cn(
+                  player.accuracy >= 95 ? 'text-green-400' :
+                  player.accuracy >= 80 ? 'text-yellow-400' : 'text-red-400'
+                )}>
+                  {Math.round(player.accuracy)}% acc
+                </span>
+              </span>
             </div>
           </div>
         )}
@@ -124,14 +140,36 @@ export function PlayerCard({
 
         {!showProgress && !showPosition && (
           <div className="flex items-center gap-2">
+            {/* Host controls */}
+            {canKick && !isHost && onMakeHost && (
+              <button
+                onClick={() => onMakeHost(player.id)}
+                className="p-1.5 rounded hover:bg-slate-700 text-gray-400 hover:text-yellow-400 transition-colors"
+                title="Make host"
+              >
+                <Crown className="w-4 h-4" />
+              </button>
+            )}
+            {canKick && !isHost && onKick && (
+              <button
+                onClick={() => onKick(player.id)}
+                className="p-1.5 rounded hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                title="Kick player"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+            {/* Ready/Racing status */}
             <div
               className={cn(
                 'w-3 h-3 rounded-full',
                 player.isFinished
                   ? 'bg-green-500'
+                  : player.isReady
+                  ? 'bg-green-500'
                   : 'bg-yellow-500 animate-pulse'
               )}
-              title={player.isFinished ? 'Finished' : 'Racing'}
+              title={player.isFinished ? 'Finished' : player.isReady ? 'Ready' : 'Not Ready'}
             />
           </div>
         )}

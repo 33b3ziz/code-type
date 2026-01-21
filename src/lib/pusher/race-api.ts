@@ -6,13 +6,17 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import type {
+  ChatMessage,
   ChatRequest,
   CreateRoomRequest,
   FinishRaceRequest,
   JoinRoomRequest,
+  KickPlayerRequest,
+  ModerateChatRequest,
   ProgressUpdateRequest,
   RaceRoom,
   RoomActionRequest,
+  UpdateSettingsRequest,
 } from './types'
 import { getPusher } from './server'
 import { roomStore } from './room-store'
@@ -224,11 +228,22 @@ export const sendChatFn = createServerFn({ method: 'POST' })
     const player = room.players[data.playerId]
     const pusher = getPusher()
 
-    await pusher.trigger(getRoomChannel(data.roomCode), 'chat-message', {
+    // Determine message type based on mentions
+    const hasMentions = data.mentions && data.mentions.length > 0
+    const messageType = hasMentions ? 'mention' : 'user'
+
+    // Create ChatMessage object
+    const chatMessage: ChatMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       playerId: data.playerId,
       username: player.username,
       message: data.message,
-    })
+      timestamp: Date.now(),
+      type: messageType,
+      mentions: data.mentions,
+    }
+
+    await pusher.trigger(getRoomChannel(data.roomCode), 'chat-message', chatMessage)
 
     return { success: true }
   })
@@ -244,4 +259,101 @@ export const getRoomFn = createServerFn({ method: 'GET' })
     }
 
     return { room }
+  })
+
+// Kick a player from the room (host only)
+export const kickPlayerFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: KickPlayerRequest) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
+    const result = roomStore.kickPlayer(data.roomCode, data.playerId, data.targetPlayerId)
+
+    if ('error' in result) {
+      return { success: false, error: result.error }
+    }
+
+    const { room } = result
+    const pusher = getPusher()
+
+    // Notify the kicked player
+    await pusher.trigger(getRoomChannel(data.roomCode), 'player-kicked', {
+      playerId: data.targetPlayerId,
+    })
+
+    // Update room state for remaining players
+    await pusher.trigger(getRoomChannel(data.roomCode), 'room-updated', { room })
+
+    return { success: true }
+  })
+
+// Update room settings (host only)
+export const updateSettingsFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: UpdateSettingsRequest) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; room?: RaceRoom; error?: string }> => {
+    const result = roomStore.updateSettings(data.roomCode, data.playerId, data.settings)
+
+    if ('error' in result) {
+      return { success: false, error: result.error }
+    }
+
+    const room = result
+    const pusher = getPusher()
+
+    // Notify all players of settings change
+    await pusher.trigger(getRoomChannel(data.roomCode), 'settings-updated', {
+      settings: room.settings,
+    })
+
+    // Update room state
+    await pusher.trigger(getRoomChannel(data.roomCode), 'room-updated', { room })
+
+    return { success: true, room }
+  })
+
+// Transfer host privileges (host only)
+export const transferHostFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: RoomActionRequest & { newHostId: string }) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
+    const result = roomStore.transferHost(data.roomCode, data.playerId, data.newHostId)
+
+    if ('error' in result) {
+      return { success: false, error: result.error }
+    }
+
+    const room = result
+    const pusher = getPusher()
+
+    // Update room state
+    await pusher.trigger(getRoomChannel(data.roomCode), 'room-updated', { room })
+
+    return { success: true }
+  })
+
+// Moderate chat messages (host only)
+export const moderateChatFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: ModerateChatRequest) => data)
+  .handler(async ({ data }): Promise<{ success: boolean; error?: string }> => {
+    const room = roomStore.getRoom(data.roomCode)
+
+    if (!room) {
+      return { success: false, error: 'Room not found' }
+    }
+
+    // Verify the requester is the host
+    if (room.hostId !== data.playerId) {
+      return { success: false, error: 'Only the host can moderate chat' }
+    }
+
+    const pusher = getPusher()
+
+    // Broadcast moderation action
+    await pusher.trigger(getRoomChannel(data.roomCode), 'chat-moderated', {
+      type: data.action,
+      messageId: data.messageId,
+      playerId: data.targetPlayerId || data.playerId,
+      reason: data.reason,
+      moderatorId: data.playerId,
+      timestamp: Date.now(),
+    })
+
+    return { success: true }
   })

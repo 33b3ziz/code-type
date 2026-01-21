@@ -3,6 +3,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   real,
@@ -66,6 +67,30 @@ export const raceStatusEnum = pgEnum('race_status', [
   'racing',
   'finished',
 ])
+
+// Keystroke event type for replay feature
+export interface KeystrokeEvent {
+  /** Time offset from test start in milliseconds */
+  timestamp: number
+  /** The character that was typed */
+  char: string
+  /** The expected character at this position */
+  expected: string
+  /** Whether the keystroke was correct */
+  isCorrect: boolean
+  /** Type of keystroke event */
+  type: 'char' | 'backspace'
+  /** Position in the code (cursor position) */
+  position: number
+  /** WPM at this point in time */
+  wpmAtPoint: number
+  /** Accuracy at this point in time (percentage) */
+  accuracyAtPoint: number
+  /** Cumulative correct characters at this point */
+  correctChars: number
+  /** Cumulative incorrect characters at this point */
+  incorrectChars: number
+}
 
 // Users table
 export const users = pgTable(
@@ -158,6 +183,8 @@ export const testResults = pgTable(
     duration: integer('duration').notNull(), // in seconds
     completedAt: timestamp('completed_at').defaultNow().notNull(),
     isStrictMode: boolean('is_strict_mode').default(false),
+    // Keystroke data for replay feature - stores detailed timing information
+    keystrokeData: jsonb('keystroke_data').$type<KeystrokeEvent[]>(),
   },
   (table) => [
     index('test_results_user_idx').on(table.userId),

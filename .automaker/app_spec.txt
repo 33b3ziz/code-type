@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_specification>
+  <project_name>Code-Type</project_name>
+
+  <overview>
+    Code-Type is a modern, full-stack typing test application designed specifically for programmers. It enables users to practice typing code snippets in JavaScript, TypeScript, and Python to improve their coding speed and accuracy. The application combines real-time performance metrics, multiplayer racing capabilities via Pusher, detailed analytics, and personalized practice modes to provide a comprehensive typing skill development platform. With 45+ curated code snippets across multiple difficulty levels, a global leaderboard system, and advanced analytics features, Code-Type helps developers optimize their typing proficiency and track progress over time.
+  </overview>
+
+  <technology_stack>
+    <technology>React 19.2.0 (Frontend Framework)</technology>
+    <technology>TypeScript 5.7.2 (Type Safety)</technology>
+    <technology>TanStack Start 1.132.0 (Full-stack React with SSR)</technology>
+    <technology>TanStack Router 1.132.0 (File-based Routing)</technology>
+    <technology>TanStack Query 5.66.5 (Data Fetching &amp; Caching)</technology>
+    <technology>TanStack React Table 8.21.2 (Advanced Table Management)</technology>
+    <technology>TanStack React Form 1.0.0 (Form State Management)</technology>
+    <technology>TanStack React Virtual 3.13.14 (Virtual Scrolling)</technology>
+    <technology>Tailwind CSS 4.0.6 (Utility-first Styling)</technology>
+    <technology>Tailwind Merge 3.0.2 (Dynamic Class Merging)</technology>
+    <technology>shadcn/ui (UI Component Library)</technology>
+    <technology>Radix UI (Unstyled Accessible Components)</technology>
+    <technology>PostgreSQL (Relational Database)</technology>
+    <technology>Drizzle ORM 0.39.0 (Database ORM)</technology>
+    <technology>Drizzle Kit 0.30.0 (Database Migrations &amp; Studio)</technology>
+    <technology>Nitro 3.0.1-alpha.1 (Server Framework)</technology>
+    <technology>Pusher 5.2.0 (Real-time Multiplayer)</technology>
+    <technology>Pusher JS 8.4.0 (Client-side Real-time)</technology>
+    <technology>Zustand 5.0.9 (State Management)</technology>
+    <technology>Zod 4.0.14 (Schema Validation)</technology>
+    <technology>Lucide React 0.544.0 (Icon Library)</technology>
+    <technology>Class Variance Authority 0.7.1 (Component Styling)</technology>
+    <technology>JetBrains Mono (Monospace Font)</technology>
+    <technology>Vite 7.1.7 (Build Tool &amp; Dev Server)</technology>
+    <technology>Vitest 3.0.5 (Unit Testing)</technology>
+    <technology>Playwright 1.57.0 (E2E Testing)</technology>
+    <technology>Testing Library (React, DOM, Jest-DOM)</technology>
+    <technology>MSW 2.12.7 (Mock Service Worker)</technology>
+    <technology>Prettier 3.5.3 (Code Formatter)</technology>
+    <technology>ESLint (Code Linter)</technology>
+    <technology>Babel Plugin React Compiler 1.0.0 (React Optimizations)</technology>
+  </technology_stack>
+
+  <core_capabilities>
+    <capability>Real-time Code Typing Tests with Performance Metrics (WPM, Raw WPM, Accuracy)</capability>
+    <capability>45+ Curated Code Snippets across JavaScript, TypeScript, and Python</capability>
+    <capability>Multiple Difficulty Levels (Beginner, Intermediate, Advanced, Expert)</capability>
+    <capability>User Authentication System with Secure Password Hashing</capability>
+    <capability>Customizable User Profiles and Personal Statistics Tracking</capability>
+    <capability>Global and Language-specific Leaderboard Rankings</capability>
+    <capability>Advanced Practice Modes (Symbol Practice, Keyword Drills, Weak Spot Training, Speed/Accuracy Focus, Warm-up Routines)</capability>
+    <capability>Real-time Multiplayer Racing with Pusher Integration</capability>
+    <capability>Race Rooms with Room Codes and Live Player Progress Tracking</capability>
+    <capability>In-game Chat for Multiplayer Lobbies</capability>
+    <capability>Comprehensive Analytics and Performance Visualization</capability>
+    <capability>Error Heatmaps and Mistake Pattern Analysis</capability>
+    <capability>Typing History Review and Test Replay Functionality</capability>
+    <capability>Personalized Performance Recommendations</capability>
+    <capability>Achievement System with Badges and Unlock Tracking</capability>
+    <capability>Customizable Editor Preferences (Theme, Font Size, Caret Style, Sound Effects)</capability>
+    <capability>Syntax Highlighting with Language-aware Code Display</capability>
+    <capability>Optional Sound Effects with Volume Control</capability>
+    <capability>Strict Mode for Precision Testing</capability>
+    <capability>Social Share Functionality for Test Results</capability>
+  </core_capabilities>
+
+  <implemented_features>
+    <feature>
+      <name>Core Typing Test Engine</name>
+      <description>Main typing interface with real-time character state tracking, WPM/accuracy calculations, cursor positioning, and test completion detection. Supports strict mode, auto-indent, configurable tab size, and optional backspace.</description>
+      <file_locations>
+        <location>src/hooks/useTypingTest.ts</location>
+        <location>src/hooks/useTypingTestWithSound.ts</location>
+        <location>src/components/TypingTest.tsx</location>
+        <location>src/components/test-setup/TestSetup.tsx</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Difficulty and Language Selection</name>
+      <description>Components for filtering code snippets by programming language (JavaScript, TypeScript, Python) and difficulty levels (Beginner, Intermediate, Advanced, Expert).</description>
+      <file_locations>
+        <location>src/components/DifficultySelector.tsx</location>
+        <location>src/components/LanguageSelector.tsx</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Test Results and Analytics</name>
+      <description>Comprehensive result tracking including WPM, raw WPM, accuracy, symbol accuracy, keyword accuracy, and detailed performance metrics with visualization charts.</description>
+      <file_locations>
+        <location>src/components/TestResultsSummary.tsx</location>
+        <location>src/components/PerformanceChart.tsx</location>
+        <location>src/components/ErrorHeatmap.tsx</location>
+        <location>src/lib/results-api.ts</location>
+        <location>src/lib/results-server-api.ts</location>
+        <location>src/lib/performance-metrics.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>User Authentication System</name>
+      <description>Secure user registration and login with password hashing, session management, and user data persistence.</description>
+      <file_locations>
+        <location>src/routes/login.tsx</location>
+        <location>src/routes/register.tsx</location>
+        <location>src/lib/auth.ts</location>
+        <location>src/lib/password.ts</location>
+        <location>src/stores/auth-store.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>User Profiles</name>
+      <description>Personal statistics dashboard showing test history, performance trends, achievements, and profile customization with avatar and display name.</description>
+      <file_locations>
+        <location>src/routes/profile.tsx</location>
+        <location>src/components/UserProfile.tsx</location>
+        <location>src/components/profile/StatsOverview.tsx</location>
+        <location>src/components/profile/AchievementsSection.tsx</location>
+        <location>src/lib/profile-api.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Global Leaderboard</name>
+      <description>Ranked competition system with filtering by language and difficulty level, showing top performers globally and personal ranking position.</description>
+      <file_locations>
+        <location>src/routes/leaderboard.tsx</location>
+        <location>src/components/Leaderboard.tsx</location>
+        <location>src/lib/leaderboard-api.ts</location>
+        <location>src/lib/leaderboard-server-api.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Practice Modes</name>
+      <description>Six specialized practice modes: Symbol Practice (special characters), Keyword Drills (language keywords), Weak Spot Training (common mistakes), Speed Mode, Accuracy Mode, and Warm-up Routine.</description>
+      <file_locations>
+        <location>src/routes/practice.tsx</location>
+        <location>src/components/practice/PracticeSelector.tsx</location>
+        <location>src/components/practice/SymbolPractice.tsx</location>
+        <location>src/components/practice/WeakSpotDrill.tsx</location>
+        <location>src/components/practice/WarmUpRoutine.tsx</location>
+        <location>src/lib/practice-modes.ts</location>
+        <location>src/lib/practice-api.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Multiplayer Racing</name>
+      <description>Real-time multiplayer typing races using Pusher for live updates. Users can create rooms, join with room codes, compete simultaneously, view live progress, and receive race results.</description>
+      <file_locations>
+        <location>src/routes/race.tsx</location>
+        <location>src/components/multiplayer/RaceLobby.tsx</location>
+        <location>src/components/multiplayer/RaceProgress.tsx</location>
+        <location>src/components/multiplayer/RaceResults.tsx</location>
+        <location>src/components/multiplayer/PlayerCard.tsx</location>
+        <location>src/hooks/usePusherRace.ts</location>
+        <location>src/lib/pusher/race-api.ts</location>
+        <location>src/lib/pusher/race-events.ts</location>
+        <location>src/lib/pusher/pusher-server.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Achievement System</name>
+      <description>Badge and achievement tracking system with progress tracking, unlock notifications, and achievement points based on typing milestones and skill levels.</description>
+      <file_locations>
+        <location>src/components/AchievementBadge.tsx</location>
+        <location>src/lib/achievements.ts</location>
+        <location>src/lib/achievement-tracker.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>User Settings and Preferences</name>
+      <description>Customizable editor and display settings including theme selection, font size, caret style, sound volume, line numbers, auto-indent, and strict mode toggle.</description>
+      <file_locations>
+        <location>src/routes/settings.tsx</location>
+        <location>src/components/ThemeToggle.tsx</location>
+        <location>src/components/ThemeProvider.tsx</location>
+        <location>src/lib/settings-api.ts</location>
+        <location>src/stores/settings-store.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Test Replay and History</name>
+      <description>Detailed typing history with ability to replay past tests, view character-by-character accuracy, and analyze performance trends over time.</description>
+      <file_locations>
+        <location>src/components/TypingHistory.tsx</location>
+        <location>src/components/TestReplay.tsx</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Sound Effects System</name>
+      <description>Optional audio feedback system with configurable volume control and toggle settings for key press and completion sounds.</description>
+      <file_locations>
+        <location>src/hooks/useSound.ts</location>
+        <location>src/stores/sound-store.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Social Sharing</name>
+      <description>Share test results and achievements on social media platforms with customized share messages and performance highlights.</description>
+      <file_locations>
+        <location>src/components/SocialShare.tsx</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Notifications System</name>
+      <description>Real-time notifications for race invitations, achievement unlocks, leaderboard position changes, and system alerts.</description>
+      <file_locations>
+        <location>src/components/Notifications.tsx</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Syntax Highlighting</name>
+      <description>Language-aware code syntax highlighting for JavaScript, TypeScript, and Python using Shiki for accurate color-coded display.</description>
+      <file_locations>
+        <location>src/hooks/useSyntaxHighlight.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Timer and Duration Tracking</name>
+      <description>Precise timer functionality tracking test duration, with real-time display and automatic test completion when code is fully typed.</description>
+      <file_locations>
+        <location>src/hooks/useTimer.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Database Schema and ORM</name>
+      <description>Complete PostgreSQL schema with Drizzle ORM defining users, snippets, test results, achievements, leaderboard entries, and practice sessions.</description>
+      <file_locations>
+        <location>src/db/schema.ts</location>
+        <location>src/db/index.ts</location>
+        <location>drizzle.config.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Performance Metrics Calculation</name>
+      <description>Advanced metrics calculation including WPM, raw WPM, accuracy, symbol accuracy, keyword accuracy, and performance result compilation.</description>
+      <file_locations>
+        <location>src/lib/performance-metrics.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Error Analysis Engine</name>
+      <description>Analyzes typing errors to generate heatmaps showing which characters cause the most mistakes, enabling targeted improvement.</description>
+      <file_locations>
+        <location>src/lib/error-analysis.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Recommendations Engine</name>
+      <description>Generates personalized practice recommendations based on user performance, weak spots, and progress trends.</description>
+      <file_locations>
+        <location>src/lib/recommendations-api.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Snippet Database Management</name>
+      <description>Database of 45+ curated code snippets with seed data across multiple languages, difficulties, and categories.</description>
+      <file_locations>
+        <location>src/lib/snippets-api.ts</location>
+        <location>src/db/seed/index.ts</location>
+      </file_locations>
+    </feature>
+  </implemented_features>
+
+  <additional_requirements>
+    <requirement>Node.js 18+ runtime environment</requirement>
+    <requirement>pnpm package manager (recommended over npm/yarn)</requirement>
+    <requirement>PostgreSQL 13+ database server</requirement>
+    <requirement>Pusher account for real-time multiplayer features (App ID, API Key, Secret)</requirement>
+    <requirement>Modern web browser with ES2020+ support</requirement>
+    <requirement>Environment variables configuration (.env file) for DATABASE_URL and Pusher credentials</requirement>
+    <requirement>HTTPS support recommended for production deployment</requirement>
+    <requirement>Minimum 512MB RAM for development server</requirement>
+    <requirement>Internet connection required for Pusher real-time features</requirement>
+  </additional_requirements>
+
+  <development_guidelines>
+    <guideline>Use TypeScript for all new code with strict mode enabled</guideline>
+    <guideline>Follow React 19 best practices and use hooks for state management</guideline>
+    <guideline>Maintain component separation using file-based routing via TanStack Router</guideline>
+    <guideline>Style components using Tailwind CSS v4 with shadcn/ui components as base</guideline>
+    <guideline>Use Zustand for local state management and TanStack Query for server state</guideline>
+    <guideline>Implement form validation using Zod schemas</guideline>
+    <guideline>Write unit tests using Vitest for utilities and hooks</guideline>
+    <guideline>Write E2E tests using Playwright for critical user flows</guideline>
+    <guideline>Maintain accessibility standards using Radix UI primitives and ARIA attributes</guideline>
+    <guideline>Use Drizzle ORM for all database operations with proper type safety</guideline>
+    <guideline>Follow TanStack naming conventions and patterns</guideline>
+    <guideline>Use Prettier for code formatting and ESLint for linting</guideline>
+    <guideline>Implement proper error handling and user feedback mechanisms</guideline>
+    <guideline>Optimize performance using React memo and useMemo where appropriate</guideline>
+    <guideline>Use proper git conventions: feature branches, descriptive commits, PRs</guideline>
+    <guideline>Document API endpoints and complex logic with JSDoc comments</guideline>
+    <guideline>Test on multiple browsers and devices before deployment</guideline>
+    <guideline>Implement proper authentication and authorization checks</guideline>
+    <guideline>Use environment variables for sensitive configuration</guideline>
+    <guideline>Monitor performance metrics and optimize bundle size</guideline>
+  </development_guidelines>
+
+  <implementation_roadmap>
+    <phase>
+      <name>Core Typing Engine</name>
+      <status>completed</status>
+      <description>Implemented base typing test functionality with character tracking, real-time metrics calculation, and test completion logic.</description>
+    </phase>
+    <phase>
+      <name>User System &amp; Authentication</name>
+      <status>completed</status>
+      <description>Completed user registration, login, authentication, and profile management with secure password hashing.</description>
+    </phase>
+    <phase>
+      <name>Code Snippets &amp; Database</name>
+      <status>completed</status>
+      <description>Established PostgreSQL schema, created 45+ curated code snippets across languages and difficulty levels.</description>
+    </phase>
+    <phase>
+      <name>Testing &amp; Analytics</name>
+      <status>completed</status>
+      <description>Implemented test result storage, performance metrics calculation, and analytics visualization components.</description>
+    </phase>
+    <phase>
+      <name>Leaderboard System</name>
+      <status>completed</status>
+      <description>Built global ranking system with filtering by language and difficulty, daily/weekly/all-time periods.</description>
+    </phase>
+    <phase>
+      <name>Practice Modes</name>
+      <status>completed</status>
+      <description>Developed six specialized practice modes for targeted skill improvement in symbols, keywords, weak spots, speed, and accuracy.</description>
+    </phase>
+    <phase>
+      <name>Achievement System</name>
+      <status>completed</status>
+      <description>Implemented badge system with unlock tracking, progress indicators, and achievement points.</description>
+    </phase>
+    <phase>
+      <name>Multiplayer Racing</name>
+      <status>completed</status>
+      <description>Integrated Pusher for real-time multiplayer races with room management, live progress tracking, and chat functionality.</description>
+    </phase>
+    <phase>
+      <name>UI/UX Polish &amp; Accessibility</name>
+      <status>completed</status>
+      <description>Applied Tailwind CSS styling, shadcn/ui components, and Radix UI accessibility patterns across application.</description>
+    </phase>
+    <phase>
+      <name>Testing Coverage</name>
+      <status>in_progress</status>
+      <description>Expanding Vitest unit tests and Playwright E2E tests for comprehensive coverage of critical features.</description>
+    </phase>
+    <phase>
+      <name>Performance Optimization</name>
+      <status>in_progress</status>
+      <description>Optimizing React component rendering with memoization, virtual scrolling for leaderboards, and code splitting.</description>
+    </phase>
+    <phase>
+      <name>Advanced Analytics &amp; Recommendations</name>
+      <status>pending</status>
+      <description>Enhanced error analysis with machine learning recommendations and predictive improvement suggestions.</description>
+    </phase>
+    <phase>
+      <name>Offline Mode &amp; PWA</name>
+      <status>pending</status>
+      <description>Implement service worker, offline functionality, and progressive web app capabilities for mobile access.</description>
+    </phase>
+    <phase>
+      <name>Community Features</name>
+      <status>pending</status>
+      <description>Add user profiles, friend lists, private races, teams, and community challenges.</description>
+    </phase>
+    <phase>
+      <name>Mobile App</name>
+      <status>pending</status>
+      <description>Develop native mobile applications for iOS and Android using React Native or similar technology.</description>
+    </phase>
+  </implementation_roadmap>
+</project_specification>
