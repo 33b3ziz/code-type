@@ -1,0 +1,14 @@
+{
+  "id": "implement-e2e-test-suite",
+  "category": "Testing",
+  "title": "Implement E2E Test Suite with Playwright",
+  "description": "Build comprehensive Playwright E2E tests covering critical user flows: registration, login, taking a test, joining a race, and accessing analytics. Include cross-browser testing.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "complex",
+  "dependencies": [],
+  "createdAt": "2026-01-20T19:10:28.535Z",
+  "updatedAt": "2026-01-20T19:29:01.064Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:11:18.818Z"
+}

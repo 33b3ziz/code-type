@@ -1,0 +1,14 @@
+{
+  "id": "build-practice-mode-selector",
+  "category": "UI",
+  "title": "Build Practice Mode Selection Interface",
+  "description": "Create an intuitive practice mode selector showing all six practice modes with descriptions, difficulty indicators, and estimated duration. Track completed and favorite practice modes.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [],
+  "createdAt": "2026-01-20T19:10:28.533Z",
+  "updatedAt": "2026-01-20T19:22:36.278Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:11:18.040Z"
+}

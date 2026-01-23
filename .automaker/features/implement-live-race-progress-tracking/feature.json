@@ -1,0 +1,16 @@
+{
+  "id": "implement-live-race-progress-tracking",
+  "category": "Multiplayer",
+  "title": "Implement Live Race Progress Tracking",
+  "description": "Create real-time display of all players' typing progress during races, showing current character position, WPM, and accuracy. Update progress in real-time as players type.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "implement-race-room-creation"
+  ],
+  "createdAt": "2026-01-20T19:10:28.534Z",
+  "updatedAt": "2026-01-20T20:27:56.733Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T20:05:33.076Z"
+}

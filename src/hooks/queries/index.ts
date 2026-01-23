@@ -34,3 +34,8 @@ export {
   useOptimisticUpdateSettings,
   settingsKeys,
 } from './useSettings'
+
+export {
+  useErrorHeatmap,
+  errorHeatmapKeys,
+} from './useErrorHeatmap'

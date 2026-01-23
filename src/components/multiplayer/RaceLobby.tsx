@@ -4,11 +4,13 @@
  */
 
 import { useState } from 'react'
+import { Settings } from 'lucide-react'
 
 import { Button } from '../ui/button'
 import { PlayerCard } from './PlayerCard'
+import { RaceChat } from './RaceChat'
 
-import type { RacePlayer, RaceRoom } from '@/lib/pusher/types'
+import type { ChatMessage, RacePlayer, RaceRoom, RaceSettings } from '@/lib/pusher/types'
 import { cn } from '@/lib/utils'
 
 export interface RaceLobbyProps {
@@ -16,11 +18,17 @@ export interface RaceLobbyProps {
   players: Array<RacePlayer>
   currentPlayerId: string | null
   isConnected: boolean
+  chatMessages: ChatMessage[]
   onReady: () => void
   onUnready: () => void
   onStartRace: () => void
   onLeaveRoom: () => void
-  onSendChat: (message: string) => void
+  onSendChat: (message: string, mentions?: string[]) => void
+  onDeleteMessage?: (messageId: string) => void
+  onMutePlayer?: (playerId: string) => void
+  onKickPlayer?: (playerId: string) => void
+  onUpdateSettings?: (settings: Partial<RaceSettings>) => void
+  onTransferHost?: (newHostId: string) => void
   className?: string
 }
 
@@ -29,27 +37,25 @@ export function RaceLobby({
   players,
   currentPlayerId,
   isConnected,
+  chatMessages,
   onReady,
   onUnready,
   onStartRace,
   onLeaveRoom,
   onSendChat,
+  onDeleteMessage,
+  onMutePlayer,
+  onKickPlayer,
+  onUpdateSettings,
+  onTransferHost,
   className = '',
 }: RaceLobbyProps) {
-  const [chatMessage, setChatMessage] = useState('')
+  const [showSettings, setShowSettings] = useState(false)
 
   const isHost = room.hostId === currentPlayerId
   const currentPlayer = players.find((p) => p.id === currentPlayerId)
   const isReady = currentPlayer?.isReady ?? false
   const canStart = isHost && players.length >= 2
-
-  const handleSendChat = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (chatMessage.trim()) {
-      onSendChat(chatMessage.trim())
-      setChatMessage('')
-    }
-  }
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(room.code)
@@ -101,33 +107,179 @@ export function RaceLobby({
 
       {/* Room Settings */}
       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4 mb-6">
-        <h3 className="text-sm font-medium text-gray-300 mb-3">Race Settings</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <span className="text-gray-500">Players</span>
-            <p className="text-white font-medium">
-              {players.length}/{room.maxPlayers}
-            </p>
-          </div>
-          <div>
-            <span className="text-gray-500">Language</span>
-            <p className="text-white font-medium capitalize">
-              {room.settings.language || 'Any'}
-            </p>
-          </div>
-          <div>
-            <span className="text-gray-500">Difficulty</span>
-            <p className="text-white font-medium capitalize">
-              {room.settings.difficulty || 'Any'}
-            </p>
-          </div>
-          <div>
-            <span className="text-gray-500">Visibility</span>
-            <p className="text-white font-medium">
-              {room.settings.isPrivate ? 'Private' : 'Public'}
-            </p>
-          </div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-gray-300">Race Settings</h3>
+          {isHost && onUpdateSettings && (
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={cn(
+                'p-1.5 rounded transition-colors',
+                showSettings ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-slate-700 text-gray-400'
+              )}
+              title="Edit settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
         </div>
+
+        {/* Display settings */}
+        {!showSettings && (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+            <div>
+              <span className="text-gray-500">Players</span>
+              <p className="text-white font-medium">
+                {players.length}/{room.maxPlayers}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500">Language</span>
+              <p className="text-white font-medium capitalize">
+                {room.settings.language || 'Any'}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500">Difficulty</span>
+              <p className="text-white font-medium capitalize">
+                {room.settings.difficulty || 'Any'}
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500">Countdown</span>
+              <p className="text-white font-medium">
+                {room.settings.countdownDuration}s
+              </p>
+            </div>
+            <div>
+              <span className="text-gray-500">Visibility</span>
+              <p className="text-white font-medium">
+                {room.settings.isPrivate ? 'Private' : 'Public'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Edit settings (host only) */}
+        {showSettings && isHost && onUpdateSettings && (
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs text-gray-500 block mb-2">Max Players</label>
+              <div className="flex gap-2">
+                {[2, 3, 4, 5].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => onUpdateSettings({ maxPlayers: num })}
+                    disabled={num < players.length}
+                    className={cn(
+                      'flex-1 py-1.5 rounded border transition-colors text-sm',
+                      room.settings.maxPlayers === num
+                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                        : num < players.length
+                        ? 'border-slate-700 text-gray-600 cursor-not-allowed'
+                        : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                    )}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500 block mb-2">Language</label>
+              <div className="flex gap-2">
+                {['Any', 'JavaScript', 'TypeScript', 'Python'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() =>
+                      onUpdateSettings({
+                        language:
+                          lang === 'Any'
+                            ? undefined
+                            : (lang.toLowerCase() as 'javascript' | 'typescript' | 'python'),
+                      })
+                    }
+                    className={cn(
+                      'flex-1 py-1.5 px-2 rounded border transition-colors text-xs',
+                      (lang === 'Any' && !room.settings.language) ||
+                        room.settings.language === lang.toLowerCase()
+                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                        : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                    )}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500 block mb-2">Difficulty</label>
+              <div className="flex gap-2">
+                {['Any', 'Beginner', 'Intermediate', 'Advanced', 'Expert'].map((diff) => (
+                  <button
+                    key={diff}
+                    onClick={() =>
+                      onUpdateSettings({
+                        difficulty:
+                          diff === 'Any'
+                            ? undefined
+                            : (diff.toLowerCase() as 'beginner' | 'intermediate' | 'advanced' | 'expert'),
+                      })
+                    }
+                    className={cn(
+                      'flex-1 py-1.5 px-1 rounded border transition-colors text-xs',
+                      (diff === 'Any' && !room.settings.difficulty) ||
+                        room.settings.difficulty === diff.toLowerCase()
+                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                        : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                    )}
+                  >
+                    {diff}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500 block mb-2">Countdown Duration</label>
+              <div className="flex gap-2">
+                {[3, 5, 10].map((seconds) => (
+                  <button
+                    key={seconds}
+                    onClick={() => onUpdateSettings({ countdownDuration: seconds })}
+                    className={cn(
+                      'flex-1 py-1.5 rounded border transition-colors text-sm',
+                      room.settings.countdownDuration === seconds
+                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                        : 'border-slate-600 text-gray-400 hover:border-slate-500'
+                    )}
+                  >
+                    {seconds}s
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs text-gray-500">Private Room</span>
+              <button
+                onClick={() => onUpdateSettings({ isPrivate: !room.settings.isPrivate })}
+                className={cn(
+                  'w-10 h-5 rounded-full transition-colors',
+                  room.settings.isPrivate ? 'bg-cyan-500' : 'bg-slate-600'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-4 h-4 rounded-full bg-white transition-transform',
+                    room.settings.isPrivate ? 'translate-x-5' : 'translate-x-0.5'
+                  )}
+                />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Players List */}
@@ -142,6 +294,9 @@ export function RaceLobby({
               player={player}
               isCurrentUser={player.id === currentPlayerId}
               isHost={player.id === room.hostId}
+              canKick={isHost && player.id !== currentPlayerId}
+              onKick={onKickPlayer}
+              onMakeHost={onTransferHost}
             />
           ))}
 
@@ -182,22 +337,16 @@ export function RaceLobby({
         )}
       </div>
 
-      {/* Chat (simplified) */}
-      <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-        <h3 className="text-sm font-medium text-gray-300 mb-3">Chat</h3>
-        <form onSubmit={handleSendChat} className="flex gap-2">
-          <input
-            type="text"
-            value={chatMessage}
-            onChange={(e) => setChatMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-cyan-500"
-          />
-          <Button type="submit" disabled={!chatMessage.trim()}>
-            Send
-          </Button>
-        </form>
-      </div>
+      {/* Chat - Using the new RaceChat component */}
+      <RaceChat
+        messages={chatMessages}
+        players={players}
+        currentPlayerId={currentPlayerId}
+        onSendMessage={onSendChat}
+        onDeleteMessage={onDeleteMessage}
+        onMutePlayer={onMutePlayer}
+        isHost={isHost}
+      />
     </div>
   )
 }

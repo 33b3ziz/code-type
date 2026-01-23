@@ -19,3 +19,15 @@ export type { ProfileWeaknessesProps } from './ProfileWeaknesses'
 
 export { ProfileActivity } from './ProfileActivity'
 export type { ProfileActivityProps } from './ProfileActivity'
+
+export { ProfileAchievements } from './ProfileAchievements'
+export type { ProfileAchievementsProps } from './ProfileAchievements'
+
+export { ProfileDifficulty } from './ProfileDifficulty'
+export type { ProfileDifficultyProps } from './ProfileDifficulty'
+
+export { ProfileCharts } from './ProfileCharts'
+export type { ProfileChartsProps } from './ProfileCharts'
+
+export { ProfileRecommendations } from './ProfileRecommendations'
+export type { ProfileRecommendationsProps } from './ProfileRecommendations'

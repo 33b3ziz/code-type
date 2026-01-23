@@ -3,11 +3,16 @@ import {
   KEYWORDS,
   SINGLE_CHAR_SYMBOLS,
   calculateAccuracyMetrics,
+  calculateConsistencyMetrics,
+  calculateExtendedPerformance,
+  calculatePercentileRanking,
   calculatePerformance,
   calculateWPMMetrics,
+  analyzePerformanceTrend,
   findKeywords,
   isKeywordPosition,
   isSymbol,
+  type HistoricalTestResult,
 } from '@/lib/performance-metrics'
 
 describe('findKeywords', () => {
@@ -334,5 +339,296 @@ describe('SINGLE_CHAR_SYMBOLS', () => {
   it('does not include letters or digits', () => {
     expect(SINGLE_CHAR_SYMBOLS.has('a')).toBe(false)
     expect(SINGLE_CHAR_SYMBOLS.has('1')).toBe(false)
+  })
+})
+
+// ============================================
+// NEW TESTS: Enhanced Performance Metrics
+// ============================================
+
+describe('calculateConsistencyMetrics', () => {
+  it('returns perfect score for empty or single keystroke', () => {
+    const result1 = calculateConsistencyMetrics([])
+    expect(result1.score).toBe(100)
+    expect(result1.rating).toBe('excellent')
+
+    const result2 = calculateConsistencyMetrics([1000])
+    expect(result2.score).toBe(100)
+    expect(result2.rating).toBe('excellent')
+  })
+
+  it('calculates high consistency for uniform intervals', () => {
+    // Keystrokes every 100ms (very consistent)
+    const timestamps = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900]
+    const result = calculateConsistencyMetrics(timestamps)
+
+    expect(result.score).toBeGreaterThan(90)
+    expect(result.averageInterval).toBe(100)
+    expect(result.standardDeviation).toBe(0)
+    expect(result.rating).toBe('excellent')
+  })
+
+  it('calculates lower consistency for variable intervals', () => {
+    // Variable timing - some fast, some slow
+    const timestamps = [0, 50, 200, 250, 500, 520, 800, 850, 1200, 1250]
+    const result = calculateConsistencyMetrics(timestamps)
+
+    expect(result.score).toBeLessThan(90)
+    expect(result.standardDeviation).toBeGreaterThan(0)
+  })
+
+  it('filters out pauses longer than 2 seconds', () => {
+    // Regular typing with a long pause in the middle
+    const timestamps = [0, 100, 200, 300, 3500, 3600, 3700, 3800]
+    const result = calculateConsistencyMetrics(timestamps)
+
+    // The 3200ms gap should be filtered out
+    expect(result.averageInterval).toBeLessThan(500)
+  })
+
+  it('assigns appropriate ratings based on score', () => {
+    // Create timestamps that result in different consistency levels
+    const excellentTimestamps = [0, 100, 200, 300, 400]
+    const excellentResult = calculateConsistencyMetrics(excellentTimestamps)
+    expect(excellentResult.rating).toBe('excellent')
+
+    // Variable intervals for lower consistency
+    const variableTimestamps = [0, 50, 200, 220, 500, 600, 900, 950]
+    const variableResult = calculateConsistencyMetrics(variableTimestamps)
+    expect(['good', 'average', 'needs-improvement']).toContain(variableResult.rating)
+  })
+})
+
+describe('calculatePercentileRanking', () => {
+  const createHistoricalData = (count: number, baseWpm: number, baseAccuracy: number): HistoricalTestResult[] => {
+    return Array.from({ length: count }, (_, i) => ({
+      wpm: baseWpm + (i - count / 2) * 2,
+      accuracy: baseAccuracy + (i - count / 2) * 0.5,
+      symbolAccuracy: baseAccuracy + (i - count / 2) * 0.3,
+      keywordAccuracy: baseAccuracy + (i - count / 2) * 0.4,
+      completedAt: new Date(Date.now() - i * 86400000),
+    }))
+  }
+
+  it('returns 50th percentile for empty historical data', () => {
+    const result = calculatePercentileRanking(
+      { wpm: 60, accuracy: 95 },
+      []
+    )
+
+    expect(result.wpmPercentile).toBe(50)
+    expect(result.accuracyPercentile).toBe(50)
+    expect(result.sampleSize).toBe(0)
+  })
+
+  it('calculates high percentile for above-average performance', () => {
+    const historicalData = createHistoricalData(20, 50, 90) // Average WPM ~50, accuracy ~90
+    const result = calculatePercentileRanking(
+      { wpm: 70, accuracy: 98, symbolAccuracy: 97, keywordAccuracy: 98 },
+      historicalData
+    )
+
+    expect(result.wpmPercentile).toBeGreaterThan(70)
+    expect(result.accuracyPercentile).toBeGreaterThan(70)
+    expect(result.sampleSize).toBe(20)
+  })
+
+  it('calculates low percentile for below-average performance', () => {
+    const historicalData = createHistoricalData(20, 60, 95)
+    const result = calculatePercentileRanking(
+      { wpm: 40, accuracy: 85, symbolAccuracy: 80, keywordAccuracy: 82 },
+      historicalData
+    )
+
+    expect(result.wpmPercentile).toBeLessThan(30)
+    expect(result.accuracyPercentile).toBeLessThan(30)
+  })
+
+  it('calculates overall percentile as weighted average', () => {
+    const historicalData = createHistoricalData(10, 50, 90)
+    const result = calculatePercentileRanking(
+      { wpm: 50, accuracy: 90, symbolAccuracy: 90, keywordAccuracy: 90 },
+      historicalData
+    )
+
+    // Overall should be around 50 for average performance
+    expect(result.overallPercentile).toBeGreaterThan(30)
+    expect(result.overallPercentile).toBeLessThan(70)
+  })
+})
+
+describe('analyzePerformanceTrend', () => {
+  const createTrendData = (
+    count: number,
+    wpmTrend: 'up' | 'down' | 'stable',
+    accuracyTrend: 'up' | 'down' | 'stable'
+  ): HistoricalTestResult[] => {
+    return Array.from({ length: count }, (_, i) => {
+      let wpm = 50
+      let accuracy = 90
+
+      if (wpmTrend === 'up') wpm = 40 + i * 2
+      else if (wpmTrend === 'down') wpm = 60 - i * 2
+
+      if (accuracyTrend === 'up') accuracy = 85 + i * 1
+      else if (accuracyTrend === 'down') accuracy = 98 - i * 1
+
+      return {
+        wpm,
+        accuracy,
+        symbolAccuracy: accuracy - 2,
+        keywordAccuracy: accuracy - 1,
+        consistencyScore: 70 + (wpmTrend === 'up' ? i : -i),
+        completedAt: new Date(Date.now() - (count - i - 1) * 86400000),
+      }
+    })
+  }
+
+  it('returns stable trends for insufficient data', () => {
+    const result = analyzePerformanceTrend([])
+
+    expect(result.wpmTrend).toBe('stable')
+    expect(result.accuracyTrend).toBe('stable')
+    expect(result.recentTestCount).toBe(0)
+  })
+
+  it('detects improving WPM trend', () => {
+    const historicalData = createTrendData(15, 'up', 'stable')
+    const result = analyzePerformanceTrend(historicalData)
+
+    expect(result.wpmTrend).toBe('improving')
+    expect(result.wpmChange).toBeGreaterThan(0)
+  })
+
+  it('detects declining accuracy trend', () => {
+    const historicalData = createTrendData(15, 'stable', 'down')
+    const result = analyzePerformanceTrend(historicalData)
+
+    expect(result.accuracyTrend).toBe('declining')
+    expect(result.accuracyChange).toBeLessThan(0)
+  })
+
+  it('reports correct test counts', () => {
+    const historicalData = createTrendData(20, 'stable', 'stable')
+    const result = analyzePerformanceTrend(historicalData, 5, 10)
+
+    expect(result.recentTestCount).toBe(5)
+    expect(result.comparisonTestCount).toBe(10)
+  })
+
+  it('handles data with only a few tests', () => {
+    const historicalData = createTrendData(3, 'up', 'up')
+    const result = analyzePerformanceTrend(historicalData)
+
+    // Should still work with limited data
+    expect(result.recentTestCount).toBeGreaterThan(0)
+  })
+})
+
+describe('calculateExtendedPerformance', () => {
+  it('includes base performance metrics', () => {
+    const errors = new Map<number, string>()
+    const result = calculateExtendedPerformance(
+      'const x = 1;',
+      'const x = 1;',
+      errors,
+      60,
+      'javascript'
+    )
+
+    expect(result).toHaveProperty('wpm')
+    expect(result).toHaveProperty('accuracy')
+    expect(result).toHaveProperty('duration')
+    expect(result).toHaveProperty('totalChars')
+  })
+
+  it('includes consistency metrics when timestamps provided', () => {
+    const errors = new Map<number, string>()
+    const timestamps = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100]
+
+    const result = calculateExtendedPerformance(
+      'const x = 1;',
+      'const x = 1;',
+      errors,
+      60,
+      'javascript',
+      timestamps
+    )
+
+    expect(result.consistency).toBeDefined()
+    expect(result.consistency?.score).toBeGreaterThan(0)
+    expect(result.consistency?.rating).toBeDefined()
+  })
+
+  it('includes percentile ranking when historical data provided', () => {
+    const errors = new Map<number, string>()
+    const historicalData: HistoricalTestResult[] = [
+      { wpm: 40, accuracy: 90, completedAt: new Date() },
+      { wpm: 50, accuracy: 92, completedAt: new Date() },
+      { wpm: 60, accuracy: 94, completedAt: new Date() },
+    ]
+
+    const result = calculateExtendedPerformance(
+      'const x = 1;',
+      'const x = 1;',
+      errors,
+      60,
+      'javascript',
+      undefined,
+      historicalData
+    )
+
+    expect(result.percentileRanking).toBeDefined()
+    expect(result.percentileRanking?.sampleSize).toBe(3)
+  })
+
+  it('includes trend analysis when historical data provided', () => {
+    const errors = new Map<number, string>()
+    const historicalData: HistoricalTestResult[] = Array.from({ length: 10 }, (_, i) => ({
+      wpm: 40 + i * 2,
+      accuracy: 85 + i,
+      symbolAccuracy: 83 + i,
+      keywordAccuracy: 84 + i,
+      completedAt: new Date(Date.now() - (10 - i) * 86400000),
+    }))
+
+    const result = calculateExtendedPerformance(
+      'const x = 1;',
+      'const x = 1;',
+      errors,
+      60,
+      'javascript',
+      undefined,
+      historicalData
+    )
+
+    expect(result.trend).toBeDefined()
+    expect(result.trend?.recentTestCount).toBeGreaterThan(0)
+  })
+
+  it('combines all extended metrics when all data provided', () => {
+    const errors = new Map<number, string>()
+    const timestamps = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100]
+    const historicalData: HistoricalTestResult[] = [
+      { wpm: 40, accuracy: 90, symbolAccuracy: 88, keywordAccuracy: 89, completedAt: new Date() },
+      { wpm: 50, accuracy: 92, symbolAccuracy: 90, keywordAccuracy: 91, completedAt: new Date() },
+    ]
+
+    const result = calculateExtendedPerformance(
+      'const x = 1;',
+      'const x = 1;',
+      errors,
+      60,
+      'javascript',
+      timestamps,
+      historicalData
+    )
+
+    // All metrics should be present
+    expect(result.wpm).toBeDefined()
+    expect(result.accuracy).toBeDefined()
+    expect(result.consistency).toBeDefined()
+    expect(result.percentileRanking).toBeDefined()
+    expect(result.trend).toBeDefined()
   })
 })

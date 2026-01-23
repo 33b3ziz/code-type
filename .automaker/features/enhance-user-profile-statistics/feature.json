@@ -1,0 +1,16 @@
+{
+  "id": "enhance-user-profile-statistics",
+  "category": "User",
+  "title": "Enhance User Profile Statistics Dashboard",
+  "description": "Expand the user profile to show comprehensive statistics including total tests completed, average WPM by language/difficulty, achievement progress, and performance trends with visual charts.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "enhance-performance-metrics-calculation"
+  ],
+  "createdAt": "2026-01-20T19:10:28.532Z",
+  "updatedAt": "2026-01-20T20:11:53.688Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:50:51.249Z"
+}

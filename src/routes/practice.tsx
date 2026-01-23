@@ -1,12 +1,13 @@
 /**
  * Practice Mode Route
  * Provides focused typing practice with various modes
+ * Includes weak spot training that identifies frequently misspelled characters
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Trophy } from 'lucide-react'
+import { ArrowLeft, Loader2, TrendingUp, Trophy } from 'lucide-react'
 
 import type { PracticeConfig } from '@/components/practice'
 import type { SymbolPracticeResult } from '@/components/practice/SymbolPractice'
@@ -14,6 +15,7 @@ import type { WeakSpotResult } from '@/components/practice/WeakSpotDrill'
 import type { WarmUpResult } from '@/components/practice/WarmUpRoutine'
 import type { PracticeMode } from '@/db/schema'
 import type { PracticeScore } from '@/lib/practice-modes'
+import type { WeakSpotAnalysis, WeakSpotProgress } from '@/lib/weak-spot-analysis'
 import {
   PracticeSelector,
   SymbolPractice,
@@ -21,8 +23,12 @@ import {
   WeakSpotDrill,
 } from '@/components/practice'
 import { Button } from '@/components/ui/button'
+import { savePracticeSessionFn } from '@/lib/practice-api'
 import { PRACTICE_MODES, calculatePracticeScore, getRecommendedMode } from '@/lib/practice-modes'
 import { cn } from '@/lib/utils'
+import { getWeakSpotsFromHistoryFn, getWeakSpotProgressFn } from '@/lib/weak-spot-analysis'
+import { useAuthStore } from '@/stores/auth-store'
+import { usePracticeStore } from '@/stores/practice-store'
 
 export const Route = createFileRoute('/practice')({
   component: PracticePage,
@@ -34,6 +40,19 @@ type PracticeResult = SymbolPracticeResult | WeakSpotResult | WarmUpResult
 function PracticePage() {
   const navigate = useNavigate()
 
+  // Auth store for user data
+  const { user, isAuthenticated } = useAuthStore()
+
+  // Practice store for tracking completions and weak spot history
+  const {
+    markCompleted,
+    updateErrorPatterns,
+    recordWeakSpotSession,
+    getTopWeakCharacters,
+    weakSpotHistory,
+    localErrorPatterns,
+  } = usePracticeStore()
+
   // State
   const [activeConfig, setActiveConfig] = useState<PracticeConfig | null>(null)
   const [result, setResult] = useState<PracticeResult | null>(null)
@@ -41,30 +60,65 @@ function PracticePage() {
   const [recommendedMode, setRecommendedMode] = useState<PracticeMode>('warm-up')
   const [errorPatterns, setErrorPatterns] = useState<Record<string, number>>({})
 
-  // Load error patterns from localStorage (simulated - in production would come from DB)
-  useEffect(() => {
+  // Server data state
+  const [serverWeakSpots, setServerWeakSpots] = useState<WeakSpotAnalysis | null>(null)
+  const [serverProgress, setServerProgress] = useState<WeakSpotProgress | null>(null)
+  const [isLoadingServerData, setIsLoadingServerData] = useState(false)
+
+  // Fetch weak spots from server when authenticated
+  const fetchServerWeakSpots = useCallback(async () => {
+    if (!isAuthenticated || !user?.id) return
+
+    setIsLoadingServerData(true)
     try {
-      const stored = localStorage.getItem('codetype-error-patterns')
-      if (stored) {
-        const patterns = JSON.parse(stored) as Record<string, number>
-        setErrorPatterns(patterns)
+      const [analysis, progress] = await Promise.all([
+        getWeakSpotsFromHistoryFn({ data: { userId: user.id } }),
+        getWeakSpotProgressFn({ data: { userId: user.id } }),
+      ])
+      setServerWeakSpots(analysis)
+      setServerProgress(progress)
+
+      // Update recommended mode based on server data
+      if (analysis.weakCharacters.length > 0) {
+        const patterns: Record<string, number> = {}
+        analysis.weakCharacters.forEach((wc) => {
+          patterns[wc.char] = wc.errorCount
+        })
         setRecommendedMode(getRecommendedMode(patterns))
       }
-    } catch {
-      // Ignore parse errors
+    } catch (error) {
+      console.error('Failed to fetch weak spots from server:', error)
+    } finally {
+      setIsLoadingServerData(false)
     }
-  }, [])
+  }, [isAuthenticated, user?.id])
 
-  // Save error patterns
-  const saveErrorPatterns = (newPatterns: Record<string, number>) => {
-    const merged = { ...errorPatterns }
-    Object.entries(newPatterns).forEach(([char, count]) => {
-      merged[char] = (merged[char] || 0) + count
-    })
-    setErrorPatterns(merged)
-    localStorage.setItem('codetype-error-patterns', JSON.stringify(merged))
-    setRecommendedMode(getRecommendedMode(merged))
-  }
+  // Fetch server data on mount if authenticated
+  useEffect(() => {
+    fetchServerWeakSpots()
+  }, [fetchServerWeakSpots])
+
+  // Load local error patterns from store
+  useEffect(() => {
+    setErrorPatterns(localErrorPatterns)
+    if (Object.keys(localErrorPatterns).length > 0) {
+      setRecommendedMode(getRecommendedMode(localErrorPatterns))
+    }
+  }, [localErrorPatterns])
+
+  // Save error patterns to store and optionally to server
+  const saveErrorPatterns = useCallback(
+    (newPatterns: Record<string, number>) => {
+      const merged = { ...errorPatterns }
+      Object.entries(newPatterns).forEach(([char, count]) => {
+        merged[char] = (merged[char] || 0) + count
+      })
+      setErrorPatterns(merged)
+      updateErrorPatterns(newPatterns)
+      setRecommendedMode(getRecommendedMode(merged))
+    },
+    [errorPatterns, updateErrorPatterns]
+  )
 
   // Handle practice start
   const handleStart = (config: PracticeConfig) => {
@@ -74,7 +128,7 @@ function PracticePage() {
   }
 
   // Handle practice complete
-  const handleComplete = (practiceResult: PracticeResult) => {
+  const handleComplete = async (practiceResult: PracticeResult) => {
     setResult(practiceResult)
 
     // Calculate score
@@ -85,11 +139,93 @@ function PracticePage() {
     )
     setScore(practiceScore)
 
+    // Mark mode as completed in the store
+    if (activeConfig?.mode) {
+      markCompleted(activeConfig.mode)
+    }
+
     // Save error patterns if available
     if ('errorPatterns' in practiceResult) {
       saveErrorPatterns(practiceResult.errorPatterns)
     }
+
+    // Handle weak spot specific tracking
+    if (activeConfig?.mode === 'weak-spots' && 'improvedCharacters' in practiceResult) {
+      const weakSpotResult = practiceResult as WeakSpotResult
+
+      // Record session in local store for tracking
+      // Create character results from the weak spot drill data
+      const characterResults: Record<string, { correct: number; total: number }> = {}
+      const targetChars = getWeakSpotTargetCharacters()
+
+      // Use error patterns to estimate per-character performance
+      targetChars.forEach((char) => {
+        const errors = weakSpotResult.errorPatterns[char] || 0
+        // Estimate total based on a reasonable assumption
+        const estimatedTotal = Math.max(errors + 5, 10) // At least 10 attempts per char
+        characterResults[char] = {
+          correct: estimatedTotal - errors,
+          total: estimatedTotal,
+        }
+      })
+
+      recordWeakSpotSession({
+        characters: targetChars,
+        characterResults,
+        accuracy: weakSpotResult.accuracy,
+      })
+    }
+
+    // Save to server if authenticated
+    if (isAuthenticated && user?.id && activeConfig) {
+      try {
+        await savePracticeSessionFn({
+          data: {
+            userId: user.id,
+            mode: activeConfig.mode,
+            language: activeConfig.language,
+            targetCharacters:
+              activeConfig.mode === 'weak-spots' ? getWeakSpotTargetCharacters() : undefined,
+            duration: practiceResult.duration,
+            charactersTyped: practiceResult.totalCharacters,
+            correctCharacters: practiceResult.correctCharacters,
+            accuracy: practiceResult.accuracy,
+            wpm: practiceResult.wpm,
+          },
+        })
+
+        // Refresh server data after saving
+        fetchServerWeakSpots()
+      } catch (error) {
+        console.error('Failed to save practice session:', error)
+      }
+    }
   }
+
+  // Get target characters for weak spot drill (combining server and local data)
+  const getWeakSpotTargetCharacters = useCallback((): Array<string> => {
+    // Priority: server data > local store > defaults
+    if (serverWeakSpots && serverWeakSpots.weakCharacters.length > 0) {
+      return serverWeakSpots.weakCharacters.slice(0, 6).map((wc) => wc.char)
+    }
+
+    const localWeak = getTopWeakCharacters(6)
+    if (localWeak.length > 0) {
+      return localWeak.map((w) => w.char)
+    }
+
+    const patternWeak = Object.entries(errorPatterns)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([char]) => char)
+
+    if (patternWeak.length > 0) {
+      return patternWeak
+    }
+
+    // Default characters if no data available
+    return ['{', '}', '[', ']', '(', ')']
+  }, [serverWeakSpots, getTopWeakCharacters, errorPatterns])
 
   // Handle cancel/back
   const handleCancel = () => {
@@ -123,15 +259,12 @@ function PracticePage() {
           />
         )
       case 'weak-spots': {
-        // Get top error characters
-        const weakChars = Object.entries(errorPatterns)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 6)
-          .map(([char]) => char)
+        // Get target characters from combined server/local data
+        const weakChars = getWeakSpotTargetCharacters()
         return (
           <WeakSpotDrill
             {...commonProps}
-            targetCharacters={weakChars.length > 0 ? weakChars : ['{', '}', '[', ']', '(', ')']}
+            targetCharacters={weakChars}
           />
         )
       }
@@ -228,6 +361,48 @@ function PracticePage() {
                 </div>
               </div>
             )}
+
+            {/* Progress Over Time */}
+            {(serverProgress || weakSpotHistory.length > 0) && (
+              <div className="mt-6 bg-slate-900/50 rounded-xl p-4">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <TrendingUp className="w-4 h-4 text-cyan-400" />
+                  <h3 className="text-sm font-medium text-white">Your Progress</h3>
+                </div>
+
+                {/* Server Progress */}
+                {serverProgress && serverProgress.overallImprovement !== 0 && (
+                  <div className="mb-4">
+                    <div className={cn(
+                      'text-2xl font-bold font-mono mb-1',
+                      serverProgress.overallImprovement > 0 ? 'text-green-400' : 'text-red-400'
+                    )}>
+                      {serverProgress.overallImprovement > 0 ? '+' : ''}
+                      {serverProgress.overallImprovement}%
+                    </div>
+                    <div className="text-xs text-gray-500">Overall accuracy improvement</div>
+                  </div>
+                )}
+
+                {/* Session Count & Mastered Characters */}
+                <div className="flex justify-center gap-6 text-sm">
+                  <div>
+                    <span className="text-gray-400">Sessions: </span>
+                    <span className="text-cyan-400 font-mono">
+                      {serverProgress?.totalSessions ?? weakSpotHistory.length}
+                    </span>
+                  </div>
+                  {(serverProgress?.masteredCharacters.length ?? 0) > 0 && (
+                    <div>
+                      <span className="text-gray-400">Mastered: </span>
+                      <span className="text-green-400 font-mono">
+                        {serverProgress?.masteredCharacters.join(', ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -286,10 +461,58 @@ function PracticePage() {
       ) : activeConfig ? (
         renderPracticeMode()
       ) : (
-        <PracticeSelector
-          onSelect={handleStart}
-          recommendedMode={recommendedMode}
-        />
+        <>
+          {/* Weak Spot Summary (shown when not in practice) */}
+          {isLoadingServerData ? (
+            <div className="flex items-center justify-center gap-2 text-gray-400 mb-6">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Loading your weak spots...</span>
+            </div>
+          ) : (serverWeakSpots && serverWeakSpots.weakCharacters.length > 0) && (
+            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-medium text-white">
+                  Your Weak Spots (from {serverWeakSpots.testCount} tests)
+                </h3>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2 mb-3">
+                {serverWeakSpots.weakCharacters.slice(0, 6).map((wc) => (
+                  <div
+                    key={wc.char}
+                    className={cn(
+                      'px-3 py-2 rounded-lg border text-center min-w-[60px]',
+                      wc.trend === 'improving'
+                        ? 'border-green-500/50 bg-green-500/10'
+                        : wc.trend === 'declining'
+                        ? 'border-red-500/50 bg-red-500/10'
+                        : 'border-slate-600 bg-slate-800'
+                    )}
+                  >
+                    <div className="font-mono text-lg text-white">{wc.char}</div>
+                    <div className={cn(
+                      'text-xs',
+                      wc.trend === 'improving' ? 'text-green-400' :
+                      wc.trend === 'declining' ? 'text-red-400' : 'text-gray-400'
+                    )}>
+                      {wc.errorRate}% errors
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {serverWeakSpots.improvedCharacters.length > 0 && (
+                <p className="text-xs text-green-400 text-center">
+                  Improving: {serverWeakSpots.improvedCharacters.join(', ')}
+                </p>
+              )}
+            </div>
+          )}
+
+          <PracticeSelector
+            onSelect={handleStart}
+            recommendedMode={recommendedMode}
+          />
+        </>
       )}
     </div>
   )

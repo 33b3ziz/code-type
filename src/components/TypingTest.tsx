@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
 import type { TypingResult } from '@/hooks/useTypingTest'
 import { useTypingTestWithSound } from '@/hooks/useTypingTestWithSound'
@@ -49,6 +50,7 @@ export function TypingTest({
     reset,
     focus,
     progress,
+    strictModeFailed,
   } = useTypingTestWithSound({
     code,
     onComplete,
@@ -60,6 +62,18 @@ export function TypingTest({
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Track shake animation state
+  const [isShaking, setIsShaking] = useState(false)
+
+  // Trigger shake animation when strict mode fails
+  useEffect(() => {
+    if (strictModeFailed) {
+      setIsShaking(true)
+      const timeout = setTimeout(() => setIsShaking(false), 500)
+      return () => clearTimeout(timeout)
+    }
+  }, [strictModeFailed])
 
   // Focus on mount
   useEffect(() => {
@@ -85,9 +99,22 @@ export function TypingTest({
       {title && (
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-white" id="typing-test-title">
-              {title}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-white" id="typing-test-title">
+                {title}
+              </h2>
+              {/* Strict Mode Badge */}
+              {strictMode && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-500/20 text-red-400 border border-red-500/30"
+                  title="Strict Mode: Test ends on first error"
+                  data-testid="strict-mode-badge"
+                >
+                  <AlertTriangle className="w-3 h-3" />
+                  Strict
+                </span>
+              )}
+            </div>
             <span className="text-sm text-gray-400 capitalize">{language}</span>
           </div>
           <button
@@ -157,7 +184,9 @@ export function TypingTest({
         className={cn(
           'relative bg-slate-900 rounded-xl border border-slate-700 p-4 overflow-auto cursor-text',
           'focus-within:border-cyan-500/50 transition-colors',
-          state.isFinished && 'opacity-75'
+          state.isFinished && 'opacity-75',
+          strictModeFailed && 'border-red-500/50',
+          isShaking && 'animate-shake'
         )}
         style={{ fontSize: `${fontSize}px` }}
         aria-describedby="typing-instructions"
@@ -255,14 +284,34 @@ export function TypingTest({
       {/* Completion message */}
       {state.isFinished && (
         <div
-          className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-center"
+          className={cn(
+            'mt-4 p-4 rounded-lg text-center',
+            strictModeFailed
+              ? 'bg-red-500/10 border border-red-500/30'
+              : 'bg-cyan-500/10 border border-cyan-500/30'
+          )}
           role="alert"
           aria-live="assertive"
+          data-testid="completion-message"
         >
-          <p className="text-cyan-400 font-semibold">Test Complete!</p>
-          <p className="text-gray-400 text-sm mt-1">
-            {currentStats.wpm} WPM with {currentStats.accuracy}% accuracy
-          </p>
+          {strictModeFailed ? (
+            <>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+                <p className="text-red-400 font-semibold">Strict Mode Failed!</p>
+              </div>
+              <p className="text-gray-400 text-sm mt-1">
+                Made an error at {Math.round(progress)}% progress. Try again for a perfect run!
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-cyan-400 font-semibold">Test Complete!</p>
+              <p className="text-gray-400 text-sm mt-1">
+                {currentStats.wpm} WPM with {currentStats.accuracy}% accuracy
+              </p>
+            </>
+          )}
         </div>
       )}
 

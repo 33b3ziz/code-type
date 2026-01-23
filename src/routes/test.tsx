@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Keyboard, RefreshCw } from 'lucide-react'
+import { ArrowLeft, History, Keyboard, RefreshCw } from 'lucide-react'
 
 import type { Difficulty } from '@/components/DifficultySelector'
 import type { SnippetResponse } from '@/lib/snippets-api'
 import type { TypingResult } from '@/hooks/useTypingTest'
-import type { Language } from '@/db/schema'
+import type { KeystrokeEvent, Language } from '@/db/schema'
 import { Button } from '@/components/ui/button'
 import { TypingTest } from '@/components/TypingTest'
+import { TestReplayPlayer } from '@/components/TestReplayPlayer'
 import { DifficultySelector } from '@/components/DifficultySelector'
 import { useSoundStore } from '@/stores/sound-store'
+import { useSettingsStore } from '@/stores/settings-store'
 import {
   Select,
   SelectContent,
@@ -44,6 +46,9 @@ function TestPage() {
   // Sound settings from store
   const { enabled: soundEnabled, volume: soundVolume } = useSoundStore()
 
+  // Settings from store
+  const strictMode = useSettingsStore((state) => state.strictMode)
+
   // Filters
   const [language, setLanguage] = useState<Language | 'all'>(
     searchParams.language || 'all'
@@ -61,12 +66,18 @@ function TestPage() {
   const [result, setResult] = useState<TypingResult | null>(null)
   const [showResult, setShowResult] = useState(false)
 
+  // Replay state
+  const [showReplay, setShowReplay] = useState(false)
+  const [keystrokeData, setKeystrokeData] = useState<KeystrokeEvent[]>([])
+
   // Load snippet
   const loadSnippet = async () => {
     setIsLoading(true)
     setError(null)
     setShowResult(false)
     setResult(null)
+    setShowReplay(false)
+    setKeystrokeData([])
 
     try {
       const filters: { language?: Language; difficulty?: Difficulty } = {
@@ -98,6 +109,8 @@ function TestPage() {
   const handleComplete = useCallback(async (testResult: TypingResult) => {
     setResult(testResult)
     setShowResult(true)
+    // Store keystroke data for replay
+    setKeystrokeData(testResult.keystrokeEvents || [])
 
     // Save result to database for leaderboard
     if (snippet) {
@@ -116,13 +129,15 @@ function TestPage() {
             incorrectCharacters: testResult.incorrectChars,
             backspaceCount: testResult.backspaceCount,
             duration: Math.round(testResult.duration),
+            isStrictMode: strictMode,
+            keystrokeData: testResult.keystrokeEvents,
           },
         })
       } catch (error) {
         console.error('Failed to save test result:', error)
       }
     }
-  }, [snippet])
+  }, [snippet, strictMode])
 
   // Handle new test
   const handleNewTest = () => {
@@ -207,6 +222,7 @@ function TestPage() {
               language={snippet.language}
               title={snippet.title}
               onComplete={handleComplete}
+              strictMode={strictMode}
               showLineNumbers={true}
               fontSize={16}
               sound={{ enabled: soundEnabled, volume: soundVolume }}
@@ -261,6 +277,34 @@ function TestPage() {
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Try Another
                   </Button>
+                  {keystrokeData.length > 0 && (
+                    <Button
+                      onClick={() => setShowReplay(true)}
+                      variant="outline"
+                      className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                      data-testid="view-replay-btn"
+                    >
+                      <History className="w-4 h-4 mr-2" />
+                      View Replay
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Replay Player Modal */}
+            {showReplay && snippet && keystrokeData.length > 0 && (
+              <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-auto">
+                <div className="w-full max-w-4xl bg-slate-900 rounded-xl border border-slate-700 p-6">
+                  <TestReplayPlayer
+                    code={snippet.code}
+                    keystrokeEvents={keystrokeData}
+                    language={snippet.language}
+                    title={snippet.title}
+                    showLineNumbers={true}
+                    fontSize={16}
+                    onClose={() => setShowReplay(false)}
+                  />
                 </div>
               </div>
             )}

@@ -4,28 +4,35 @@
  */
 
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
-import { AlertCircle, Loader2, Wifi, WifiOff } from 'lucide-react'
+import { useCallback, useState, useEffect } from 'react'
+import { AlertCircle, Loader2, Wifi, WifiOff, History } from 'lucide-react'
 
 import type { RaceResult, RaceSettings } from '@/lib/pusher/types'
+import type { TypingResult } from '@/hooks/useTypingTest'
 import { RaceLobby } from '@/components/multiplayer/RaceLobby'
 import { RaceProgress } from '@/components/multiplayer/RaceProgress'
 import { RaceResults } from '@/components/multiplayer/RaceResults'
+import { RaceHistory } from '@/components/multiplayer/RaceHistory'
+import { RaceTypingArea } from '@/components/multiplayer/RaceTypingArea'
 import { Button } from '@/components/ui/button'
 import { usePusherRace } from '@/hooks/usePusherRace'
+import { useSnippet } from '@/hooks/queries/useSnippets'
 import { cn } from '@/lib/utils'
+import { saveRaceResult } from '@/lib/race-history-api'
 
 export const Route = createFileRoute('/race')({
   component: RacePage,
 })
 
-type RaceView = 'menu' | 'lobby' | 'racing' | 'results'
+type RaceView = 'menu' | 'lobby' | 'racing' | 'results' | 'history'
 
 function RacePage() {
   const [view, setView] = useState<RaceView>('menu')
   const [countdown, setCountdown] = useState<number | undefined>(undefined)
   const [results, setResults] = useState<Array<RaceResult>>([])
   const [joinCode, setJoinCode] = useState('')
+  const [raceSnippetId, setRaceSnippetId] = useState<number | null>(null)
+  const [resultsSaved, setResultsSaved] = useState(false)
   const [createSettings, setCreateSettings] = useState<Partial<RaceSettings>>({
     maxPlayers: 4,
     countdownDuration: 3,
@@ -39,15 +46,21 @@ function RacePage() {
     room,
     playerId,
     players,
+    chatMessages,
     createRoom,
     joinRoom,
     leaveRoom,
     setReady,
     setUnready,
     startRace,
-    updateProgress: _updateProgress,
-    finishRace: _finishRace,
+    updateProgress,
+    finishRace,
     sendChat,
+    deleteMessage,
+    mutePlayer,
+    kickPlayer,
+    updateSettings,
+    transferHost,
   } = usePusherRace({
     events: {
       onRoomCreated: () => {
@@ -62,7 +75,8 @@ function RacePage() {
       onCountdownTick: (seconds) => {
         setCountdown(seconds)
       },
-      onRaceStart: () => {
+      onRaceStart: (snippetId) => {
+        setRaceSnippetId(snippetId)
         setView('racing')
         setCountdown(undefined)
       },
@@ -107,13 +121,87 @@ function RacePage() {
     setView('menu')
     setResults([])
     setCountdown(undefined)
+    setRaceSnippetId(null)
   }, [leaveRoom])
+
+  // Fetch snippet data when race starts
+  const { data: snippet, isLoading: isSnippetLoading } = useSnippet(
+    raceSnippetId ?? 0,
+    raceSnippetId !== null && view === 'racing'
+  )
+
+  // Handle progress updates during race
+  const handleProgressUpdate = useCallback(
+    (progress: number, wpm: number, accuracy: number) => {
+      updateProgress(progress, wpm, accuracy)
+    },
+    [updateProgress]
+  )
+
+  // Handle race completion
+  const handleRaceComplete = useCallback(
+    (result: TypingResult) => {
+      finishRace(result.wpm, result.accuracy)
+    },
+    [finishRace]
+  )
 
   const handlePlayAgain = useCallback(() => {
     // Reset to lobby for new race with the same players
     setView('lobby')
     setResults([])
+    setRaceSnippetId(null)
+    setResultsSaved(false)
   }, [])
+
+  const handleViewHistory = useCallback(() => {
+    setView('history')
+  }, [])
+
+  const handleCloseHistory = useCallback(() => {
+    // Return to the previous view (results if we have them, otherwise menu)
+    if (results.length > 0 && room) {
+      setView('results')
+    } else {
+      setView('menu')
+    }
+  }, [results, room])
+
+  // Save race result to history when race finishes
+  useEffect(() => {
+    if (view === 'results' && results.length > 0 && playerId && room && !resultsSaved) {
+      const currentResult = results.find((r) => r.playerId === playerId)
+      if (currentResult) {
+        const opponents = results
+          .filter((r) => r.playerId !== playerId)
+          .map((r) => ({
+            username: r.username,
+            position: r.position,
+            wpm: r.wpm,
+            accuracy: r.accuracy,
+          }))
+
+        saveRaceResult({
+          roomCode: room.code,
+          completedAt: new Date(),
+          position: currentResult.position,
+          totalPlayers: results.length,
+          wpm: currentResult.wpm,
+          accuracy: currentResult.accuracy,
+          finishTime: currentResult.finishTime,
+          language: room.settings.language,
+          difficulty: room.settings.difficulty,
+          opponents,
+        })
+          .then(() => {
+            setResultsSaved(true)
+          })
+          .catch((error) => {
+            console.error('Failed to save race result:', error)
+          })
+      }
+    }
+  }, [view, results, playerId, room, resultsSaved])
 
   // Menu view - create or join a room
   if (view === 'menu') {
@@ -227,6 +315,68 @@ function RacePage() {
                 </div>
               </div>
 
+              <div>
+                <label className="text-sm text-gray-400 block mb-2">
+                  Difficulty
+                </label>
+                <div className="flex gap-2">
+                  {['Any', 'Beginner', 'Intermediate', 'Advanced', 'Expert'].map((diff) => (
+                    <button
+                      key={diff}
+                      onClick={() =>
+                        setCreateSettings((s) => ({
+                          ...s,
+                          difficulty:
+                            diff === 'Any'
+                              ? undefined
+                              : (diff.toLowerCase() as
+                                  | 'beginner'
+                                  | 'intermediate'
+                                  | 'advanced'
+                                  | 'expert'),
+                        }))
+                      }
+                      className={cn(
+                        'flex-1 py-2 px-1 rounded-lg border transition-colors text-xs',
+                        (diff === 'Any' && !createSettings.difficulty) ||
+                          createSettings.difficulty === diff.toLowerCase()
+                          ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                          : 'border-slate-600 text-gray-400 hover:border-slate-500',
+                      )}
+                    >
+                      {diff}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-400 block mb-2">
+                  Countdown Duration
+                </label>
+                <div className="flex gap-2">
+                  {[3, 5, 10].map((seconds) => (
+                    <button
+                      key={seconds}
+                      onClick={() =>
+                        setCreateSettings((s) => ({
+                          ...s,
+                          countdownDuration: seconds,
+                        }))
+                      }
+                      className={cn(
+                        'flex-1 py-2 rounded-lg border transition-colors',
+                        createSettings.countdownDuration === seconds
+                          ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                          : 'border-slate-600 text-gray-400 hover:border-slate-500',
+                      )}
+                    >
+                      {seconds}s
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">Private Room</span>
                 <button
@@ -308,6 +458,18 @@ function RacePage() {
           </div>
         </div>
 
+        {/* View History Button */}
+        <div className="mt-6 flex justify-center">
+          <Button
+            variant="outline"
+            onClick={handleViewHistory}
+            className="flex items-center gap-2"
+          >
+            <History className="w-4 h-4" />
+            View History
+          </Button>
+        </div>
+
         {/* Info */}
         <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
           <h3 className="text-sm font-medium text-gray-300 mb-2">How to play multiplayer:</h3>
@@ -331,11 +493,17 @@ function RacePage() {
           players={players}
           currentPlayerId={playerId}
           isConnected={isConnected}
+          chatMessages={chatMessages}
           onReady={setReady}
           onUnready={setUnready}
           onStartRace={startRace}
           onLeaveRoom={handleLeaveRoom}
           onSendChat={sendChat}
+          onDeleteMessage={deleteMessage}
+          onMutePlayer={mutePlayer}
+          onKickPlayer={kickPlayer}
+          onUpdateSettings={updateSettings}
+          onTransferHost={transferHost}
         />
       </div>
     )
@@ -344,22 +512,44 @@ function RacePage() {
   // Racing view
   if (view === 'racing' && room) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Race Progress - Shows all players' progress */}
         <RaceProgress
           room={room}
           players={players}
           currentPlayerId={playerId}
           countdown={countdown}
+          className="mb-6"
         />
 
-        {/* Typing Test would go here - integrated with updateProgress and finishRace */}
-        <div className="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-          <p className="text-gray-400 text-center">
-            Typing test component would be integrated here. Progress updates
-            would be sent via updateProgress() and race completion via
-            finishRace().
-          </p>
-        </div>
+        {/* Typing Area - Where the current user types */}
+        {isSnippetLoading ? (
+          <div className="p-8 bg-slate-800/50 rounded-lg border border-slate-700 flex items-center justify-center">
+            <Loader2 className="w-6 h-6 text-cyan-400 animate-spin mr-3" />
+            <span className="text-gray-400">Loading code snippet...</span>
+          </div>
+        ) : snippet ? (
+          <RaceTypingArea
+            code={snippet.code}
+            language={snippet.language}
+            title={snippet.title}
+            onComplete={handleRaceComplete}
+            onProgressUpdate={handleProgressUpdate}
+            isRaceActive={room.status === 'racing'}
+            allowBackspace={true}
+            tabSize={2}
+            autoIndent={false}
+            progressUpdateInterval={150}
+          />
+        ) : (
+          <div className="p-8 bg-red-500/10 rounded-lg border border-red-500/30 text-center">
+            <AlertCircle className="w-6 h-6 text-red-400 mx-auto mb-2" />
+            <p className="text-red-400">Failed to load code snippet</p>
+            <p className="text-gray-500 text-sm mt-1">
+              The race cannot continue without a valid snippet.
+            </p>
+          </div>
+        )}
       </div>
     )
   }
@@ -374,7 +564,17 @@ function RacePage() {
           currentPlayerId={playerId}
           onPlayAgain={handlePlayAgain}
           onLeaveRoom={handleLeaveRoom}
+          onViewHistory={handleViewHistory}
         />
+      </div>
+    )
+  }
+
+  // History view
+  if (view === 'history') {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <RaceHistory onClose={handleCloseHistory} />
       </div>
     )
   }

@@ -1,0 +1,16 @@
+{
+  "id": "enhance-performance-metrics-calculation",
+  "category": "Analytics",
+  "title": "Enhance Performance Metrics Calculation",
+  "description": "Extend the performance metrics engine to calculate symbol accuracy, keyword accuracy, and consistency scores. Add percentile ranking and performance trend analysis against user's historical data.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "fix-typing-test-state-management"
+  ],
+  "createdAt": "2026-01-20T19:10:28.531Z",
+  "updatedAt": "2026-01-20T19:50:44.163Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:35:36.221Z"
+}

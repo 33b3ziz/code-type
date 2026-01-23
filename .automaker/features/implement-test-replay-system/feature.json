@@ -1,0 +1,16 @@
+{
+  "id": "implement-test-replay-system",
+  "category": "Analytics",
+  "title": "Implement Test Replay System",
+  "description": "Build a replay system that allows users to step through past typing tests character-by-character, showing typing speed, errors, and timing information at each keystroke.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "fix-typing-test-state-management"
+  ],
+  "createdAt": "2026-01-20T19:10:28.532Z",
+  "updatedAt": "2026-01-20T20:16:55.306Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:35:36.861Z"
+}

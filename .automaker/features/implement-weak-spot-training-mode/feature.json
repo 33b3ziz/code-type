@@ -1,0 +1,17 @@
+{
+  "id": "implement-weak-spot-training-mode",
+  "category": "Practice",
+  "title": "Implement Weak Spot Training Mode",
+  "description": "Create a practice mode that identifies frequently misspelled characters or patterns from user history and generates focused drills on those weak spots. Track improvement over time.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "build-error-heatmap-visualization",
+    "fix-typing-test-state-management"
+  ],
+  "createdAt": "2026-01-20T19:10:28.534Z",
+  "updatedAt": "2026-01-21T03:47:05.289Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-21T03:38:45.982Z"
+}

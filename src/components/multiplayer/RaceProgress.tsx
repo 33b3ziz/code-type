@@ -135,6 +135,13 @@ function RaceTrackRow({
     return 'bg-slate-700/50'
   }
 
+  // Get accuracy color
+  const getAccuracyColor = () => {
+    if (player.accuracy >= 95) return 'text-green-400'
+    if (player.accuracy >= 80) return 'text-yellow-400'
+    return 'text-red-400'
+  }
+
   return (
     <div className="flex items-center gap-3">
       {/* Position indicator */}
@@ -164,6 +171,13 @@ function RaceTrackRow({
         {/* Track background */}
         <div className={cn('absolute inset-0 rounded-full', getTrackColor())} />
 
+        {/* Progress percentage indicator on track */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[10px] text-gray-400 font-mono">
+            {Math.round(player.progress)}%
+          </span>
+        </div>
+
         {/* Start flag */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20 rounded-l-full" />
 
@@ -176,10 +190,10 @@ function RaceTrackRow({
         {/* Player marker */}
         <div
           className={cn(
-            'absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full transition-all duration-300 ease-out flex items-center justify-center',
+            'absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full transition-all duration-300 ease-out flex items-center justify-center shadow-lg',
             getPlayerColor()
           )}
-          style={{ left: `calc(${player.progress}% - 8px)` }}
+          style={{ left: `calc(${Math.min(player.progress, 100)}% - 8px)` }}
         >
           {player.isFinished && (
             <span className="text-[10px]">🏁</span>
@@ -187,10 +201,18 @@ function RaceTrackRow({
         </div>
       </div>
 
-      {/* WPM */}
-      <div className="w-16 text-right text-sm">
-        <span className="font-mono text-gray-300">{Math.round(player.wpm)}</span>
-        <span className="text-gray-500 text-xs ml-1">WPM</span>
+      {/* Stats: WPM and Accuracy */}
+      <div className="w-24 text-right text-sm flex flex-col">
+        <div>
+          <span className="font-mono text-gray-300">{Math.round(player.wpm)}</span>
+          <span className="text-gray-500 text-xs ml-1">WPM</span>
+        </div>
+        <div>
+          <span className={cn('font-mono text-xs', getAccuracyColor())}>
+            {Math.round(player.accuracy)}%
+          </span>
+          <span className="text-gray-500 text-xs ml-1">acc</span>
+        </div>
       </div>
     </div>
   )

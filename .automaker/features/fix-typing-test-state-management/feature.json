@@ -1,0 +1,14 @@
+{
+  "id": "fix-typing-test-state-management",
+  "category": "Core",
+  "title": "Fix Typing Test State Management Issues",
+  "description": "Refactor the typing test state management to properly handle character-by-character tracking, cursor positioning, and test completion detection. Ensure real-time WPM and accuracy calculations work correctly across all test scenarios.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-20T19:10:28.530Z",
+  "updatedAt": "2026-01-20T19:35:33.200Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:11:18.189Z"
+}

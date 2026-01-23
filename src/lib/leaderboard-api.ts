@@ -6,6 +6,8 @@
 import type { Difficulty, Language, TestResult } from '@/db/schema'
 
 export type TimeFrame = 'daily' | 'weekly' | 'monthly' | 'alltime'
+export type SortBy = 'wpm' | 'accuracy' | 'consistency'
+export type SortOrder = 'asc' | 'desc'
 
 export interface LeaderboardEntry {
   rank: number
@@ -17,12 +19,15 @@ export interface LeaderboardEntry {
   bestWpm: number
   averageWpm: number
   lastActive: Date
+  consistency: number // Lower is better - standard deviation of WPM
 }
 
 export interface LeaderboardFilters {
   timeFrame: TimeFrame
   language?: Language
   difficulty?: Difficulty
+  sortBy?: SortBy
+  sortOrder?: SortOrder
   limit?: number
   offset?: number
 }
@@ -95,6 +100,18 @@ function aggregateByUser(results: Array<TestResult>): Map<string, Array<TestResu
 }
 
 /**
+ * Calculate standard deviation of WPM for consistency metric
+ */
+function calculateConsistency(results: Array<TestResult>): number {
+  if (results.length < 2) return 0
+  const wpms = results.map((r) => r.wpm)
+  const mean = wpms.reduce((sum, wpm) => sum + wpm, 0) / wpms.length
+  const squaredDiffs = wpms.map((wpm) => Math.pow(wpm - mean, 2))
+  const variance = squaredDiffs.reduce((sum, diff) => sum + diff, 0) / wpms.length
+  return Math.round(Math.sqrt(variance) * 10) / 10 // Round to 1 decimal
+}
+
+/**
  * Calculate leaderboard entry from user's results
  */
 function calculateEntry(
@@ -114,6 +131,7 @@ function calculateEntry(
       bestWpm: 0,
       averageWpm: 0,
       lastActive: new Date(),
+      consistency: 0,
     }
   }
 
@@ -122,6 +140,7 @@ function calculateEntry(
   const averageWpm = Math.round(results.reduce((sum, r) => sum + r.wpm, 0) / results.length)
   const averageAccuracy = Math.round(results.reduce((sum, r) => sum + r.accuracy, 0) / results.length)
   const lastActive = new Date(Math.max(...results.map((r) => new Date(r.completedAt).getTime())))
+  const consistency = calculateConsistency(results)
 
   return {
     rank,
@@ -133,7 +152,32 @@ function calculateEntry(
     bestWpm,
     averageWpm,
     lastActive,
+    consistency,
   }
+}
+
+/**
+ * Sort entries based on sortBy and sortOrder
+ */
+function sortEntries(
+  entries: Array<LeaderboardEntry>,
+  sortBy: SortBy = 'wpm',
+  sortOrder: SortOrder = 'desc'
+): Array<LeaderboardEntry> {
+  const multiplier = sortOrder === 'desc' ? -1 : 1
+
+  return entries.sort((a, b) => {
+    switch (sortBy) {
+      case 'accuracy':
+        return (a.accuracy - b.accuracy) * multiplier
+      case 'consistency':
+        // Lower consistency is better, so we invert the comparison
+        return (b.consistency - a.consistency) * multiplier
+      case 'wpm':
+      default:
+        return (a.wpm - b.wpm) * multiplier
+    }
+  })
 }
 
 /**
@@ -142,7 +186,7 @@ function calculateEntry(
 export async function getLeaderboard(
   filters: LeaderboardFilters
 ): Promise<LeaderboardResponse> {
-  const { timeFrame, limit = 10, offset = 0 } = filters
+  const { timeFrame, sortBy = 'wpm', sortOrder = 'desc', limit = 10, offset = 0 } = filters
 
   if (typeof window === 'undefined') {
     return { entries: [], total: 0, filters }
@@ -163,14 +207,14 @@ export async function getLeaderboard(
   // Aggregate by user
   const userResults = aggregateByUser(results)
 
-  // Calculate entries and sort by best WPM
+  // Calculate entries
   const entries: Array<LeaderboardEntry> = []
   userResults.forEach((results, userId) => {
     entries.push(calculateEntry(userId, results, 0))
   })
 
-  // Sort by WPM descending
-  entries.sort((a, b) => b.wpm - a.wpm)
+  // Sort based on sortBy and sortOrder
+  sortEntries(entries, sortBy, sortOrder)
 
   // Assign ranks
   entries.forEach((entry, index) => {

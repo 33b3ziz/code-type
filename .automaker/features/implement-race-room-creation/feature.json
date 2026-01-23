@@ -1,0 +1,17 @@
+{
+  "id": "implement-race-room-creation",
+  "category": "Multiplayer",
+  "title": "Implement Race Room Creation and Management",
+  "description": "Build functionality to create race rooms with unique room codes, set difficulty/language filters, and manage room state. Include room host controls and player management.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [
+    "setup-pusher-real-time-infrastructure",
+    "fix-typing-test-state-management"
+  ],
+  "createdAt": "2026-01-20T19:10:28.534Z",
+  "updatedAt": "2026-01-20T20:05:30.857Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T19:35:36.359Z"
+}

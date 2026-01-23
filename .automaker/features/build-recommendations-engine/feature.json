@@ -1,0 +1,17 @@
+{
+  "id": "build-recommendations-engine",
+  "category": "Analytics",
+  "title": "Build Personalized Recommendations Engine",
+  "description": "Implement an engine that analyzes user performance patterns and generates personalized practice recommendations. Suggest practice modes, difficulty levels, and languages based on weakness analysis.",
+  "status": "verified",
+  "priority": 2,
+  "complexity": "complex",
+  "dependencies": [
+    "enhance-performance-metrics-calculation",
+    "build-error-heatmap-visualization"
+  ],
+  "createdAt": "2026-01-20T19:10:28.535Z",
+  "updatedAt": "2026-01-20T20:56:03.339Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-20T20:47:50.245Z"
+}

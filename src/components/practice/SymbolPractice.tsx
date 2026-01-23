@@ -6,7 +6,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { Language } from '@/db/schema'
-import { SYMBOL_SETS, generatePracticeContent } from '@/lib/practice-modes'
+import {
+  SYMBOL_SETS,
+  generatePracticeContent,
+  getSymbolCategory,
+  createEmptySymbolStats,
+  type SymbolAccuracyStats,
+} from '@/lib/practice-modes'
 import { cn } from '@/lib/utils'
 
 export interface SymbolPracticeProps {
@@ -24,6 +30,7 @@ export interface SymbolPracticeResult {
   correctCharacters: number
   duration: number
   errorPatterns: Record<string, number>
+  symbolStats?: SymbolAccuracyStats
 }
 
 export function SymbolPractice({
@@ -41,6 +48,7 @@ export function SymbolPractice({
   const [correctChars, setCorrectChars] = useState(0)
   const [incorrectChars, setIncorrectChars] = useState(0)
   const [errorPatterns, setErrorPatterns] = useState<Record<string, number>>({})
+  const [symbolStats, setSymbolStats] = useState<SymbolAccuracyStats>(createEmptySymbolStats())
 
   const inputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<number | null>(null)
@@ -52,6 +60,7 @@ export function SymbolPractice({
     setCorrectChars(0)
     setIncorrectChars(0)
     setErrorPatterns({})
+    setSymbolStats(createEmptySymbolStats())
   }, [language])
 
   // Initialize content
@@ -94,8 +103,26 @@ export function SymbolPractice({
       correctCharacters: correctChars,
       duration: Math.round(actualDuration),
       errorPatterns,
+      symbolStats,
     })
-  }, [startTime, typed, correctChars, errorPatterns, onComplete])
+  }, [startTime, typed, correctChars, errorPatterns, symbolStats, onComplete])
+
+  // Update symbol stats
+  const updateSymbolStats = useCallback((char: string, isCorrect: boolean) => {
+    const category = getSymbolCategory(char)
+
+    setSymbolStats((prev) => {
+      const newStats = { ...prev }
+      const key = category || 'other'
+
+      newStats[key] = {
+        correct: prev[key].correct + (isCorrect ? 1 : 0),
+        total: prev[key].total + 1,
+      }
+
+      return newStats
+    })
+  }, [])
 
   // Handle input
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +137,9 @@ export function SymbolPractice({
 
     if (newTyped.length > typed.length) {
       // User typed a character
-      if (lastChar === expectedChar) {
+      const isCorrect = lastChar === expectedChar
+
+      if (isCorrect) {
         setCorrectChars((c) => c + 1)
       } else {
         setIncorrectChars((c) => c + 1)
@@ -119,6 +148,11 @@ export function SymbolPractice({
           [expectedChar]: (prev[expectedChar] || 0) + 1,
         }))
       }
+
+      // Track symbol-specific stats (only for symbol characters)
+      if (getSymbolCategory(expectedChar)) {
+        updateSymbolStats(expectedChar, isCorrect)
+      }
     }
 
     setTyped(newTyped)
@@ -126,7 +160,7 @@ export function SymbolPractice({
     // If user has typed beyond content, regenerate
     if (newTyped.length >= content.length - 10) {
       const newContent = generatePracticeContent('symbols', language, undefined, 500)
-      setContent(content + ' ' + newContent)
+      setContent(content + '\n' + newContent)
     }
   }
 
@@ -146,6 +180,24 @@ export function SymbolPractice({
     return { wpm, accuracy }
   }, [isStarted, startTime, typed.length, correctChars])
 
+  // Calculate symbol accuracy percentages
+  const symbolAccuracyDisplay = useMemo(() => {
+    const categories = [
+      { key: 'brackets' as const, label: 'Brackets', symbols: '{}[]()' },
+      { key: 'operators' as const, label: 'Operators', symbols: '+-*/%=' },
+      { key: 'punctuation' as const, label: 'Punctuation', symbols: ';:,.\'"' },
+      { key: 'special' as const, label: 'Special', symbols: '@#$_\\?' },
+    ]
+
+    return categories.map(({ key, label, symbols }) => {
+      const stats = symbolStats[key]
+      const accuracy = stats.total > 0
+        ? Math.round((stats.correct / stats.total) * 100)
+        : null
+      return { key, label, symbols, accuracy, total: stats.total }
+    }).filter(cat => cat.total > 0)
+  }, [symbolStats])
+
   // Get symbols for reference
   const symbols = SYMBOL_SETS[language]
 
@@ -155,7 +207,7 @@ export function SymbolPractice({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-white">Symbol Practice</h2>
-          <p className="text-gray-400 text-sm">{language.charAt(0).toUpperCase() + language.slice(1)} symbols</p>
+          <p className="text-gray-400 text-sm">{language.charAt(0).toUpperCase() + language.slice(1)} code snippets</p>
         </div>
         <div className="flex items-center gap-4">
           {/* Timer */}
@@ -198,10 +250,30 @@ export function SymbolPractice({
         </div>
       </div>
 
+      {/* Symbol Accuracy Breakdown */}
+      {symbolAccuracyDisplay.length > 0 && (
+        <div className="flex flex-wrap gap-3 mb-4 p-3 bg-slate-800/50 rounded-lg" data-testid="symbol-accuracy-breakdown">
+          <span className="text-gray-400 text-xs font-medium">Symbol Accuracy:</span>
+          {symbolAccuracyDisplay.map(({ key, label, accuracy }) => (
+            <div key={key} className="flex items-center gap-1.5">
+              <span className="text-gray-500 text-xs">{label}:</span>
+              <span className={cn(
+                'text-xs font-mono font-bold',
+                accuracy !== null && accuracy >= 90 ? 'text-green-400' :
+                accuracy !== null && accuracy >= 70 ? 'text-yellow-400' : 'text-red-400'
+              )}>
+                {accuracy !== null ? `${accuracy}%` : '-'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Typing Area */}
       <div
         onClick={handleContainerClick}
         className="relative bg-slate-900 rounded-xl border border-slate-700 p-6 cursor-text min-h-[200px] focus-within:border-cyan-500/50"
+        data-testid="typing-area"
       >
         <input
           ref={inputRef}
@@ -214,6 +286,7 @@ export function SymbolPractice({
           autoCapitalize="off"
           spellCheck={false}
           aria-label="Type the symbols shown"
+          data-testid="typing-input"
         />
 
         <div className="font-mono text-lg leading-relaxed whitespace-pre-wrap">
@@ -239,7 +312,7 @@ export function SymbolPractice({
                 {state === 'cursor' && (
                   <span className="absolute left-0 top-0 w-[2px] h-full bg-cyan-400 animate-pulse" />
                 )}
-                {char === ' ' ? '\u00A0' : char}
+                {char === ' ' ? '\u00A0' : char === '\n' ? '↵\n' : char}
               </span>
             )
           })}

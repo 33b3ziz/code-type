@@ -1,0 +1,16 @@
+{
+  "id": "build-race-results-and-rankings",
+  "category": "Multiplayer",
+  "title": "Build Race Results and Rankings Display",
+  "description": "Display final race results with player rankings, completion times, WPM, accuracy, and performance comparisons. Allow players to share race results and track race history.",
+  "status": "verified",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [
+    "implement-live-race-progress-tracking"
+  ],
+  "createdAt": "2026-01-20T19:10:28.534Z",
+  "updatedAt": "2026-01-21T03:46:29.454Z",
+  "branchName": "feats",
+  "startedAt": "2026-01-21T03:38:45.895Z"
+}
