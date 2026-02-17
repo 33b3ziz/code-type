@@ -46,7 +46,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'CodeType - Code Typing Practice',
+        title: 'CodeType - Code Typing Fast',
       },
     ],
     links: [
