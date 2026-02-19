@@ -48,6 +48,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         title: 'CodeType - Code Typing Fast',
       },
+      {
+        name: 'description',
+        content:
+          'CodeType is a free online typing test to improve your typing speed.',
+      },
     ],
     links: [
       // Preconnect to Google Fonts for faster font loading
@@ -89,9 +94,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <SkipLink />
               <Header />
               <main id="main-content">
-                <ErrorBoundary>
-                  {children}
-                </ErrorBoundary>
+                <ErrorBoundary>{children}</ErrorBoundary>
               </main>
               <TanStackDevtools
                 config={{
