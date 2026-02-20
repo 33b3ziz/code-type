@@ -51,7 +51,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         name: 'description',
         content:
-          'CodeType is a free online typing test to improve your typing speed.',
+          'CodeType is a free online typing test to improve your typing speed and accuracy.',
       },
     ],
     links: [
